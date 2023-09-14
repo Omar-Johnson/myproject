@@ -1,0 +1,4929 @@
+#### Title #### 
+
+# Proteomic wrangle 
+#### REQUIRED Libraries ####
+```{r}
+library(EDASeq)
+library(RUVSeq)
+library(RColorBrewer)
+library(edgeR)
+library(limma)
+library(Biobase)
+library(SummarizedExperiment)
+library(tidyverse) 
+library(ggfortify)
+library(cluster)
+library(edgeR)
+library(limma)
+library(biomaRt)
+library(Homo.sapiens)
+library(BiocParallel)
+library(qvalue)
+library(pheatmap)
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(RColorBrewer)
+library(DOSE)
+library(UpSetR)
+library(ggvenn)
+```
+#### Read in Data #### 
+# Load your data
+```{r}
+Protein_DF <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Abundance.csv", header = TRUE)
+
+Meta <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Meta.csv", header = TRUE)
+```
+#### Wrangle Data Frame #### 
+# Save the original 
+```{r}
+Full_DF <- Protein_DF 
+```
+# Subset the columns referring to abundance
+```{r}
+Protein_DF_Abundance <- Protein_DF[,c(4, 5:ncol(Protein_DF))] 
+```
+# Check for duplicated rows 
+# Identify duplicated values
+```{r}
+Protein_DF_Abundance$duplicated_name <- duplicated(Protein_DF_Abundance$Accession)
+```
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+# To see only rows with duplicated values, you can subset the dataframe like this:
+```{r}
+duplicated_rows <- Protein_DF_Abundance[Protein_DF_Abundance$duplicated_name == TRUE, ]
+print(duplicated_rows)
+```
+# We have 3 rows with duplicates, two of which have NA values. We will remove them now since we will go ahead 
+# and remove the duplicated rows later on anyways. 
+```{r}
+Protein_DF_Abundance <- Protein_DF_Abundance[- c(61, 276, 997), ] 
+```
+# Make rownames of the data frame accession IDs
+```{r}
+rownames(Protein_DF_Abundance) <- Protein_DF_Abundance$Accession
+
+# Change colnames 
+colnames(Protein_DF_Abundance)
+Protein_DF_Abundance <- Protein_DF_Abundance[, -c(1, 12)]
+
+# Assuming column names of Protein_DF match with the rows in Meta
+rownames(Meta) <- Meta$Samples
+
+colnames(Protein_DF_Abundance) <- Meta$Samples
+```
+
+#### Remove rows with at least one NA ####
+```{r}
+#1.  Find rows with any NA values
+rows_with_na <- apply(Protein_DF_Abundance, 1, function(x) any(is.na(x))) %>% which()
+rows_with_na 
+
+rows_with_na <- as.numeric(rows_with_na)
+rows_with_na
+
+# 2. Remove rows with NA values 
+Protein_DF_Abundance <- Protein_DF_Abundance[-rows_with_na, ]
+
+# 3. Sanity check 
+Protein_DF_Abundance %>% dim()
+```
+
+
+#### TMM Normalization #### 
+```{r}
+library(edgeR)
+
+# Create a DGEList from your count data
+y <- DGEList(counts = Protein_DF_Abundance)
+y$samples
+
+# Assign group to DGEList object
+y$samples$group <- Meta$Cond
+
+# Calculate normalization factors using TMM method
+y <- calcNormFactors(y, method = "TMM")
+
+# Now the object 'y' has the normalization factors calculated
+# If you want to proceed with RUVSeq, you need to use these normalization factors
+# when creating the counts matrix that will be input to RUVSeq
+
+norm_counts <- t( t(y$counts) / y$samples$norm.factors )
+
+log2_norm_counts <- log2(norm_counts)
+```
+
+
+#### Prepare Data Object for RUVs #### 
+#  counts need to be integer values and in a numeric matrix 
+```{r}
+counts <- as.matrix(log2_norm_counts) 
+
+# Create a DataFrame for the phenoData
+phenoData <- DataFrame(Meta)
+
+# Now create the RangedSummarizedExperiment necessary for RUVs input 
+set <- SummarizedExperiment(assays =  counts, metadata =phenoData)
+```
+
+
+
+#### REQUIRED RUVs Matrix #### 
+```{r}
+# Generate a background matrix where each set of replicates are in a row
+# and null spaces where there are replicate mismatches get the value -1. 
+# This will be used in the RUVs function, which is the typeII method to
+# remove unwanted variation in the RUVs package. This will be used for all 
+# RUVs permutations where the number of variation factors will be changed. 
+scIdx <- matrix(-1, nrow = 6, ncol = 3)
+scIdx[1, 1:3] <- c(which(colnames(counts) %in% c("S6", "S8", "S10")))
+scIdx[2, 1:3] <- c(which(colnames(counts) %in% c("S5", "S7", "S9")))
+scIdx[3, 1] <- c(which(colnames(counts) %in% c("S2")))
+scIdx[4, 1] <- c(which(colnames(counts) %in% c("S1")))
+scIdx[5, 1] <- c(which(colnames(counts) %in% c("S4")))
+scIdx[6, 1] <- c(which(colnames(counts) %in% c("S3")))
+scIdx
+```
+
+
+
+#### Dupcor + RUVs K = 1 ####
+# Apply RUVs function from RUVSeq 
+```{r}
+set <- RUVSeq::RUVs(x = counts, k =1, scIdx = scIdx, isLog = TRUE)
+RUV_1 <- set$W[,1]
+
+
+
+set$W
+phenoData$RUV_1 <- RUV_1
+
+
+# apply duplicateCorrelation is two rounds
+design <- model.matrix(~ Cond + RUV_1, phenoData)
+
+vobj_tmp = voom(counts, design, plot = TRUE)
+dupcor <- duplicateCorrelation(counts , design, block = Meta$Ind)
+
+
+# run voom considering the duplicateCorrelation results
+# in order to compute more accurate precision weights
+# Otherwise, use the results from the first voom run
+vobj = voom( counts = counts, design = design, plot=TRUE, block=Meta$Ind, correlation=dupcor$consensus)
+
+# Estimate linear mixed model with a single variance component
+# Fit the model for each gene, 
+dupcor <- duplicateCorrelation(vobj, design, block=Meta$Ind)
+
+# But this step uses only the genome-wide average for the random effect
+fitDupCor <- lmFit(counts, design, block=Meta$Ind, correlation=dupcor$consensus)
+
+# Fit Empirical Bayes for moderated t-statistics
+fitDupCor_2 <- eBayes( fitDupCor )
+
+
+# Summarize
+results_Dupcor <- decideTests(fitDupCor_2)
+summary(results_Dupcor)
+
+# Toptable summary for more comprehensive results  
+toptable_Dupcor <- topTable(fitDupCor_2, coef = "CondDox", number = nrow(Protein_DF_Abundance), p.value = 1)
+toptable_Dupcor$Protein <- rownames(toptable_Dupcor)
+toptable_Dupcor
+```
+
+#### Q-Values #### 
+```{r}
+qobj <- qvalue(toptable_Dupcor$P.Value)
+adj_q_values <- qobj$qvalues
+
+toptable_Dupcor$adj_q_values <- adj_q_values
+toptable_Dupcor
+
+sum(toptable_Dupcor$adj_q_values < 0.05 & toptable_Dupcor$logFC > 0 )
+sum(toptable_Dupcor$adj_q_values < 0.05 & toptable_Dupcor$logFC < 0 )
+
+toptable_Dupcor %>% head()
+```
+#### PCA #### 
+```{r}
+vobj$weights 
+
+bleh <- (vobj$E* sqrt(vobj$weights)) %>% sqrt()
+
+Meta
+
+# Before correction: 
+prcomp_res <- prcomp(t(vobj$E), scale. = TRUE, center = TRUE, )
+
+ggplot2::autoplot(prcomp_res, data = Meta, colour = "Cond", shape = "Ind", size =4)+
+  theme_bw()
+
+
+# After correction: 
+prcomp_res <- prcomp(t(bleh), scale. = TRUE, center = TRUE)
+
+ggplot2::autoplot(prcomp_res, data = Meta, colour = "Cond", shape = "Ind", size =4)+
+  theme_bw()
+```
+
+
+#### Heatmaps #### 
+# Before correction with weights 
+```{r}
+hypothetical_1 <- vobj$E
+colnames(hypothetical_1) <- Meta$Cond_Ind
+
+
+# Use paste to combine the vectors
+colnames(hypothetical_1) <- Meta$Cond_Ind
+pheatmap::pheatmap(hypothetical_1,
+                   cluster_rows = TRUE, 
+                   cluster_cols = TRUE,
+                   show_rownames = FALSE,
+                   show_colnames = TRUE
+)
+
+
+cor(hypothetical_1) %>% pheatmap(
+  cluster_rows = TRUE, 
+  cluster_cols = TRUE,
+  show_rownames = TRUE,
+  show_colnames = TRUE)
+
+
+# After correction with weights 
+hypothetical_2 <- bleh
+
+# Use paste to combine the vectors
+colnames(hypothetical_2) <- Meta$Cond_Ind
+
+
+pheatmap::pheatmap(hypothetical_2,
+                   cluster_rows = TRUE, 
+                   cluster_cols = TRUE,
+                   show_rownames = FALSE,
+                   show_colnames = TRUE
+)
+
+
+cor(hypothetical_2) %>% pheatmap(
+  cluster_rows = TRUE, 
+  cluster_cols = TRUE,
+  show_rownames = TRUE,
+  show_colnames = TRUE)
+```
+
+#### Volcano with adj. P #### 
+```{r}
+# 1. Create a column to threshold adjusted P-values/q-values 
+toptable_Threshold_0.05 <- toptable_Dupcor %>%  mutate(threshold_P = adj.P.Val < 0.05)
+toptable_Threshold_0.05
+
+# 2. Do the volcano plot 
+ggplot(toptable_Threshold_0.05)+
+  geom_point(mapping = aes(x = logFC, y = -log10(adj.P.Val), color = threshold_P))+
+  xlab("log2FC")+
+  ylab("-log10 adjusted p-value")+
+  ylim(0, 5)+
+  xlim(-5, 5)+
+  theme(legend.position = "none", 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()
+```
+
+
+#### Volcano with adj. Q #### 
+```{r}
+# 1. Create a column to threshold adjusted P-values/q-values 
+toptable_Threshold_0.05 <- toptable_Dupcor %>%  mutate(threshold_Q = adj_q_values < 0.05)
+toptable_Threshold_0.05
+
+# 2. Do the volcano plot 
+ggplot(toptable_Threshold_0.05)+
+  geom_point(mapping = aes(x = logFC, y = -log10(adj_q_values), color = threshold_Q))+
+  xlab("log2FC")+
+  ylab("-log10 adjusted q-value")+
+  ylim(0, 5)+
+  xlim(-5, 5)+
+  theme(legend.position = "none", 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()
+```
+
+#### Histogram #### 
+```{r}
+hist(toptable_Dupcor$adj.P.Val, breaks = 10)
+
+hist(toptable_Dupcor$adj_q_values, breaks = 10)
+```
+
+
+
+#### Enrichment Test Wrangle P-adj values #### 
+```{r}
+# 1. Read in the comprehensive DF that contains all sample info
+Full_DF %>% head()
+
+
+
+# 2.
+# Get set of DE proteins as per BH adjusted P-value 
+DE_proteins_Padj <- toptable_Threshold_0.05 %>%
+  filter(adj.P.Val < 0.05) %>% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where 'var' is in 'values'
+rows <- which(Full_DF$Accession %in% DE_proteins_Padj)
+
+# Subset the data frame
+subset_Full_data <- Full_DF[rows, ]
+
+# Here are the SYMBOL IDs for the DE proteins as per BH adj P value < 0.05
+DE_SYMBOL_Padj <- subset_Full_data$Gene.Symbol %>% unique() %>% na.omit()
+
+DE_SYMBOL_Padj
+
+
+
+# Get background Symbol IDs 
+All_proteins_tested <- toptable_Threshold_0.05 %>%
+  filter(adj.P.Val < 1) %>% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where 'var' is in 'values'
+rows <- which(Full_DF$Accession %in% All_proteins_tested)
+
+# Subset the data frame
+subset_back_data <- Full_DF[rows, ]
+Background_SYMBOL <- subset_back_data$Gene.Symbol %>% unique() %>% na.omit() 
+Background_SYMBOL
+```
+
+
+
+
+#### Enrichment Test Wrangle qvalues #### 
+```{r}
+# 1. Read in the comprehensive DF that contains all sample info
+Full_DF %>% head()
+
+
+
+# 2.
+# Get set of DE proteins as per BH adjusted P-value 
+DE_proteins_qval <- toptable_Threshold_0.05 %>%
+  filter(adj_q_values < 0.05) %>% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where 'var' is in 'values'
+rows <- which(Full_DF$Accession %in% DE_proteins_qval)
+
+# Subset the data frame
+subset_Full_data <- Full_DF[rows, ]
+
+# Here are the SYMBOL IDs for the DE proteins as per BH adj P value < 0.05
+DE_SYMBOL_qval <- subset_Full_data$Gene.Symbol %>% unique() %>% na.omit()
+
+DE_SYMBOL_qval
+
+
+
+# Get background Symbol IDs 
+All_proteins_tested <- toptable_Threshold_0.05 %>%
+  filter(adj_q_values < 1) %>% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where 'var' is in 'values'
+rows <- which(Full_DF$Accession %in% All_proteins_tested)
+
+# Subset the data frame
+subset_back_data <- Full_DF[rows, ]
+Background_SYMBOL <- subset_back_data$Gene.Symbol %>% unique() %>% na.omit() 
+Background_SYMBOL
+```
+
+
+
+
+#### GO Enrichment BP - DE_Pval #### 
+```{r}
+# 1.
+# Do enrichment analysis of ENTREZ IDs from Padjusted value 
+# Perform GO enrichment analysis using the enrichGO function. We are using stringent cutoffs for Pvalue and q value in the testing! (this is good)
+go_enrichment <- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = "SYMBOL",
+                          universe = Background_SYMBOL,
+                          ont = "BP",
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+go_enrichment
+
+# Go plot 
+goplot(x = go_enrichment, showCategory = 30)
+
+
+# summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 20))
+
+
+# View the top enriched GO terms as a tibble 
+GO_Tibble <- go_enrichment %>% as_tibble()
+GO_Tibble
+
+
+
+# Arrange by adjusted p value 
+GO_Tibble <- GO_Tibble %>%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description <- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value <- GO_Tibble$qvalue %>% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biologcal Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,75))
+```
+
+
+
+
+
+```{r}
+GO_Tibble$negplog <- -log(GO_Tibble$p.adjust) 
+# Break up into high, medium and low siignfigance groups
+
+# 1. High 
+# Create a sample data frame
+GO_Tibble_Upper <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 67
+upper_percentile <- 100
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_Upper <- GO_Tibble_Upper[GO_Tibble_Upper$negplog >= lower_value & GO_Tibble_Upper$negplog <= upper_value, ]
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_Upper, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0, 70))
+```
+
+
+# 2. Med 
+```{r}
+# Create a sample data frame
+GO_Tibble_Mid <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 33
+upper_percentile <- 67
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_Mid <- GO_Tibble_Mid[GO_Tibble_Mid$negplog >= lower_value & GO_Tibble_Mid$negplog <= upper_value, ]
+
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_Mid, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,10))
+```
+
+
+
+
+# 3. Low 
+```{r}
+# Create a sample data frame
+GO_Tibble_low <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 1
+upper_percentile <- 33
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_low <- GO_Tibble_low[GO_Tibble_low$negplog >= lower_value & GO_Tibble_low$negplog <= upper_value, ]
+GO_Tibble_low
+
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_low, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,5))
+```
+
+```{r}
+#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 10, categorySize = "pvalue" )
+
+
+
+# heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)
+
+
+
+# Enrichmap by emapplot
+
+library(enrichplot)
+edo <- pairwise_termsim(go_enrichment)
+edo
+p1 <- emapplot(edo, showCategory = 30, nCluster = 3)
+p1
+
+p2 <- emapplot(edo, cex_category=1.5)
+p2
+
+p3 <- emapplot(edo, layout="kk")
+p3
+
+p4 <- emapplot(edo, cex_category=1.5,layout="kk") 
+p4
+```
+
+
+
+#### GO Enrichment MF - DE_Pval #### 
+```{r}
+go_enrichment <- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = "SYMBOL",
+                          universe = Background_SYMBOL,
+                          ont = "MF",
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+go_enrichment
+
+goplot(go_enrichment, showCategory = 15)
+
+
+# summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 30 ))
+
+# View the top enriched GO terms as a tibble 
+GO_Tibble <- go_enrichment %>% as_tibble()
+GO_Tibble
+
+
+
+# Arrange by adjusted p value 
+GO_Tibble <- GO_Tibble %>%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description <- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value <- GO_Tibble$qvalue %>% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Molecular Functions",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,60))
+
+
+
+
+
+
+#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 5, categorySize = "pvalue" )
+
+
+
+# heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)
+
+
+
+# Enrichmap by emapplot
+
+library(enrichplot)
+edo <- pairwise_termsim(go_enrichment)
+edo
+p1 <- emapplot(edo, showCategory = 15, nCluster = 3)
+p1
+
+p2 <- emapplot(edo, cex_category=1.5)
+p2
+
+p3 <- emapplot(edo, layout="kk")
+p3
+
+p4 <- emapplot(edo, cex_category=1.5,layout="kk") 
+p4
+```
+
+
+
+#### GO Enrichment CC - DE_Pval #### 
+```{r}
+go_enrichment <- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = "SYMBOL",
+                          universe = Background_SYMBOL,
+                          ont = "CC",
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+go_enrichment
+
+
+
+# Go plot 
+goplot(go_enrichment, showCategory = 25)
+
+# summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 25))
+
+# View the top enriched GO terms as a tibble 
+GO_Tibble <- go_enrichment %>% as_tibble()
+GO_Tibble
+
+
+
+# Arrange by adjusted p value 
+GO_Tibble <- GO_Tibble %>%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description <- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value <- GO_Tibble$qvalue %>% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Molecular Functions",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,90))
+
+
+
+
+#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 5, categorySize = "pvalue" )
+
+
+
+# heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)
+
+
+
+# Enrichmap by emapplot
+
+library(enrichplot)
+edo <- pairwise_termsim(go_enrichment)
+edo
+p1 <- emapplot(edo, showCategory = 15, nCluster = 3)
+p1
+
+p2 <- emapplot(edo, cex_category=1.5)
+p2
+
+p3 <- emapplot(edo, layout="kk")
+p3
+
+p4 <- emapplot(edo, cex_category=1.5,layout="kk") 
+p4
+```
+
+
+
+#### Enrichment Test Wrangle Downregulated DE genes ####
+```{r}
+# 1. Read in the comprehensive DF that contains all sample info
+Full_DF %>% head()
+
+toptable_Threshold_0.05$logFC
+
+# 2.
+# Get set of DE proteins as per BH adjusted P-value 
+DE_proteins_Padj <- toptable_Threshold_0.05 %>%
+  filter((logFC < 0) & (adj.P.Val < 0.05)) %>% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where 'var' is in 'values'
+rows <- which(Full_DF$Accession %in% DE_proteins_Padj)
+
+# Subset the data frame
+subset_Full_data <- Full_DF[rows, ]
+
+# Here are the SYMBOL IDs for the DE proteins as per BH adj P value < 0.05
+DE_SYMBOL_Padj <- subset_Full_data$Gene.Symbol %>% unique() %>% na.omit()
+
+
+
+
+# Get background Symbol IDs 
+All_proteins_tested <- toptable_Threshold_0.05 %>%
+  filter(adj.P.Val < 1) %>% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where 'var' is in 'values'
+rows <- which(Full_DF$Accession %in% All_proteins_tested)
+
+# Subset the data frame
+subset_back_data <- Full_DF[rows, ]
+Background_SYMBOL <- subset_back_data$Gene.Symbol %>% unique() %>% na.omit() 
+```
+
+#### GO Enrichment BP - Downregulated Genes #### 
+```{r}
+# 1.
+# Do enrichment analysis of ENTREZ IDs from Padjusted value 
+# Perform GO enrichment analysis using the enrichGO function. We are using stringent cutoffs for Pvalue and q value in the testing! (this is good)
+go_enrichment <- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = "SYMBOL",
+                          universe = Background_SYMBOL,
+                          ont = "BP",
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+go_enrichment
+
+
+# Go plot 
+goplot(x = go_enrichment, showCategory = 20)
+
+
+# summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 20))
+
+
+# View the top enriched GO terms as a tibble 
+GO_Tibble <- go_enrichment %>% as_tibble()
+GO_Tibble
+
+
+
+# Arrange by adjusted p value 
+GO_Tibble <- GO_Tibble %>%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description <- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value <- GO_Tibble$qvalue %>% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biologcal Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,100))
+```
+
+
+
+```{r}
+GO_Tibble$negplog <- -log(GO_Tibble$p.adjust) 
+# Break up into high, medium and low siignfigance groups
+
+# 1. High 
+# Create a sample data frame
+GO_Tibble_Upper <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 67
+upper_percentile <- 100
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_Upper <- GO_Tibble_Upper[GO_Tibble_Upper$negplog >= lower_value & GO_Tibble_Upper$negplog <= upper_value, ]
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_Upper, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0, 90))
+
+
+
+# 2. Med 
+# Create a sample data frame
+GO_Tibble_Mid <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 33
+upper_percentile <- 67
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_Mid <- GO_Tibble_Mid[GO_Tibble_Mid$negplog >= lower_value & GO_Tibble_Mid$negplog <= upper_value, ]
+
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_Mid, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,10))
+
+
+
+
+
+# 3. Low 
+# Create a sample data frame
+GO_Tibble_low <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 1
+upper_percentile <- 33
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_low <- GO_Tibble_low[GO_Tibble_low$negplog >= lower_value & GO_Tibble_low$negplog <= upper_value, ]
+GO_Tibble_low
+
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_low, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,5))
+
+
+
+#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 5, categorySize = "pvalue" )
+
+
+
+# heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)
+
+
+
+# Enrichmap by emapplot
+
+library(enrichplot)
+edo <- pairwise_termsim(go_enrichment)
+edo
+
+p1 <- emapplot(edo, showCategory = 20, nCluster = 5)
+p1
+
+p2 <- emapplot(edo, cex_category=1.5)
+p2
+
+p3 <- emapplot(edo, layout="kk")
+p3
+
+p4 <- emapplot(edo, cex_category=1.5,layout="kk") 
+p4
+
+```
+
+
+#### GO CC Downregulated proteins #### 
+```{r}
+# 1.
+# Do enrichment analysis of ENTREZ IDs from Padjusted value 
+# Perform GO enrichment analysis using the enrichGO function. We are using stringent cutoffs for Pvalue and q value in the testing! (this is good)
+go_enrichment <- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = "SYMBOL",
+                          universe = Background_SYMBOL,
+                          ont = "CC",
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+go_enrichment
+
+
+# Go plot 
+goplot(x = go_enrichment, showCategory = 20)
+
+
+# summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 20))
+
+
+# View the top enriched GO terms as a tibble 
+GO_Tibble <- go_enrichment %>% as_tibble()
+GO_Tibble
+
+
+
+# Arrange by adjusted p value 
+GO_Tibble <- GO_Tibble %>%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description <- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value <- GO_Tibble$qvalue %>% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biologcal Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,100))
+```
+
+
+
+
+
+```{r}
+GO_Tibble$negplog <- -log(GO_Tibble$p.adjust) 
+# Break up into high, medium and low siignfigance groups
+
+# 1. High 
+# Create a sample data frame
+GO_Tibble_Upper <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 67
+upper_percentile <- 100
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_Upper <- GO_Tibble_Upper[GO_Tibble_Upper$negplog >= lower_value & GO_Tibble_Upper$negplog <= upper_value, ]
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_Upper, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0, 70))
+
+
+
+# 2. Med 
+# Create a sample data frame
+GO_Tibble_Mid <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 33
+upper_percentile <- 67
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_Mid <- GO_Tibble_Mid[GO_Tibble_Mid$negplog >= lower_value & GO_Tibble_Mid$negplog <= upper_value, ]
+
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_Mid, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,10))
+
+
+
+
+
+# 3. Low 
+# Create a sample data frame
+GO_Tibble_low <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 1
+upper_percentile <- 33
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_low <- GO_Tibble_low[GO_Tibble_low$negplog >= lower_value & GO_Tibble_low$negplog <= upper_value, ]
+GO_Tibble_low
+
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_low, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,5))
+
+
+
+#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 5, categorySize = "pvalue" )
+
+
+
+# heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)
+
+
+
+# Enrichmap by emapplot
+
+library(enrichplot)
+edo <- pairwise_termsim(go_enrichment)
+edo
+p1 <- emapplot(edo, showCategory = 20, nCluster = 3)
+p1
+p2 <- emapplot(edo, cex_category=1.5)
+p2
+p3 <- emapplot(edo, layout="kk")
+p3
+p4 <- emapplot(edo, cex_category=1.5,layout="kk") 
+p4
+cowplot::plot_grid(p1, p2, p3, p4, ncol=2, labels=LETTERS[1:4])
+```
+
+
+
+#### GO Enrichment MF - Downregulated Genes #### 
+```{r}
+# 1.
+# Do enrichment analysis of ENTREZ IDs from Padjusted value 
+# Perform GO enrichment analysis using the enrichGO function. We are using stringent cutoffs for Pvalue and q value in the testing! (this is good)
+go_enrichment <- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = "SYMBOL",
+                          universe = Background_SYMBOL,
+                          ont = "MF",
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+go_enrichment
+
+
+# Go plot 
+goplot(x = go_enrichment, showCategory = 20)
+
+
+# summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 20))
+
+
+# View the top enriched GO terms as a tibble 
+GO_Tibble <- go_enrichment %>% as_tibble()
+GO_Tibble
+
+
+
+# Arrange by adjusted p value 
+GO_Tibble <- GO_Tibble %>%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description <- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value <- GO_Tibble$qvalue %>% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biologcal Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,75))
+```
+
+
+
+
+
+```{r}
+GO_Tibble$negplog <- -log(GO_Tibble$p.adjust) 
+# Break up into high, medium and low siignfigance groups
+
+# 1. High 
+# Create a sample data frame
+GO_Tibble_Upper <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 67
+upper_percentile <- 100
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_Upper <- GO_Tibble_Upper[GO_Tibble_Upper$negplog >= lower_value & GO_Tibble_Upper$negplog <= upper_value, ]
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_Upper, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0, 70))
+
+
+
+# 2. Med 
+# Create a sample data frame
+GO_Tibble_Mid <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 33
+upper_percentile <- 67
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_Mid <- GO_Tibble_Mid[GO_Tibble_Mid$negplog >= lower_value & GO_Tibble_Mid$negplog <= upper_value, ]
+
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_Mid, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,10))
+
+
+
+
+
+# 3. Low 
+# Create a sample data frame
+GO_Tibble_low <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 1
+upper_percentile <- 33
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_low <- GO_Tibble_low[GO_Tibble_low$negplog >= lower_value & GO_Tibble_low$negplog <= upper_value, ]
+GO_Tibble_low
+
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_low, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Biological Processes",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,5))
+
+
+
+#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 5, categorySize = "pvalue" )
+
+
+
+# heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)
+
+
+
+# Enrichmap by emapplot
+
+library(enrichplot)
+edo <- pairwise_termsim(go_enrichment)
+edo
+
+p1 <- emapplot(edo, showCategory = 20, nCluster = 3)
+p1
+p2 <- emapplot(edo, cex_category=1.5)
+p2
+p3 <- emapplot(edo, layout="kk")
+p3
+p4 <- emapplot(edo, cex_category=1.5,layout="kk") 
+p4
+cowplot::plot_grid(p1, p2, p3, p4, ncol=2, labels=LETTERS[1:4])
+```
+
+#### Enrich Pathway through reactome ENTREZ - DE_Pval #### 
+```{r}
+# Wrangle ENTREZ IDs for Pval 
+# 1. Read in the comprehensive DF that contains all sample info
+Full_DF %>% head()
+
+
+
+# 2.
+# Get set of DE proteins as per BH adjusted P-value 
+DE_ENTREZ_Padj <- toptable_Threshold_0.05 %>%
+  filter(adj.P.Val < 0.05) %>% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where 'var' is in 'values'
+rows <- which(Full_DF$Accession %in% DE_ENTREZ_Padj)
+
+
+# Subset the data frame
+subset_Full_data <- Full_DF[rows, ]
+
+# Here are the SYMBOL IDs for the DE proteins as per BH adj P value < 0.05
+DE_ENTREZ_Padj <- subset_Full_data$Entrez.Gene.ID %>% unique() %>% na.omit()
+
+DE_ENTREZ_Padj
+
+
+
+# Get background Symbol IDs 
+All_proteins_tested <- toptable_Threshold_0.05 %>%
+  filter(adj.P.Val < 1) %>% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where 'var' is in 'values'
+rows <- which(Full_DF$Accession %in% All_proteins_tested)
+
+# Subset the data frame
+subset_back_data <- Full_DF[rows, ]
+Background_ENTREZ <- subset_back_data$Entrez.Gene.ID %>% unique() %>% na.omit() 
+Background_ENTREZ
+
+
+
+
+# Fusion proteins in ENTREZ ids. Therefore, need to split them up 
+# vector to split 
+my_vector_test <- DE_ENTREZ_Padj
+
+
+# Split the elements of the vector on semicolons
+split_vector <- strsplit(my_vector_test, split = ";")
+
+# Unlist the split vector
+new_vector_ENTREZ <- unlist(split_vector)
+
+
+
+
+
+# Do the same for background 
+back_vector_test <- Background_ENTREZ
+
+# Split the elements of the vector on semicolons
+split_vector <- strsplit(back_vector_test, split = ";")
+
+# Unlist the split vector
+back_new_vector_ENTREZ <- unlist(split_vector)
+
+
+
+
+
+EnrichPathobj <- ReactomePA::enrichPathway(
+  new_vector_ENTREZ,
+  organism = "human",
+  pvalueCutoff = 0.05,
+  pAdjustMethod = "BH",
+  qvalueCutoff = 0.05,
+  universe = back_new_vector_ENTREZ,
+  minGSSize = 2,
+  maxGSSize = 500,
+  readable = FALSE
+)
+
+
+EnrichPathobj
+
+# summary of the result that most people use 
+plot(barplot(EnrichPathobj, showCategory = 15 ))
+
+# View the top enriched GO terms as a tibble 
+GO_Tibble <- EnrichPathobj %>% as_tibble()
+GO_Tibble
+
+write_csv(x = GO_Tibble, file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Important_DF_Final/Reactome_Tibble.csv")
+
+# Arrange by adjusted p value 
+GO_Tibble <- GO_Tibble %>%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description <- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value <- GO_Tibble$qvalue %>% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Molecular Functions",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,105))
+```
+
+
+
+```{r}
+GO_Tibble$negplog <- -log(GO_Tibble$p.adjust) 
+# Break up into high, medium and low siignfigance groups
+
+# 1. High 
+# Create a sample data frame
+GO_Tibble_Upper <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 67
+upper_percentile <- 100
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_Upper <- GO_Tibble_Upper[GO_Tibble_Upper$negplog >= lower_value & GO_Tibble_Upper$negplog <= upper_value, ]
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_Upper, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Molecular Functions",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,130))
+
+
+
+# 2. Med 
+# Create a sample data frame
+GO_Tibble_Mid <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 33
+upper_percentile <- 67
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_Mid <- GO_Tibble_Mid[GO_Tibble_Mid$negplog >= lower_value & GO_Tibble_Mid$negplog <= upper_value, ]
+
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_Mid, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Molecular Functions",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,100))
+
+
+
+
+
+# 3. Low 
+# Create a sample data frame
+GO_Tibble_low <- GO_Tibble
+
+# Define the lower and upper percentile values
+lower_percentile <- 1
+upper_percentile <- 33
+
+# Calculate the percentile values for the 'Value' column
+lower_value <- quantile(GO_Tibble$negplog, probs = lower_percentile / 100)
+upper_value <- quantile(GO_Tibble$negplog, probs = upper_percentile / 100)
+
+# Subset the data frame based on the percentile range
+GO_Tibble_low <- GO_Tibble_low[GO_Tibble_low$negplog >= lower_value & GO_Tibble_low$negplog <= upper_value, ]
+GO_Tibble_low
+
+
+
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble_low, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Molecular Functions",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,35))
+
+
+
+
+
+
+#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = EnrichPathobj, showCategory = 5, categorySize = "pvalue" )
+
+
+
+# heatplot to see gene overlaps 
+heatplot(EnrichPathobj, showCategory = 20)
+
+
+
+# Enrichmap by emapplot
+
+library(enrichplot)
+edo <- pairwise_termsim(EnrichPathobj)
+edo
+p1 <- emapplot(edo, showCategory = 15, nCluster = 3)
+p1
+p2 <- emapplot(edo, cex_category=1.5)
+p2
+p3 <- emapplot(edo, layout="kk")
+p3
+p4 <- emapplot(edo, cex_category=1.5,layout="kk") 
+p4
+cowplot::plot_grid(p1, p2, p3, p4, ncol=2, labels=LETTERS[1:4])
+```
+
+
+
+
+
+
+#### Enrich Pathway through reactome downregulated DE ENTREZ - DE_Pval #### 
+```{r}
+# Wrangle ENTREZ IDs for Pval 
+# 1. Read in the comprehensive DF that contains all sample info
+Full_DF %>% head()
+
+
+# 2.
+# Get set of DE proteins as per BH adjusted P-value 
+DE_ENTREZ_Padj <- toptable_Threshold_0.05 %>%
+  filter((logFC < 0 )&(adj.P.Val < 0.05)) %>% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where 'var' is in 'values'
+rows <- which(Full_DF$Accession %in% DE_ENTREZ_Padj)
+
+
+# Subset the data frame
+subset_Full_data <- Full_DF[rows, ]
+
+# Here are the SYMBOL IDs for the DE proteins as per BH adj P value < 0.05
+DE_ENTREZ_Padj <- subset_Full_data$Entrez.Gene.ID %>% unique() %>% na.omit()
+
+DE_ENTREZ_Padj
+
+
+
+# Get background Symbol IDs 
+All_proteins_tested <- toptable_Threshold_0.05 %>%
+  filter(adj.P.Val < 1) %>% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where 'var' is in 'values'
+rows <- which(Full_DF$Accession %in% All_proteins_tested)
+
+# Subset the data frame
+subset_back_data <- Full_DF[rows, ]
+Background_ENTREZ <- subset_back_data$Entrez.Gene.ID %>% unique() %>% na.omit() 
+Background_ENTREZ
+
+
+
+
+# Fusion proteins in ENTREZ ids. Therefore, need to split them up 
+# vector to split 
+my_vector_test <- DE_ENTREZ_Padj
+
+
+# Split the elements of the vector on semicolons
+split_vector <- strsplit(my_vector_test, split = ";")
+
+# Unlist the split vector
+new_vector_ENTREZ <- unlist(split_vector)
+
+
+
+
+
+# Do the same for background 
+back_vector_test <- Background_ENTREZ
+
+# Split the elements of the vector on semicolons
+split_vector <- strsplit(back_vector_test, split = ";")
+
+# Unlist the split vector
+back_new_vector_ENTREZ <- unlist(split_vector)
+
+new_vector_ENTREZ %>% length()
+
+
+
+EnrichPathobj <- ReactomePA::enrichPathway(
+  new_vector_ENTREZ,
+  organism = "human",
+  pvalueCutoff = 0.05,
+  pAdjustMethod = "BH",
+  qvalueCutoff = 0.05,
+  universe = back_new_vector_ENTREZ,
+  minGSSize = 2,
+  maxGSSize = 500,
+  readable = FALSE
+)
+
+
+EnrichPathobj
+
+# summary of the result that most people use 
+plot(barplot(EnrichPathobj, showCategory = 20))
+
+# View the top enriched GO terms as a tibble 
+GO_Tibble <- EnrichPathobj %>% as_tibble()
+GO_Tibble
+
+
+# Arrange by adjusted p value 
+GO_Tibble <- GO_Tibble %>%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description <- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value <- GO_Tibble$qvalue %>% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = "identity") + 
+  geom_bar(stat = "identity", fill = "#4B9CD3")+
+  labs(x = "-log(p-adj)",
+       y = "Molecular Functions",
+       fill = "P.adjusted",
+       title = "GO enrichment analysis") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,120))
+```
+####* - Read in and wrangle RNA-Seq data ####
+```{r}
+#### RNA-Seq Wrangling ####
+# Get data 
+RNA_Seq_Top_Table <- read_csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/RNA_Seq/Doxtoplist.csv", col_names = TRUE, row.names(1))
+RNA_Seq_Top_Table %>% dim()
+# Group the 24hr data together 
+RNA_Seq_Top_Table_24hr <- RNA_Seq_Top_Table %>% dplyr::filter(time == "24_hours")
+RNA_Seq_Top_Table_24hr 
+
+
+
+# Generate q values for the 24hr Dox toptable 
+qobj <- qvalue(RNA_Seq_Top_Table_24hr$P.Value)
+adj_q_values <- qobj$qvalues
+
+RNA_Seq_Top_Table_24hr$adj_q_values <- adj_q_values
+RNA_Seq_Top_Table_24hr
+
+sum(RNA_Seq_Top_Table_24hr$adj_q_values < 0.05 & RNA_Seq_Top_Table_24hr$logFC > 0 )
+sum(RNA_Seq_Top_Table_24hr$adj_q_values < 0.05 & RNA_Seq_Top_Table_24hr$logFC < 0 )
+
+
+# Group the 3hr data together 
+RNA_Seq_Top_Table_3hr <- RNA_Seq_Top_Table %>% dplyr::filter(time == "3_hours" )
+```
+
+
+#### 24 hr Plots ####
+```{r}
+# Basic workflow for visualizing. and interpreting genes for 24 hr timepoint 
+RNA_Seq_Top_Table_24hr
+
+# 1. Create a column to threshold adjusted P-values/q-values 
+RNA_24hr_Dox_toptable_Threshold_0.05 <- RNA_Seq_Top_Table_24hr %>%  mutate(threshold_P = adj.P.Val < 0.05)
+
+
+# 2. Do the volcano plot 
+ggplot(RNA_24hr_Dox_toptable_Threshold_0.05)+
+  geom_point(mapping = aes(x = logFC, y = -log10(adj.P.Val), color = threshold_P ))+
+  xlab("log2FC")+
+  ylab("-log10 adjusted p-value")+
+  ylim(0, 25)+
+  xlim(-8, 8)+
+  theme(legend.position = "none", 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()
+```
+#### Volcano plot with labels  #### 
+```{r}
+ggplot(RNA_24hr_Dox_toptable_Threshold_0.05)+
+  geom_point(mapping = aes(x = logFC, y = -log10(adj.P.Val), color = threshold_P))+
+  geom_text(mapping = aes(x = logFC, y = -log10(adj.P.Val), label = SYMBOL), 
+            hjust = -0.1, vjust = -0.1, check_overlap = TRUE, size = 3)+
+  xlab("log2FC")+
+  ylab("-log10 adjusted p-value")+
+  ylim(0, 30)+
+  xlim(-10, 10)+
+  theme(legend.position = "none", 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()
+```
+#### RNA-Seq + proteomic sign test Next to do ####
+```{r}
+# Use the ensembl dataset
+mart <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+# vector of Uniprot IDs
+uniprot_ids <- toptable_Dupcor %>% rownames()
+
+uniprot_ids %>% length()
+
+
+# Get the corresponding ENTREZ IDs
+results_Pro <- getBM(filters = "uniprotswissprot", 
+                     attributes = c("uniprotswissprot", "hgnc_symbol"), 
+                     values = uniprot_ids, 
+                     mart = mart)
+
+
+# Get the corresponding SYMBOLs
+results_RNA <- getBM(filters = "hgnc_symbol", 
+                     attributes = c("entrezgene_id","uniprotswissprot", "hgnc_symbol"), 
+                     values = RNA_24hr_Dox_toptable_Threshold_0.05$SYMBOL, 
+                     mart = mart)
+
+
+
+
+# Simplify Proteomic DF 
+Pro_DF <- data.frame( uniprotswissprot = rownames(toptable_Dupcor), Pro_LogFC = toptable_Dupcor$logFC, Pro_Pval = toptable_Dupcor$adj.P.Val )
+
+
+Joined_ProDF_results_Pro <- full_join(Pro_DF, results_Pro, by = "uniprotswissprot")
+Joined_ProDF_results_Pro <- Joined_ProDF_results_Pro %>% na.omit()
+
+
+
+# Simplify RNA DF 
+RNA_DF <- data.frame( hgnc_symbol = RNA_24hr_Dox_toptable_Threshold_0.05$SYMBOL, RNA_LogFC = RNA_24hr_Dox_toptable_Threshold_0.05$logFC, RNA_Pval = RNA_24hr_Dox_toptable_Threshold_0.05$adj.P.Val )
+RNA_DF %>% head()
+
+Joined_ProDF_results_Pro_RNA_DF <- full_join(Joined_ProDF_results_Pro, RNA_DF, by = "hgnc_symbol")
+Joined_ProDF_results_Pro_RNA_DF_NAomit <- Joined_ProDF_results_Pro_RNA_DF %>% na.omit() 
+
+
+Results_RNA_DF_Pro_DF_Merged_NAomit <- data.frame(uniprotswissprot = Joined_ProDF_results_Pro_RNA_DF_NAomit$uniprotswissprot, 
+                                                  hgnc_symbol =Joined_ProDF_results_Pro_RNA_DF_NAomit$hgnc_symbol , 
+                                                  RNA_LogFC = Joined_ProDF_results_Pro_RNA_DF_NAomit$RNA_LogFC, 
+                                                  RNA_Pval = Joined_ProDF_results_Pro_RNA_DF_NAomit$RNA_Pval, 
+                                                  Pro_LogFC = Joined_ProDF_results_Pro_RNA_DF_NAomit$Pro_LogFC, 
+                                                  Pro_Pval =  Joined_ProDF_results_Pro_RNA_DF_NAomit$Pro_Pval)
+
+Results_RNA_DF_Pro_DF_Merged_NAomit %>% head()
+```
+
+
+#### Sign Testing #### 
+```{r}
+# Add a new column to the data frame indicating whether the signs of Pro_LogFC and RNA_LogFC match
+Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match <- sign(Results_RNA_DF_Pro_DF_Merged_NAomit$RNA_LogFC) == sign(Results_RNA_DF_Pro_DF_Merged_NAomit$Pro_LogFC)
+Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match
+```
+
+
+```{r}
+# Calculate the proportion of matches
+proportion_sign_matches <- mean(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match)
+print(proportion_sign_matches)
+```
+
+
+```{r}
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = Results_RNA_DF_Pro_DF_Merged_NAomit)
+
+
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+
+
+#------ Plot for both same sign and not same sign
+ggplot(Results_RNA_DF_Pro_DF_Merged_NAomit, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+
+
+
+
+
+
+#------ Plot for same sign 
+SAME_SIGN <- Results_RNA_DF_Pro_DF_Merged_NAomit[Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == TRUE, ]
+
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = SAME_SIGN)
+
+nrow(SAME_SIGN)/nrow(Results_RNA_DF_Pro_DF_Merged_NAomit)
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+ggplot(SAME_SIGN, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+```
+
+
+
+```{r}
+#------ Plot for opposite signs
+OPPOSITE_SIGN <- Results_RNA_DF_Pro_DF_Merged_NAomit[Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == FALSE, ]
+
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = OPPOSITE_SIGN)
+
+
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+ggplot(OPPOSITE_SIGN, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+```
+
+
+
+```{r}
+# Plot for Same sign & DE in both cases 
+SAME_Sign_DE <- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == TRUE),  ]
+
+SAME_Sign_DE_2 <- SAME_Sign_DE[ (SAME_Sign_DE$RNA_Pval < 0.05) & (SAME_Sign_DE$Pro_Pval < 0.05),  ]
+
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = SAME_Sign_DE_2)
+
+
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+ggplot(SAME_Sign_DE_2, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+```
+
+
+
+```{r}
+# Plot for opposite sign & DE 
+SAME_Sign_DE <- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == FALSE),  ]
+
+SAME_Sign_DE_2 <- SAME_Sign_DE[ (SAME_Sign_DE$RNA_Pval < 0.05) & (SAME_Sign_DE$Pro_Pval < 0.05),  ]
+
+SAME_Sign_DE_2 %>% dim()
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = SAME_Sign_DE_2)
+
+
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+ggplot(SAME_Sign_DE_2, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+```
+
+
+
+```{r}
+#---------- Plot for DE 
+RNA_Pro_DE <- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$RNA_Pval < 0.05) & (Results_RNA_DF_Pro_DF_Merged_NAomit$Pro_Pval < 0.05),  ]
+
+
+
+
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = RNA_Pro_DE)
+
+
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+ggplot(RNA_Pro_DE, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+```
+
+
+
+#### GWAS Enrichment Tests #### 
+```{r}
+HF_GWAS <- readRDS(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/HF_geneset.RDS")
+CAD_GWAS <- readRDS(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/CAD_geneset.RDS")
+ARR_GWAS <- readRDS(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Arr_geneset.RDS")
+
+
+# Combine data frames into a whole CVD GWAS data set 
+CVD_GWAS <- rbind(HF_GWAS, CAD_GWAS, ARR_GWAS)
+
+
+# Get the unique genes from the CVD_GWAS data set 
+CVD_GWAS_Unique <- CVD_GWAS$hgnc_symbol %>% unique() 
+```
+
+
+```{r}
+# Prepare:
+# A = number of DE things that are in the GWAS list
+# B = number of DE things that are not in the GWAS list
+# C = number of expressed things that are in the GWAS list but are not DE
+# D = number of expressed things that are not in the GWAS list and are not DE
+Expressed_protein <- Results_RNA_DF_Pro_DF_Merged_NAomit$hgnc_symbol
+
+
+
+
+CAD_GWAS_Expressed <- intersect(CAD_GWAS$hgnc_symbol, Expressed_protein)
+intersect(Expressed_protein,CAD_GWAS_Expressed )
+CAD_GWAS_Expressed
+
+ARR_GWAS_Expressed <- intersect(ARR_GWAS$hgnc_symbol,Expressed_protein)
+intersect(Expressed_protein,ARR_GWAS_Expressed )
+
+HF_GWAS_Expressed <- intersect(HF_GWAS$hgnc_symbol, Expressed_protein)
+intersect(Expressed_protein,HF_GWAS_Expressed )
+HF_GWAS_Expressed
+```
+
+
+#### Enrichment Testing #### 
+```{r}
+####* --- DE protein ####
+# Protein coding universe GWAS 
+SAME_Sign_DE <- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$Pro_Pval <0.05 ),  ]
+SAME_Sign_DE$hgnc_symbol 
+HF_GWAS$ensembl_gene_id %>% length()
+
+# HF
+#**************************
+GWAS_Exp <- intersect(Expressed_protein, HF_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+# Record the gene list
+GWAS_List_3 <- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp)
+
+GWAS_List_3
+
+colnames(mat) <- c("DE", "~DE")
+rownames(mat) <- c("GWAS", "~GWAS")
+mat
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("GWAS", "Non-GWAS"),
+                                         Protein = c("DE", "Non-DE"))))
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + GWAS", "DE ~ GWAS", "~ DE + GWAS", "~ DE ~ GWAS")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+
+table
+```
+
+
+```{r}
+# CAD
+#**************************
+CAD_GWAS$hgnc_symbol %>% length()
+CAD_GWAS_Expressed %>% length()
+GWAS_Exp <- intersect(Expressed_protein, CAD_GWAS_Expressed)
+intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %>% length()
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+```
+
+
+```{r}
+# ARR
+#**************************
+GWAS_Exp <- intersect(Expressed_protein, ARR_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+```
+
+
+
+
+
+####* --- DE RNA ####
+```{r}
+Results_RNA_DF_Pro_DF_Merged_NAomit %>% dim()
+# Protein coding universe GWAS 
+SAME_Sign_DE <- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$RNA_Pval < 0.05 ),  ]
+SAME_Sign_DE$hgnc_symbol
+SAME_Sign_DE %>% dim()
+
+# HF
+#**************************
+GWAS_Exp <- intersect(Expressed_protein, HF_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+```
+
+
+```{r}
+# CAD
+#**************************
+GWAS_Exp <- intersect(Expressed_protein, CAD_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+```
+
+
+```{r}
+# ARR --- Restricted to most DE genes that are protein coding ( Pval < 0.01)
+#**************************
+GWAS_Exp <- intersect(Expressed_protein, ARR_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+# Collect enriched genes 
+GWAS_List_1 <- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp)
+GWAS_List_1
+
+
+
+# Plot result 
+colnames(mat) <- c("DE", "~DE")
+rownames(mat) <- c("GWAS", "~GWAS")
+mat
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("GWAS", "Non-GWAS"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + GWAS", "DE ~ GWAS", "~ DE + GWAS", "~ DE ~ GWAS")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+####* --- DE-Same-Sign ####
+```{r}
+# Protein coding universe GWAS 
+SAME_Sign_DE <- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == TRUE),  ]
+
+SAME_Sign_DE_2 <- SAME_Sign_DE[ (SAME_Sign_DE$RNA_Pval < 0.05) & (SAME_Sign_DE$Pro_Pval < 0.05),  ]
+
+
+# HF
+#**************************
+GWAS_Exp <- intersect(Expressed_protein, HF_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE_2$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+```
+
+
+```{r}
+# CAD
+#**************************
+GWAS_Exp <- intersect(Expressed_protein, CAD_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE_2$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+```
+
+
+```{r}
+# ARR --- Restricted to most DE genes that are protein coding ( Pval < 0.01)
+#**************************
+GWAS_Exp <- intersect(Expressed_protein, ARR_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE_2$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+```
+
+
+
+
+####* --- DE-Opposite-Sign ####
+```{r}
+# Protein coding universe GWAS 
+SAME_Sign_DE <- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == FALSE),  ]
+
+SAME_Sign_DE_2 <- SAME_Sign_DE[ (SAME_Sign_DE$RNA_Pval < 0.05) & (SAME_Sign_DE$Pro_Pval < 0.05),  ]
+
+
+# HF
+#**************************
+GWAS_Exp <- intersect(Expressed_protein, HF_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE_2$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+```
+
+
+```{r}
+# CAD
+#**************************
+GWAS_Exp <- intersect(Expressed_protein, CAD_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE_2$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+```
+
+
+```{r}
+# ARR --- Restricted to most DE genes that are protein coding ( Pval < 0.05)
+#**************************
+GWAS_Exp <- intersect(Expressed_protein, ARR_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(SAME_Sign_DE_2$hgnc_symbol) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+# Record the genes in this set
+GWAS_List_2 <- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp)
+GWAS_List_2
+
+
+# Plot result 
+colnames(mat) <- c("DE", "~DE")
+rownames(mat) <- c("GWAS", "~GWAS")
+mat
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("GWAS", "Non-GWAS"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + GWAS", "DE ~ GWAS", "~ DE + GWAS", "~ DE ~ GWAS")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+####* --- Divergent sets ####
+
+```{r}
+# Calculate the deltaLogFC and plot dstribution and define quantile sets 
+New_RNA_PRO_DF <- Results_RNA_DF_Pro_DF_Merged_NAomit %>% mutate(delta_logFC = abs(RNA_LogFC - Pro_LogFC))
+New_RNA_PRO_DF$delta_logFC %>% hist()
+New_RNA_PRO_DF$delta_logFC 
+
+quantile(x = New_RNA_PRO_DF$delta_logFC , 0.95) 
+hist(New_RNA_PRO_DF$delta_logFC, breaks = 20)
+
+New_RNA_PRO_DF <- New_RNA_PRO_DF %>% mutate(Upper_quant = New_RNA_PRO_DF$delta_logFC > quantile(x = New_RNA_PRO_DF$delta_logFC , 0.95))
+New_RNA_PRO_DF
+
+New_RNA_PRO_DF <- New_RNA_PRO_DF %>% mutate(Lower_quant = New_RNA_PRO_DF$delta_logFC < quantile(x = New_RNA_PRO_DF$delta_logFC , 0.05))
+New_RNA_PRO_DF
+
+
+write_csv(x = New_RNA_PRO_DF, "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Important_DF_Final/Pro_RNA_Sign_Divergent.csv")
+
+New_RNA_PRO_DF %>% head()
+# High Divergent Gene-Proteins HF 
+Non_DE_Divergent <- New_RNA_PRO_DF[New_RNA_PRO_DF$Upper_quant == TRUE, ]$hgnc_symbol
+Non_DE_Divergent
+GWAS_Exp <- intersect(Expressed_protein, HF_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(Non_DE_Divergent, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(Non_DE_Divergent) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+```
+
+
+```{r}
+# Low Divergent Gene-Proteins HF 
+Non_DE_Divergent <- New_RNA_PRO_DF[New_RNA_PRO_DF$Lower_quant == TRUE, ]$hgnc_symbol
+Non_DE_Divergent
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(Non_DE_Divergent, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(Non_DE_Divergent) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+```
+
+
+
+
+
+```{r}
+# High Divergent Gene-Proteins CAD Upper .95, 0.9
+Non_DE_Divergent <- New_RNA_PRO_DF[New_RNA_PRO_DF$Upper_quant == TRUE, ]$hgnc_symbol
+Non_DE_Divergent
+GWAS_Exp <- intersect(Expressed_protein, CAD_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(Non_DE_Divergent, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(Non_DE_Divergent) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+```
+
+
+
+```{r}
+# Low Divergent Gene-Proteins CAD
+Non_DE_Divergent <- New_RNA_PRO_DF[New_RNA_PRO_DF$Lower_quant == TRUE, ]$hgnc_symbol
+Non_DE_Divergent
+GWAS_Exp <- intersect(Expressed_protein, CAD_GWAS_Expressed)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(Non_DE_Divergent, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(Non_DE_Divergent) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+```
+
+
+
+
+
+
+```{r}
+# High Divergent Gene-Proteins ARR 
+Non_DE_Divergent <- New_RNA_PRO_DF[New_RNA_PRO_DF$Upper_quant == TRUE, ]$hgnc_symbol
+Non_DE_Divergent
+GWAS_Exp <- intersect(Results_RNA_DF_Pro_DF_Merged_NAomit$hgnc_symbol, ARR_GWAS$hgnc_symbol)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(Non_DE_Divergent, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(Non_DE_Divergent) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+GWAS_List_4 <- intersect(Non_DE_Divergent, GWAS_Exp)
+GWAS_List_4
+
+# Plot result 
+colnames(mat) <- c("DE", "~DE")
+rownames(mat) <- c("GWAS", "~GWAS")
+mat
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("GWAS", "Non-GWAS"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("Divergent + GWAS", "Divergent ~ GWAS", "~ Divergent + GWAS", "~ Divergent ~ GWAS")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+
+```{r}
+# Low Divergent Gene-Proteins ARR
+Non_DE_Divergent <- New_RNA_PRO_DF[New_RNA_PRO_DF$Lower_quant == TRUE, ]$hgnc_symbol
+Non_DE_Divergent
+GWAS_Exp <- intersect(Results_RNA_DF_Pro_DF_Merged_NAomit$hgnc_symbol, ARR_GWAS$hgnc_symbol)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(Non_DE_Divergent, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(Non_DE_Divergent) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+```
+
+
+
+
+
+```{r}
+# High Divergent Gene-Proteins ARR DE 
+Non_DE_Divergent <- New_RNA_PRO_DF[New_RNA_PRO_DF$Upper_quant == TRUE, ]$hgnc_symbol
+
+
+GWAS_Exp <- intersect(Results_RNA_DF_Pro_DF_Merged_NAomit$hgnc_symbol, ARR_GWAS$hgnc_symbol)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(Non_DE_Divergent, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(Non_DE_Divergent) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+```
+
+
+
+```{r}
+# High Divergent Proteins ARR DE 
+Non_DE_Divergent <- New_RNA_PRO_DF[New_RNA_PRO_DF$Upper_quant == TRUE, ]
+DE_Divergent <- Non_DE_Divergent[Non_DE_Divergent$Pro_Pval < 0.05, ]$hgnc_symbol
+
+GWAS_Exp <- intersect(Results_RNA_DF_Pro_DF_Merged_NAomit$hgnc_symbol, ARR_GWAS$hgnc_symbol)
+GWAS_Exp
+
+# A = number of DE gene/proteins that are in the GWAS list
+A <- intersect(DE_Divergent, GWAS_Exp) %>% length()
+A
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B <- length(DE_Divergent) - A
+B
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C <- length(GWAS_Exp) - A
+C
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D <- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(DE_Divergent)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+# Record gene set, differentially expressed and divergent. 
+GWAS_List_5 <- intersect(DE_Divergent, GWAS_Exp)
+GWAS_List_5
+
+
+
+# Plot result 
+colnames(mat) <- c("DE", "~DE")
+rownames(mat) <- c("GWAS", "~GWAS")
+mat
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("GWAS", "Non-GWAS"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("In GWAS", "Not in GWAS", "In GWAS", "Not in GWAS")
+df_mat$Group <- c("Divergent", "Divergent", "~ Divergent", "~ Divergent")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+GWAS_List_1
+GWAS_List_2
+GWAS_List_3
+GWAS_List_4
+GWAS_List_5
+```
+
+#### Mammalian Stress Granule (MSG) Gene-Protein Sets #### 
+```{r}
+# Read in data frame curated from (https://msgp.pt/)
+MSG <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/SG_RBP_AUtoph/MSG.csv", header = TRUE)
+
+
+
+# 1. Generate lists of gene-protein pairs with interesting functional genomic properties
+#*DE proteins
+MSG_DE <- New_RNA_PRO_DF[New_RNA_PRO_DF$Pro_Pval < 0.05, ]
+
+#*DE proteins same sign 
+MSG_DE_SAME <- New_RNA_PRO_DF[(New_RNA_PRO_DF$sign_match == TRUE) & (New_RNA_PRO_DF$Pro_Pval < 0.05), ]
+
+#*DE proteins opposite sign 
+MSG_DE_OPPOSITE <- New_RNA_PRO_DF[(New_RNA_PRO_DF$sign_match == FALSE) & (New_RNA_PRO_DF$Pro_Pval < 0.05), ]
+
+#*Divergent proteins 
+MSG_DIVERGENT <- New_RNA_PRO_DF[ New_RNA_PRO_DF$Upper_quant == TRUE, ]
+
+#*Conserved proteins 
+MSG_CONSERVED <- New_RNA_PRO_DF[ New_RNA_PRO_DF$Lower_quant == TRUE, ]
+
+#*DE Divergent
+MSG_DE_DIVERGENT <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Upper_quant == TRUE) & (New_RNA_PRO_DF$Pro_Pval < 0.05), ]
+
+#*DE Conserved 
+MSG_DE_Conserved <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Lower_quant == TRUE) & (New_RNA_PRO_DF$Pro_Pval < 0.05), ]
+
+#*DE Protein Expressing RNA 
+MSG_DE_RNAasprotein <- New_RNA_PRO_DF[(New_RNA_PRO_DF$RNA_Pval < 0.05), ]
+
+#* RNA as 
+MSG_DE_RNA <- RNA_Seq_Top_Table_24hr[RNA_Seq_Top_Table_24hr$adj.P.Val < 0.05, ]
+
+
+
+
+
+# 2. Generate sets from MSG data frame 
+#* MSG (All)
+MSG
+
+#* RPB
+MSG_RPB <- MSG[MSG$RPB == TRUE, ]
+
+#* Autophagy
+MSG_Auto <- MSG[MSG$Autophagy == TRUE, ]
+
+#* Heat shock 
+MSG_HSP <- MSG[MSG$Heat_shock == TRUE, ]
+
+#* RPB-Autophagy
+MSG_RPB_Auto <- MSG[(MSG$RPB == TRUE) & (MSG$Autophagy == TRUE), ]
+
+#* RPB-Heat shock
+MSG_RPB_HSP <- MSG[(MSG$RPB == TRUE) & (MSG$Heat_shock == TRUE), ]
+
+#* Autophagy Heat_shock 
+MSG_Auto_HSP <- MSG[(MSG$Autophagy == TRUE) & (MSG$Heat_shock == TRUE), ]
+```
+
+
+#### Testing MSG Enrichment ####
+####* --------- DE Proteins ####
+```{r}
+SAME_Sign_DE <- MSG_DE
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+
+# 1. MSG (All)
+#**************************
+MSG_Exp <- intersect(Expressed_protein, MSG$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + MSG", "DE ~ MSG", "~ DE + MSG", "~ DE ~ MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_RPB$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("RPB", "Non-RPB"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + RPB", "DE ~ RPB", "~ DE + RPB", "~ DE ~ RPB")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_Auto$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("Autophagy", "Non-Autophagy"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + Autophagy", "DE ~ Autophagy", "~ DE + Autophagy", "~ DE ~ Autophagy")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_HSP$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("HSP", "Non-HSP"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + HSP", "DE ~ HSP", "~ DE + HSP", "~ DE ~ HSP")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+
+
+
+
+####* --------- DE_SAME Proteins ####
+```{r}
+SAME_Sign_DE <- MSG_DE_SAME
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+
+# 1. MSG (All)
+#**************************
+MSG_Exp <- intersect(Expressed_protein, MSG$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + MSG", "DE ~ MSG", "~ DE + MSG", "~ DE ~ MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_SAME
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_RPB$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("RPB", "Non-RPB"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + RPB", "DE ~ RPB", "~ DE + RPB", "~ DE ~ RPB")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_SAME
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_Auto$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("Autophagy", "Non-Autophagy"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + Autophagy", "DE ~ Autophagy", "~ DE + Autophagy", "~ DE ~ Autophagy")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_SAME
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_HSP$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("HSP", "Non-HSP"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + HSP", "DE ~ HSP", "~ DE + HSP", "~ DE ~ HSP")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+####* --------- DE_OPPOSSITE Proteins ####
+```{r}
+SAME_Sign_DE <- MSG_DE_OPPOSITE
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+
+# 1. MSG (All)
+#**************************
+MSG_Exp <- intersect(Expressed_protein, MSG$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + MSG", "DE ~ MSG", "~ DE + MSG", "~ DE ~ MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_OPPOSITE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_RPB$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("RPB", "Non-RPB"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + RPB", "DE ~ RPB", "~ DE + RPB", "~ DE ~ RPB")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_OPPOSITE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_Auto$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("Autophagy", "Non-Autophagy"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + Autophagy", "DE ~ Autophagy", "~ DE + Autophagy", "~ DE ~ Autophagy")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+
+```
+
+
+```{r}
+# 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_OPPOSITE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_HSP$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("HSP", "Non-HSP"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + HSP", "DE ~ HSP", "~ DE + HSP", "~ DE ~ HSP")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+
+####* --------- Divergent Proteins ####
+```{r}
+SAME_Sign_DE <- MSG_DIVERGENT
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+
+# 1. MSG (All)
+#**************************
+MSG_Exp <- intersect(Expressed_protein, MSG$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + MSG", "DE ~ MSG", "~ DE + MSG", "~ DE ~ MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+
+```
+
+
+```{r}
+# 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DIVERGENT
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_RPB$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("RPB", "Non-RPB"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + RPB", "DE ~ RPB", "~ DE + RPB", "~ DE ~ RPB")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DIVERGENT
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_Auto$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("Autophagy", "Non-Autophagy"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + Autophagy", "DE ~ Autophagy", "~ DE + Autophagy", "~ DE ~ Autophagy")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DIVERGENT
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_HSP$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("HSP", "Non-HSP"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + HSP", "DE ~ HSP", "~ DE + HSP", "~ DE ~ HSP")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+####* --------- Conserved Proteins ####
+```{r}
+SAME_Sign_DE <- MSG_CONSERVED
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+
+# 1. MSG (All)
+#**************************
+MSG_Exp <- intersect(Expressed_protein, MSG$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + MSG", "DE ~ MSG", "~ DE + MSG", "~ DE ~ MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_CONSERVED
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_RPB$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("RPB", "Non-RPB"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + RPB", "DE ~ RPB", "~ DE + RPB", "~ DE ~ RPB")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_CONSERVED
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_Auto$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("Autophagy", "Non-Autophagy"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + Autophagy", "DE ~ Autophagy", "~ DE + Autophagy", "~ DE ~ Autophagy")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_CONSERVED
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_HSP$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("HSP", "Non-HSP"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + HSP", "DE ~ HSP", "~ DE + HSP", "~ DE ~ HSP")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+####* --------- DE_Divergent Proteins ####
+```{r}
+SAME_Sign_DE <- MSG_DE_DIVERGENT
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+
+# 1. MSG (All)
+#**************************
+MSG_Exp <- intersect(Expressed_protein, MSG$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + MSG", "DE ~ MSG", "~ DE + MSG", "~ DE ~ MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_DIVERGENT
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_RPB$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("RPB", "Non-RPB"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + RPB", "DE ~ RPB", "~ DE + RPB", "~ DE ~ RPB")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_DIVERGENT
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_Auto$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("Autophagy", "Non-Autophagy"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + Autophagy", "DE ~ Autophagy", "~ DE + Autophagy", "~ DE ~ Autophagy")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_DIVERGENT
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_HSP$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("HSP", "Non-HSP"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + HSP", "DE ~ HSP", "~ DE + HSP", "~ DE ~ HSP")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+
+####* --------- DE_Conserved Proteins ####
+```{r}
+SAME_Sign_DE <- MSG_CONSERVED[MSG_CONSERVED$Pro_Pval < 0.05, ]
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+
+# 1. MSG (All)
+#**************************
+MSG_Exp <- intersect(Expressed_protein, MSG$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + MSG", "DE ~ MSG", "~ DE + MSG", "~ DE ~ MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_CONSERVED[MSG_CONSERVED$Pro_Pval < 0.05, ]
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_RPB$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("RPB", "Non-RPB"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + RPB", "DE ~ RPB", "~ DE + RPB", "~ DE ~ RPB")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_CONSERVED[MSG_CONSERVED$Pro_Pval < 0.05, ]
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_Auto$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("Autophagy", "Non-Autophagy"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + Autophagy", "DE ~ Autophagy", "~ DE + Autophagy", "~ DE ~ Autophagy")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_CONSERVED[MSG_CONSERVED$Pro_Pval < 0.05, ]
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_HSP$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("HSP", "Non-HSP"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + HSP", "DE ~ HSP", "~ DE + HSP", "~ DE ~ HSP")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+####* --------- DE_RNA In Expressed Protein Set ####
+```{r}
+SAME_Sign_DE <- MSG_DE_RNAasprotein
+
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+
+# 1. MSG (All)
+#**************************
+MSG_Exp <- intersect(Expressed_protein, MSG$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + MSG", "DE ~ MSG", "~ DE + MSG", "~ DE ~ MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_RNAasprotein
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_RPB$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("RPB", "Non-RPB"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + RPB", "DE ~ RPB", "~ DE + RPB", "~ DE ~ RPB")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_RNAasprotein
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_Auto$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("Autophagy", "Non-Autophagy"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + Autophagy", "DE ~ Autophagy", "~ DE + Autophagy", "~ DE ~ Autophagy")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+```{r}
+# 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_RNAasprotein
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_HSP$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("HSP", "Non-HSP"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + HSP", "DE ~ HSP", "~ DE + HSP", "~ DE ~ HSP")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+```
+
+
+#### Subcellular Compartments ####
+```{r}
+# Read in compartment data frames 
+Comp_Cytoplasm <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Cytoplasm.csv", header = TRUE)
+Comp_Cytosol <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Cytosol.csv", header = TRUE)
+Comp_ER <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Endoplasmic_Reticulum.csv", header = TRUE)
+Comp_Endosome <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Endosome.csv", header = TRUE)
+Comp_Golgi <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Golgi_apparatus.csv", header = TRUE)
+Comp_Lysosome <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Lysosome.csv", header = TRUE)
+Comp_membrane <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Membrane.csv", header = TRUE)
+Comp_mitochondrion <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Mitochondrion.csv", header = TRUE)
+Comp_Nucleus <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Nucleus.csv", header = TRUE)
+Comp_Pbody <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Pbody.csv", header = TRUE)
+Comp_Peroxisome <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Peroxisome.csv", header = TRUE)
+Comp_Secreted <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Secreted.csv", header = TRUE)
+```
+
+####*--------All Protein Sets ####
+```{r}
+list_input <- list(
+  Cytoplasm = Comp_Cytoplasm$Entry, 
+  Cytosol = Comp_Cytosol$Entry, 
+  ER = Comp_ER$Entry,
+  Endosome = Comp_Endosome$Entry,
+  Golgi = Comp_Golgi$Entry,
+  Lysosome = Comp_Lysosome$Entry,
+  Membrane = Comp_membrane$Entry,
+  Mitochondrion = Comp_mitochondrion$Entry,
+  Nucleus = Comp_Nucleus$Entry,
+  Pbody = Comp_Pbody$Entry,
+  Peroxisome = Comp_Peroxisome$Entry, 
+  Secreted = Comp_Secreted$Entry
+)
+```
+
+
+```{r}
+# Upset Plots
+upset(
+  fromList(list_input), 
+  sets = names(list_input), # show all sets in the plot
+  order.by = "freq",
+  
+  sets.bar.color = "#56B4E9",
+  matrix.color = "black",
+  main.bar.color = "#D55E00",
+)
+
+
+
+# Convert to incidence matrix
+matrix_input <- fromList(list_input)
+matrix_input
+# common item row numbers across sets. Example: Cytoplasm and Cytosol (Code here is variable to interests)
+common_items <- rownames(matrix_input)[matrix_input[,"Cytoplasm"] == 1 & matrix_input[,"Cytosol"] == 1]
+
+# Unlist the lisst input
+all_entries <- unlist(list_input)
+
+# Get Uniprot IDs 
+common_items_names <- all_entries[as.numeric(common_items)]
+common_items_names[length(common_items_names)]
+
+# Venn
+ggvenn(list_input)
+```
+
+```{r}
+intersect(MSG_DE$uniprotswissprot, Comp_Cytoplasm$Entry)
+####*--------DE proteins Upset ####
+list_input <- list(
+  Cytoplasm = intersect(Comp_Cytoplasm$Entry, MSG_DE$uniprotswissprot) , 
+  Cytosol = intersect(Comp_Cytosol$Entry, MSG_DE$uniprotswissprot) , 
+  ER = intersect(Comp_ER$Entry, MSG_DE$uniprotswissprot) ,
+  Endosome = intersect(Comp_Endosome$Entry, MSG_DE$uniprotswissprot) ,
+  Golgi = intersect(Comp_Golgi$Entry , MSG_DE$uniprotswissprot) ,
+  Lysosome = intersect(Comp_Lysosome$Entry, MSG_DE$uniprotswissprot) ,
+  Membrane = intersect(Comp_membrane$Entry, MSG_DE$uniprotswissprot) ,
+  Mitochondrion = intersect(Comp_mitochondrion$Entry, MSG_DE$uniprotswissprot) ,
+  Nucleus = intersect(Comp_Nucleus$Entry, MSG_DE$uniprotswissprot) ,
+  Pbody = intersect(Comp_Pbody$Entry, MSG_DE$uniprotswissprot) ,
+  Peroxisome = intersect(Comp_Peroxisome$Entry, MSG_DE$uniprotswissprot) , 
+  Secreted = intersect(Comp_Secreted$Entry, MSG_DE$uniprotswissprot) 
+)
+
+
+# Upset Plots
+upset(
+  fromList(list_input), 
+  sets = names(list_input), # show all sets in the plot
+  order.by = "freq",
+  
+  sets.bar.color = "#56B4E9",
+  matrix.color = "black",
+  main.bar.color = "#D55E00",
+)
+```
+
+####*--------Divergent proteins Upset ####
+```{r}
+list_input <- list(
+  Cytoplasm = intersect(Comp_Cytoplasm$Entry, MSG_DIVERGENT$uniprotswissprot) , 
+  Cytosol = intersect(Comp_Cytosol$Entry, MSG_DIVERGENT$uniprotswissprot) , 
+  ER = intersect(Comp_ER$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Endosome = intersect(Comp_Endosome$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Golgi = intersect(Comp_Golgi$Entry , MSG_DIVERGENT$uniprotswissprot) ,
+  Lysosome = intersect(Comp_Lysosome$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Membrane = intersect(Comp_membrane$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Mitochondrion = intersect(Comp_mitochondrion$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Nucleus = intersect(Comp_Nucleus$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Pbody = intersect(Comp_Pbody$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Peroxisome = intersect(Comp_Peroxisome$Entry, MSG_DIVERGENT$uniprotswissprot) , 
+  Secreted = intersect(Comp_Secreted$Entry, MSG_DIVERGENT$uniprotswissprot) 
+)
+
+
+# Upset all members 
+upset(
+  fromList(list_input), 
+  sets = names(list_input), # show all sets in the plot
+  order.by = "freq",
+  
+  sets.bar.color = "#56B4E9",
+  matrix.color = "black",
+  main.bar.color = "#D55E00",
+)
+```
+
+
+
+####*--------DE Divergent proteins Upset ####
+```{r}
+list_input <- list(
+  Cytoplasm = intersect(Comp_Cytoplasm$Entry, MSG_DE_DIVERGENT$uniprotswissprot) , 
+  Cytosol = intersect(Comp_Cytosol$Entry, MSG_DE_DIVERGENT$uniprotswissprot) , 
+  ER = intersect(Comp_ER$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Endosome = intersect(Comp_Endosome$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Golgi = intersect(Comp_Golgi$Entry , MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Lysosome = intersect(Comp_Lysosome$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Membrane = intersect(Comp_membrane$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Mitochondrion = intersect(Comp_mitochondrion$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Nucleus = intersect(Comp_Nucleus$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Pbody = intersect(Comp_Pbody$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Peroxisome = intersect(Comp_Peroxisome$Entry, MSG_DE_DIVERGENT$uniprotswissprot) , 
+  Secreted = intersect(Comp_Secreted$Entry, MSG_DE_DIVERGENT$uniprotswissprot) 
+)
+```
+
+# Upset all members 
+```{r}
+upset(
+  fromList(list_input), 
+  sets = names(list_input), # show all sets in the plot
+  order.by = "freq",
+  
+  sets.bar.color = "#56B4E9",
+  matrix.color = "black",
+  main.bar.color = "#D55E00",
+)
+```
+
+
