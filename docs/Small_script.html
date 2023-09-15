@@ -1,0 +1,3756 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Small_script.knit.md</title>
+
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">myproject</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/Omar-Johnson/myproject">
+    <span class="fab fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2023-09-14
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>myproject/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.1). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20230911code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20230911)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20230911code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20230911)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreee0de3b4984d76b7834e44314754b4ae8c28ca405targetblanke0de3b4a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/Omar-Johnson/myproject/tree/e0de3b4984d76b7834e44314754b4ae8c28ca405" target="_blank">e0de3b4</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreee0de3b4984d76b7834e44314754b4ae8c28ca405targetblanke0de3b4a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/Omar-Johnson/myproject/tree/e0de3b4984d76b7834e44314754b4ae8c28ca405" target="_blank">e0de3b4</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+
+Unstaged changes:
+    Modified:   analysis/Proteomics_Large.Rmd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/Small_script.Rmd</code>) and HTML
+(<code>docs/Small_script.html</code>) files. If you’ve configured a
+remote Git repository (see <code>?wflow_git_remote</code>), click on the
+hyperlinks in the table below to view the files as they were in that
+past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/e0de3b4984d76b7834e44314754b4ae8c28ca405/analysis/Small_script.Rmd" target="_blank">e0de3b4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-09-14
+</td>
+<td>
+Publish small proteomics files for myproject
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="required-libraries" class="section level4">
+<h4>REQUIRED Libraries</h4>
+</div>
+<div id="read-in-data" class="section level4">
+<h4>Read in Data</h4>
+<pre class="r"><code># Load your data
+Protein_DF &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Abundance.csv&quot;, header = TRUE)
+
+Meta &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Meta.csv&quot;, header = TRUE)</code></pre>
+</div>
+<div id="wrangle-data-frame" class="section level4">
+<h4>Wrangle Data Frame</h4>
+<pre class="r"><code># Save the original 
+Full_DF &lt;- Protein_DF 
+
+# Subset the columns referring to abundance
+
+Protein_DF_Abundance &lt;- Protein_DF[,c(4, 5:ncol(Protein_DF))] 
+
+# Check for duplicated rows 
+# Identify duplicated values
+
+Protein_DF_Abundance$duplicated_name &lt;- duplicated(Protein_DF_Abundance$Accession)
+
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+# To see only rows with duplicated values, you can subset the dataframe like this:
+
+duplicated_rows &lt;- Protein_DF_Abundance[Protein_DF_Abundance$duplicated_name == TRUE, ]
+
+# We have 3 rows with duplicates, two of which have NA values. We will remove them now since we will go ahead 
+# and remove the duplicated rows later on anyways. 
+Protein_DF_Abundance &lt;- Protein_DF_Abundance[- c(61, 276, 997), ] 
+
+# Make rownames of the data frame accession IDs
+rownames(Protein_DF_Abundance) &lt;- Protein_DF_Abundance$Accession
+
+# Change colnames 
+colnames(Protein_DF_Abundance)</code></pre>
+<pre><code> [1] &quot;Accession&quot;                         &quot;Abundance..F1..Sample..Dox..n.a&quot;  
+ [3] &quot;Abundance..F3..Sample..Dox..n.a&quot;   &quot;Abundance..F5..Sample..Dox..Dox&quot;  
+ [5] &quot;Abundance..F7..Sample..Dox..Dox&quot;   &quot;Abundance..F9..Sample..Dox..Dox&quot;  
+ [7] &quot;Abundance..F2..Control..Veh..n.a&quot;  &quot;Abundance..F4..Control..Veh..n.a&quot; 
+ [9] &quot;Abundance..F6..Control..Veh..Veh&quot;  &quot;Abundance..F8..Control..Veh..Veh&quot; 
+[11] &quot;Abundance..F10..Control..Veh..Veh&quot; &quot;duplicated_name&quot;                  </code></pre>
+<pre class="r"><code>Protein_DF_Abundance &lt;- Protein_DF_Abundance[, -c(1, 12)]
+
+# Assuming column names of Protein_DF match with the rows in Meta
+rownames(Meta) &lt;- Meta$Samples
+
+colnames(Protein_DF_Abundance) &lt;- Meta$Samples</code></pre>
+</div>
+<div id="remove-rows-with-at-least-one-na" class="section level4">
+<h4>Remove rows with at least one NA</h4>
+<pre class="r"><code>#1.  Find rows with any NA values
+rows_with_na &lt;- apply(Protein_DF_Abundance, 1, function(x) any(is.na(x))) %&gt;% which()
+ 
+rows_with_na &lt;- as.numeric(rows_with_na)
+
+# 2. Remove rows with NA values 
+Protein_DF_Abundance &lt;- Protein_DF_Abundance[-rows_with_na, ]</code></pre>
+</div>
+<div id="tmm-normalization" class="section level4">
+<h4>TMM Normalization</h4>
+<pre class="r"><code>library(edgeR)
+
+# Create a DGEList from your count data
+y &lt;- DGEList(counts = Protein_DF_Abundance)
+
+# Assign group to DGEList object
+y$samples$group &lt;- Meta$Cond
+
+# Calculate normalization factors using TMM method
+y &lt;- calcNormFactors(y, method = &quot;TMM&quot;)
+
+# Now the object &#39;y&#39; has the normalization factors calculated
+# If you want to proceed with RUVSeq, you need to use these normalization factors
+# when creating the counts matrix that will be input to RUVSeq
+norm_counts &lt;- t( t(y$counts) / y$samples$norm.factors )
+
+log2_norm_counts &lt;- log2(norm_counts)</code></pre>
+</div>
+<div id="prepare-data-object-for-ruvs" class="section level4">
+<h4>Prepare Data Object for RUVs</h4>
+<pre class="r"><code>counts &lt;- as.matrix(log2_norm_counts) 
+
+# Create a DataFrame for the phenoData
+phenoData &lt;- DataFrame(Meta)
+
+# Now create the RangedSummarizedExperiment necessary for RUVs input 
+set &lt;- SummarizedExperiment(assays =  counts, metadata =phenoData)</code></pre>
+</div>
+<div id="required-ruvs-matrix" class="section level4">
+<h4>REQUIRED RUVs Matrix</h4>
+<pre class="r"><code># Generate a background matrix where each set of replicates are in a row
+# and null spaces where there are replicate mismatches get the value -1. 
+# This will be used in the RUVs function, which is the typeII method to
+# remove unwanted variation in the RUVs package. This will be used for all 
+# RUVs permutations where the number of variation factors will be changed. 
+scIdx &lt;- matrix(-1, nrow = 6, ncol = 3)
+scIdx[1, 1:3] &lt;- c(which(colnames(counts) %in% c(&quot;S6&quot;, &quot;S8&quot;, &quot;S10&quot;)))
+scIdx[2, 1:3] &lt;- c(which(colnames(counts) %in% c(&quot;S5&quot;, &quot;S7&quot;, &quot;S9&quot;)))
+scIdx[3, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S2&quot;)))
+scIdx[4, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S1&quot;)))
+scIdx[5, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S4&quot;)))
+scIdx[6, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S3&quot;)))</code></pre>
+</div>
+<div id="dupcor-ruvs-k-1" class="section level4">
+<h4>Dupcor + RUVs K = 1</h4>
+<pre class="r"><code># Apply RUVs function from RUVSeq 
+set &lt;- RUVSeq::RUVs(x = counts, k =1, scIdx = scIdx, isLog = TRUE)
+RUV_1 &lt;- set$W[,1]
+
+phenoData$RUV_1 &lt;- RUV_1
+
+
+# apply duplicateCorrelation is two rounds
+design &lt;- model.matrix(~ Cond + RUV_1, phenoData)
+
+vobj_tmp = voom(counts, design, plot = TRUE)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>dupcor &lt;- duplicateCorrelation(counts , design, block = Meta$Ind)
+
+
+# run voom considering the duplicateCorrelation results
+# in order to compute more accurate precision weights
+# Otherwise, use the results from the first voom run
+vobj = voom( counts = counts, design = design, plot=TRUE, block=Meta$Ind, correlation=dupcor$consensus)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-8-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Estimate linear mixed model with a single variance component
+# Fit the model for each gene, 
+dupcor &lt;- duplicateCorrelation(vobj, design, block=Meta$Ind)
+
+# But this step uses only the genome-wide average for the random effect
+fitDupCor &lt;- lmFit(counts, design, block=Meta$Ind, correlation=dupcor$consensus)
+
+# Fit Empirical Bayes for moderated t-statistics
+fitDupCor_2 &lt;- eBayes( fitDupCor )
+
+
+# Summarize
+results_Dupcor &lt;- decideTests(fitDupCor_2)
+summary(results_Dupcor)</code></pre>
+<pre><code>       (Intercept) CondDox RUV_1
+Down             1     182     0
+NotSig          50    3161  3383
+Up            3333      41     1</code></pre>
+<pre class="r"><code># Toptable summary for more comprehensive results  
+toptable_Dupcor &lt;- topTable(fitDupCor_2, coef = &quot;CondDox&quot;, number = nrow(Protein_DF_Abundance), p.value = 1)
+toptable_Dupcor$Protein &lt;- rownames(toptable_Dupcor)</code></pre>
+</div>
+<div id="q-values" class="section level4">
+<h4>Q-Values</h4>
+<pre class="r"><code>qobj &lt;- qvalue(toptable_Dupcor$P.Value)
+adj_q_values &lt;- qobj$qvalues
+
+toptable_Dupcor$adj_q_values &lt;- adj_q_values
+
+toptable_Dupcor %&gt;% head()</code></pre>
+<pre><code>           logFC  AveExpr         t      P.Value    adj.P.Val        B Protein
+Q15327 -3.553817 23.99047 -16.74339 2.054348e-08 6.951913e-05 9.416789  Q15327
+O76021 -2.141093 24.25375 -13.55227 1.444049e-07 2.443330e-04 7.859382  O76021
+Q96LW7 -1.634296 19.97143 -12.65816 2.690260e-07 3.034614e-04 7.328583  Q96LW7
+Q969Q1 -4.342380 20.84232 -11.92097 4.632261e-07 3.918893e-04 6.853153  Q969Q1
+P19388 -1.165897 20.44496 -11.62228 5.822611e-07 3.940743e-04 6.649959  P19388
+Q96GQ7 -1.762280 20.67219 -10.83369 1.092754e-06 6.163133e-04 6.081777  Q96GQ7
+       adj_q_values
+Q15327 3.487221e-05
+O76021 1.225624e-04
+Q96LW7 1.522224e-04
+Q969Q1 1.965796e-04
+P19388 1.976757e-04
+Q96GQ7 3.091553e-04</code></pre>
+</div>
+<div id="pca" class="section level4">
+<h4>PCA</h4>
+<pre class="r"><code>bleh &lt;- (vobj$E* sqrt(vobj$weights)) %&gt;% sqrt()
+
+# Before correction: 
+prcomp_res &lt;- prcomp(t(vobj$E), scale. = TRUE, center = TRUE, )
+
+ggplot2::autoplot(prcomp_res, data = Meta, colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-10-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># After correction: 
+prcomp_res &lt;- prcomp(t(bleh), scale. = TRUE, center = TRUE)
+
+ggplot2::autoplot(prcomp_res, data = Meta, colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-10-2.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="heatmaps" class="section level4">
+<h4>Heatmaps</h4>
+<pre class="r"><code># Before correction with weights
+hypothetical_1 &lt;- vobj$E
+colnames(hypothetical_1) &lt;- Meta$Cond_Ind
+
+
+# Use paste to combine the vectors
+colnames(hypothetical_1) &lt;- Meta$Cond_Ind
+pheatmap::pheatmap(hypothetical_1,
+                   cluster_rows = TRUE, 
+                   cluster_cols = TRUE,
+                   show_rownames = FALSE,
+                   show_colnames = TRUE
+)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cor(hypothetical_1) %&gt;% pheatmap(
+  cluster_rows = TRUE, 
+  cluster_cols = TRUE,
+  show_rownames = TRUE,
+  show_colnames = TRUE)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-11-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># After correction with weights 
+hypothetical_2 &lt;- bleh
+
+# Use paste to combine the vectors
+colnames(hypothetical_2) &lt;- Meta$Cond_Ind
+
+
+pheatmap::pheatmap(hypothetical_2,
+                   cluster_rows = TRUE, 
+                   cluster_cols = TRUE,
+                   show_rownames = FALSE,
+                   show_colnames = TRUE
+)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-11-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cor(hypothetical_2) %&gt;% pheatmap(
+  cluster_rows = TRUE, 
+  cluster_cols = TRUE,
+  show_rownames = TRUE,
+  show_colnames = TRUE)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-11-4.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="volcano-with-adj.-p" class="section level4">
+<h4>Volcano with adj. P</h4>
+<pre class="r"><code># 1. Create a column to threshold adjusted P-values/q-values 
+toptable_Threshold_0.05 &lt;- toptable_Dupcor %&gt;%  mutate(threshold_P = adj.P.Val &lt; 0.05)
+
+
+# 2. Do the volcano plot 
+ggplot(toptable_Threshold_0.05)+
+  geom_point(mapping = aes(x = logFC, y = -log10(adj.P.Val), color = threshold_P))+
+  xlab(&quot;log2FC&quot;)+
+  ylab(&quot;-log10 adjusted p-value&quot;)+
+  ylim(0, 5)+
+  xlim(-5, 5)+
+  theme(legend.position = &quot;none&quot;, 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-12-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="histogram" class="section level4">
+<h4>Histogram</h4>
+<pre class="r"><code>hist(toptable_Dupcor$adj.P.Val, breaks = 10)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="enrichment-test-wrangle-p-adj-values" class="section level4">
+<h4>Enrichment Test Wrangle P-adj values</h4>
+<pre class="r"><code># 1. Read in the comprehensive DF that contains all sample info
+Full_DF %&gt;% head()</code></pre>
+<pre><code>  Entrez.Gene.ID Ensembl.Gene.ID Gene.Symbol Accession
+1           4625 ENSG00000092054        MYH7    P12883
+2           4624 ENSG00000197616        MYH6    P13533
+3           7273 ENSG00000155657         TTN    Q8WZ42
+4             70 ENSG00000159251       ACTC1    P68032
+5             58 ENSG00000143632       ACTA1    P68133
+6             60 ENSG00000075624        ACTB    P60709
+  Abundance..F1..Sample..Dox..n.a Abundance..F3..Sample..Dox..n.a
+1                        5.25e+10                        7.41e+10
+2                        1.00e+09                        1.47e+09
+3                        1.39e+10                        2.08e+10
+4                        3.92e+10                        4.11e+10
+5                        1.72e+07                        5.81e+07
+6                        4.02e+09                        8.43e+08
+  Abundance..F5..Sample..Dox..Dox Abundance..F7..Sample..Dox..Dox
+1                        5.28e+10                        6.82e+10
+2                        5.11e+09                        4.25e+09
+3                        2.19e+10                        2.49e+10
+4                        3.76e+10                        3.54e+10
+5                        3.85e+07                        5.07e+07
+6                        2.04e+09                        1.62e+09
+  Abundance..F9..Sample..Dox..Dox Abundance..F2..Control..Veh..n.a
+1                        6.43e+10                         4.33e+10
+2                        2.62e+09                         1.50e+09
+3                        2.34e+10                         1.29e+10
+4                        3.69e+10                         3.54e+10
+5                        6.19e+07                         1.64e+07
+6                        1.61e+09                         4.16e+09
+  Abundance..F4..Control..Veh..n.a Abundance..F6..Control..Veh..Veh
+1                         7.41e+10                         7.00e+10
+2                         1.17e+09                         2.42e+09
+3                         2.25e+10                         2.52e+10
+4                         2.96e+10                         3.56e+10
+5                         3.44e+07                         5.42e+07
+6                         6.45e+08                         1.92e+09
+  Abundance..F8..Control..Veh..Veh Abundance..F10..Control..Veh..Veh
+1                         5.64e+10                          5.26e+10
+2                         3.67e+09                          3.27e+09
+3                         2.46e+10                          2.21e+10
+4                         2.98e+10                          2.91e+10
+5                         3.36e+07                          4.05e+07
+6                         1.81e+09                          1.56e+09</code></pre>
+<pre class="r"><code># 2.
+# Get set of DE proteins as per BH adjusted P-value 
+DE_proteins_Padj &lt;- toptable_Threshold_0.05 %&gt;%
+  filter(adj.P.Val &lt; 0.05) %&gt;% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where &#39;var&#39; is in &#39;values&#39;
+rows &lt;- which(Full_DF$Accession %in% DE_proteins_Padj)
+
+# Subset the data frame
+subset_Full_data &lt;- Full_DF[rows, ]
+
+# Here are the SYMBOL IDs for the DE proteins as per BH adj P value &lt; 0.05
+DE_SYMBOL_Padj &lt;- subset_Full_data$Gene.Symbol %&gt;% unique() %&gt;% na.omit()
+
+
+# Get background Symbol IDs 
+All_proteins_tested &lt;- toptable_Threshold_0.05 %&gt;%
+  filter(adj.P.Val &lt; 1) %&gt;% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where &#39;var&#39; is in &#39;values&#39;
+rows &lt;- which(Full_DF$Accession %in% All_proteins_tested)
+
+# Subset the data frame
+subset_back_data &lt;- Full_DF[rows, ]
+Background_SYMBOL &lt;- subset_back_data$Gene.Symbol %&gt;% unique() %&gt;% na.omit() </code></pre>
+</div>
+<div id="go-enrichment-bp---de_pval" class="section level4">
+<h4>GO Enrichment BP - DE_Pval</h4>
+<pre class="r"><code># 1.
+# Do enrichment analysis of ENTREZ IDs from Padjusted value 
+# Perform GO enrichment analysis using the enrichGO function. We are using stringent cutoffs for Pvalue and q value in the testing! (this is good)
+go_enrichment &lt;- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = &quot;SYMBOL&quot;,
+                          universe = Background_SYMBOL,
+                          ont = &quot;BP&quot;,
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+# Go plot 
+goplot(x = go_enrichment, showCategory = 30)</code></pre>
+<pre><code>Warning: ggrepel: 72 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-15-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 20))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-15-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># View the top enriched GO terms as a tibble 
+GO_Tibble &lt;- go_enrichment %&gt;% as_tibble()
+
+
+# Arrange by adjusted p value 
+GO_Tibble &lt;- GO_Tibble %&gt;%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description &lt;- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value &lt;- GO_Tibble$qvalue %&gt;% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = &quot;identity&quot;) + 
+  geom_bar(stat = &quot;identity&quot;, fill = &quot;#4B9CD3&quot;)+
+  labs(x = &quot;-log(p-adj)&quot;,
+       y = &quot;Biologcal Processes&quot;,
+       fill = &quot;P.adjusted&quot;,
+       title = &quot;GO enrichment analysis&quot;) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,75))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-15-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 10, categorySize = &quot;pvalue&quot; )</code></pre>
+<pre><code>Warning: ggrepel: 44 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-15-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-15-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Enrichmap by emapplot
+library(enrichplot)</code></pre>
+<pre><code>Warning: package &#39;enrichplot&#39; was built under R version 4.2.1</code></pre>
+<pre class="r"><code>edo &lt;- pairwise_termsim(go_enrichment)
+
+emapplot(edo, cex_category=1.5)</code></pre>
+<pre><code>Warning: ggrepel: 8 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-15-6.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="go-enrichment-mf---de_pval" class="section level4">
+<h4>GO Enrichment MF - DE_Pval</h4>
+<pre class="r"><code>go_enrichment &lt;- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = &quot;SYMBOL&quot;,
+                          universe = Background_SYMBOL,
+                          ont = &quot;MF&quot;,
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+goplot(go_enrichment, showCategory = 15)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-16-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 30 ))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-16-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># View the top enriched GO terms as a tibble 
+GO_Tibble &lt;- go_enrichment %&gt;% as_tibble()
+
+
+# Arrange by adjusted p value 
+GO_Tibble &lt;- GO_Tibble %&gt;%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description &lt;- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value &lt;- GO_Tibble$qvalue %&gt;% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = &quot;identity&quot;) + 
+  geom_bar(stat = &quot;identity&quot;, fill = &quot;#4B9CD3&quot;)+
+  labs(x = &quot;-log(p-adj)&quot;,
+       y = &quot;Molecular Functions&quot;,
+       fill = &quot;P.adjusted&quot;,
+       title = &quot;GO enrichment analysis&quot;) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,60))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-16-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 5, categorySize = &quot;pvalue&quot; )</code></pre>
+<pre><code>Warning: ggrepel: 2 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-16-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-16-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Enrichmap by emapplot
+
+library(enrichplot)
+edo &lt;- pairwise_termsim(go_enrichment)
+
+emapplot(edo, cex_category=1.5)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-16-6.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="go-enrichment-cc---de_pval" class="section level4">
+<h4>GO Enrichment CC - DE_Pval</h4>
+<pre class="r"><code>go_enrichment &lt;- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = &quot;SYMBOL&quot;,
+                          universe = Background_SYMBOL,
+                          ont = &quot;CC&quot;,
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+go_enrichment</code></pre>
+<pre><code>#
+# over-representation test
+#
+#...@organism    Homo sapiens 
+#...@ontology    CC 
+#...@keytype     SYMBOL 
+#...@gene    chr [1:224] &quot;H1-4&quot; &quot;TUBB3&quot; &quot;NPM1&quot; &quot;NCL&quot; &quot;H1-2&quot; &quot;RPL4&quot; &quot;KRT2&quot; &quot;&quot; &quot;PRDX1&quot; ...
+#...pvalues adjusted by &#39;BH&#39; with cutoff &lt;0.05 
+#...26 enriched terms found
+&#39;data.frame&#39;:   26 obs. of  9 variables:
+ $ ID         : chr  &quot;GO:0022626&quot; &quot;GO:1990904&quot; &quot;GO:0044391&quot; &quot;GO:0005840&quot; ...
+ $ Description: chr  &quot;cytosolic ribosome&quot; &quot;ribonucleoprotein complex&quot; &quot;ribosomal subunit&quot; &quot;ribosome&quot; ...
+ $ GeneRatio  : chr  &quot;48/220&quot; &quot;82/220&quot; &quot;51/220&quot; &quot;52/220&quot; ...
+ $ BgRatio    : chr  &quot;78/3284&quot; &quot;367/3284&quot; &quot;141/3284&quot; &quot;155/3284&quot; ...
+ $ pvalue     : num  1.69e-38 2.23e-26 2.47e-26 4.79e-25 1.10e-19 ...
+ $ p.adjust   : num  5.52e-36 2.69e-24 2.69e-24 3.91e-23 7.19e-18 ...
+ $ qvalue     : num  4.97e-36 2.42e-24 2.42e-24 3.52e-23 6.48e-18 ...
+ $ geneID     : chr  &quot;RPL4/RPS3/RPL7A/RPS4X/RPS3A/RPSA/RPL3/RPL8/RPS9/RPS14/RPS18/RPS6/RPS11/RPL27/RPS20/RPL17/RPL30/RPL10A/RPS15A/RP&quot;| __truncated__ &quot;NPM1/NCL/RPL4/DDX17/RACK1/RPS3/YBX1/DDX5/RPL7A/RPS4X/RPS3A/PABPC1/RPSA/RPL3/RPL8/RPS9/SRRM2/RPS14/NOP58/RPS18/R&quot;| __truncated__ &quot;RPL4/RACK1/RPS3/RPL7A/RPS4X/RPS3A/RPSA/RPL3/RPL8/RPS9/RPS14/RPS18/RPS6/RPS11/RPL27/RPS20/RPL17/RPL30/RPL10A/RPS&quot;| __truncated__ &quot;RPL4/RACK1/RPS3/RPL7A/RPS4X/RPS3A/RPSA/RPL3/RPL8/RPS9/RPS14/RPS18/RPS6/RPS11/RPL27/RPS20/RPL17/RPL30/RPL10A/RPS&quot;| __truncated__ ...
+ $ Count      : int  48 82 51 52 25 23 25 49 26 16 ...
+#...Citation
+ T Wu, E Hu, S Xu, M Chen, P Guo, Z Dai, T Feng, L Zhou, W Tang, L Zhan, X Fu, S Liu, X Bo, and G Yu.
+ clusterProfiler 4.0: A universal enrichment tool for interpreting omics data.
+ The Innovation. 2021, 2(3):100141 </code></pre>
+<pre class="r"><code># Go plot 
+goplot(go_enrichment, showCategory = 25)</code></pre>
+<pre><code>Warning: ggrepel: 4 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 25))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-17-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># View the top enriched GO terms as a tibble 
+GO_Tibble &lt;- go_enrichment %&gt;% as_tibble()
+
+
+# Arrange by adjusted p value 
+GO_Tibble &lt;- GO_Tibble %&gt;%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description &lt;- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value &lt;- GO_Tibble$qvalue %&gt;% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = &quot;identity&quot;) + 
+  geom_bar(stat = &quot;identity&quot;, fill = &quot;#4B9CD3&quot;)+
+  labs(x = &quot;-log(p-adj)&quot;,
+       y = &quot;Molecular Functions&quot;,
+       fill = &quot;P.adjusted&quot;,
+       title = &quot;GO enrichment analysis&quot;) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,90))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-17-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 5, categorySize = &quot;pvalue&quot; )</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-17-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-17-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Enrichmap by emapplot
+library(enrichplot)
+edo &lt;- pairwise_termsim(go_enrichment)
+
+emapplot(edo, cex_category=1.5)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-17-6.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="enrichment-test-wrangle-downregulated-de-genes"
+class="section level4">
+<h4>Enrichment Test Wrangle Downregulated DE genes</h4>
+<pre class="r"><code># 1. Read in the comprehensive DF that contains all sample info
+Full_DF %&gt;% head()</code></pre>
+<pre><code>  Entrez.Gene.ID Ensembl.Gene.ID Gene.Symbol Accession
+1           4625 ENSG00000092054        MYH7    P12883
+2           4624 ENSG00000197616        MYH6    P13533
+3           7273 ENSG00000155657         TTN    Q8WZ42
+4             70 ENSG00000159251       ACTC1    P68032
+5             58 ENSG00000143632       ACTA1    P68133
+6             60 ENSG00000075624        ACTB    P60709
+  Abundance..F1..Sample..Dox..n.a Abundance..F3..Sample..Dox..n.a
+1                        5.25e+10                        7.41e+10
+2                        1.00e+09                        1.47e+09
+3                        1.39e+10                        2.08e+10
+4                        3.92e+10                        4.11e+10
+5                        1.72e+07                        5.81e+07
+6                        4.02e+09                        8.43e+08
+  Abundance..F5..Sample..Dox..Dox Abundance..F7..Sample..Dox..Dox
+1                        5.28e+10                        6.82e+10
+2                        5.11e+09                        4.25e+09
+3                        2.19e+10                        2.49e+10
+4                        3.76e+10                        3.54e+10
+5                        3.85e+07                        5.07e+07
+6                        2.04e+09                        1.62e+09
+  Abundance..F9..Sample..Dox..Dox Abundance..F2..Control..Veh..n.a
+1                        6.43e+10                         4.33e+10
+2                        2.62e+09                         1.50e+09
+3                        2.34e+10                         1.29e+10
+4                        3.69e+10                         3.54e+10
+5                        6.19e+07                         1.64e+07
+6                        1.61e+09                         4.16e+09
+  Abundance..F4..Control..Veh..n.a Abundance..F6..Control..Veh..Veh
+1                         7.41e+10                         7.00e+10
+2                         1.17e+09                         2.42e+09
+3                         2.25e+10                         2.52e+10
+4                         2.96e+10                         3.56e+10
+5                         3.44e+07                         5.42e+07
+6                         6.45e+08                         1.92e+09
+  Abundance..F8..Control..Veh..Veh Abundance..F10..Control..Veh..Veh
+1                         5.64e+10                          5.26e+10
+2                         3.67e+09                          3.27e+09
+3                         2.46e+10                          2.21e+10
+4                         2.98e+10                          2.91e+10
+5                         3.36e+07                          4.05e+07
+6                         1.81e+09                          1.56e+09</code></pre>
+<pre class="r"><code># 2.
+# Get set of DE proteins as per BH adjusted P-value 
+DE_proteins_Padj &lt;- toptable_Threshold_0.05 %&gt;%
+  filter((logFC &lt; 0) &amp; (adj.P.Val &lt; 0.05)) %&gt;% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where &#39;var&#39; is in &#39;values&#39;
+rows &lt;- which(Full_DF$Accession %in% DE_proteins_Padj)
+
+# Subset the data frame
+subset_Full_data &lt;- Full_DF[rows, ]
+
+# Here are the SYMBOL IDs for the DE proteins as per BH adj P value &lt; 0.05
+DE_SYMBOL_Padj &lt;- subset_Full_data$Gene.Symbol %&gt;% unique() %&gt;% na.omit()
+
+
+# Get background Symbol IDs 
+All_proteins_tested &lt;- toptable_Threshold_0.05 %&gt;%
+  filter(adj.P.Val &lt; 1) %&gt;% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where &#39;var&#39; is in &#39;values&#39;
+rows &lt;- which(Full_DF$Accession %in% All_proteins_tested)
+
+# Subset the data frame
+subset_back_data &lt;- Full_DF[rows, ]
+Background_SYMBOL &lt;- subset_back_data$Gene.Symbol %&gt;% unique() %&gt;% na.omit() </code></pre>
+</div>
+<div id="go-enrichment-bp---downregulated-genes" class="section level4">
+<h4>GO Enrichment BP - Downregulated Genes</h4>
+<pre class="r"><code># 1.
+# Do enrichment analysis of ENTREZ IDs from Padjusted value 
+# Perform GO enrichment analysis using the enrichGO function. We are using stringent cutoffs for Pvalue and q value in the testing! (this is good)
+go_enrichment &lt;- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = &quot;SYMBOL&quot;,
+                          universe = Background_SYMBOL,
+                          ont = &quot;BP&quot;,
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+
+# Go plot 
+goplot(x = go_enrichment, showCategory = 20)</code></pre>
+<pre><code>Warning: ggrepel: 32 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 20))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-19-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># View the top enriched GO terms as a tibble 
+GO_Tibble &lt;- go_enrichment %&gt;% as_tibble()
+
+# Arrange by adjusted p value 
+GO_Tibble &lt;- GO_Tibble %&gt;%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description &lt;- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value &lt;- GO_Tibble$qvalue %&gt;% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = &quot;identity&quot;) + 
+  geom_bar(stat = &quot;identity&quot;, fill = &quot;#4B9CD3&quot;)+
+  labs(x = &quot;-log(p-adj)&quot;,
+       y = &quot;Biologcal Processes&quot;,
+       fill = &quot;P.adjusted&quot;,
+       title = &quot;GO enrichment analysis&quot;) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,100))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-19-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 5, categorySize = &quot;pvalue&quot; )</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-19-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-19-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Enrichmap by emapplot
+library(enrichplot)
+edo &lt;- pairwise_termsim(go_enrichment)
+
+emapplot(edo, cex_category=1.5)</code></pre>
+<pre><code>Warning: ggrepel: 4 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-19-6.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="go-cc-downregulated-proteins" class="section level4">
+<h4>GO CC Downregulated proteins</h4>
+<pre class="r"><code># 1.
+# Do enrichment analysis of ENTREZ IDs from Padjusted value 
+# Perform GO enrichment analysis using the enrichGO function. We are using stringent cutoffs for Pvalue and q value in the testing! (this is good)
+go_enrichment &lt;- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = &quot;SYMBOL&quot;,
+                          universe = Background_SYMBOL,
+                          ont = &quot;CC&quot;,
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+# Go plot 
+goplot(x = go_enrichment, showCategory = 20)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 20))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-20-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># View the top enriched GO terms as a tibble 
+GO_Tibble &lt;- go_enrichment %&gt;% as_tibble()
+
+
+# Arrange by adjusted p value 
+GO_Tibble &lt;- GO_Tibble %&gt;%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description &lt;- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value &lt;- GO_Tibble$qvalue %&gt;% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = &quot;identity&quot;) + 
+  geom_bar(stat = &quot;identity&quot;, fill = &quot;#4B9CD3&quot;)+
+  labs(x = &quot;-log(p-adj)&quot;,
+       y = &quot;Biologcal Processes&quot;,
+       fill = &quot;P.adjusted&quot;,
+       title = &quot;GO enrichment analysis&quot;) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,100))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-20-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 5, categorySize = &quot;pvalue&quot; )</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-20-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-20-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Enrichmap by emapplot
+library(enrichplot)
+edo &lt;- pairwise_termsim(go_enrichment)
+
+emapplot(edo, cex_category=1.5)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-20-6.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="go-enrichment-mf---downregulated-genes" class="section level4">
+<h4>GO Enrichment MF - Downregulated Genes</h4>
+<pre class="r"><code># 1.
+# Do enrichment analysis of ENTREZ IDs from Padjusted value 
+# Perform GO enrichment analysis using the enrichGO function. We are using stringent cutoffs for Pvalue and q value in the testing! (this is good)
+go_enrichment &lt;- enrichGO(gene = DE_SYMBOL_Padj,
+                          OrgDb = org.Hs.eg.db,
+                          keyType = &quot;SYMBOL&quot;,
+                          universe = Background_SYMBOL,
+                          ont = &quot;MF&quot;,
+                          pvalueCutoff = 0.05,
+                          qvalueCutoff = 0.05)
+
+go_enrichment</code></pre>
+<pre><code>#
+# over-representation test
+#
+#...@organism    Homo sapiens 
+#...@ontology    MF 
+#...@keytype     SYMBOL 
+#...@gene    chr [1:183] &quot;H1-4&quot; &quot;NPM1&quot; &quot;NCL&quot; &quot;H1-2&quot; &quot;RPL4&quot; &quot;KRT2&quot; &quot;&quot; &quot;DDX17&quot; &quot;RACK1&quot; ...
+#...pvalues adjusted by &#39;BH&#39; with cutoff &lt;0.05 
+#...15 enriched terms found
+&#39;data.frame&#39;:   15 obs. of  9 variables:
+ $ ID         : chr  &quot;GO:0003735&quot; &quot;GO:0005198&quot; &quot;GO:0003729&quot; &quot;GO:0003724&quot; ...
+ $ Description: chr  &quot;structural constituent of ribosome&quot; &quot;structural molecule activity&quot; &quot;mRNA binding&quot; &quot;RNA helicase activity&quot; ...
+ $ GeneRatio  : chr  &quot;50/178&quot; &quot;54/178&quot; &quot;28/178&quot; &quot;12/178&quot; ...
+ $ BgRatio    : chr  &quot;129/3240&quot; &quot;303/3240&quot; &quot;155/3240&quot; &quot;33/3240&quot; ...
+ $ pvalue     : num  5.19e-32 2.06e-16 8.45e-09 6.75e-08 6.75e-08 ...
+ $ p.adjust   : num  1.45e-29 2.89e-14 7.88e-07 3.78e-06 3.78e-06 ...
+ $ qvalue     : num  1.31e-29 2.59e-14 7.08e-07 3.40e-06 3.40e-06 ...
+ $ geneID     : chr  &quot;RPL4/RPS3/RPL7A/RPS4X/RPS3A/RPSA/RPL3/RPL8/RPS9/RPS14/RPS18/RPS6/RPS11/RPL27/RPS20/RPL17/RPL30/RPL10A/RPS15A/RP&quot;| __truncated__ &quot;RPL4/KRT2/RPS3/RPL7A/RPS4X/RPS3A/RPSA/RPL3/RPL8/RPS9/RPS14/NUMA1/RPS18/RPS6/RPS11/RPL27/RPS20/RPL17/RPL30/RPL10&quot;| __truncated__ &quot;NCL/RPS3/YBX1/DDX5/RPS3A/DDX3X/PABPC1/HNRNPA0/SRRM2/RPS14/PTBP2/PABPC4/SERBP1/G3BP1/YBX3/HDLBP/RPS5/RPL26/RPL24&quot;| __truncated__ &quot;DDX17/DDX5/DDX3X/G3BP1/DDX42/DDX21/DDX50/MTREX/DDX47/DDX18/DDX27/DDX41&quot; ...
+ $ Count      : int  50 54 28 12 12 22 36 25 13 11 ...
+#...Citation
+ T Wu, E Hu, S Xu, M Chen, P Guo, Z Dai, T Feng, L Zhou, W Tang, L Zhan, X Fu, S Liu, X Bo, and G Yu.
+ clusterProfiler 4.0: A universal enrichment tool for interpreting omics data.
+ The Innovation. 2021, 2(3):100141 </code></pre>
+<pre class="r"><code># Go plot 
+goplot(x = go_enrichment, showCategory = 20)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-21-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># summary of the result that most people use 
+plot(barplot(go_enrichment, showCategory = 20))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-21-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># View the top enriched GO terms as a tibble 
+GO_Tibble &lt;- go_enrichment %&gt;% as_tibble()
+
+
+# Arrange by adjusted p value 
+GO_Tibble &lt;- GO_Tibble %&gt;%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description &lt;- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value &lt;- GO_Tibble$qvalue %&gt;% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = &quot;identity&quot;) + 
+  geom_bar(stat = &quot;identity&quot;, fill = &quot;#4B9CD3&quot;)+
+  labs(x = &quot;-log(p-adj)&quot;,
+       y = &quot;Biologcal Processes&quot;,
+       fill = &quot;P.adjusted&quot;,
+       title = &quot;GO enrichment analysis&quot;) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,75))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-21-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = go_enrichment, showCategory = 5, categorySize = &quot;pvalue&quot; )</code></pre>
+<pre><code>Warning: ggrepel: 3 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-21-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 20)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-21-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Enrichmap by emapplot
+library(enrichplot)
+edo &lt;- pairwise_termsim(go_enrichment)
+
+emapplot(edo, cex_category=1.5)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-21-6.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="enrich-pathway-through-reactome-entrez---de_pval"
+class="section level4">
+<h4>Enrich Pathway through reactome ENTREZ - DE_Pval</h4>
+<pre class="r"><code># Wrangle ENTREZ IDs for Pval 
+# 1. Read in the comprehensive DF that contains all sample info
+Full_DF %&gt;% head()</code></pre>
+<pre><code>  Entrez.Gene.ID Ensembl.Gene.ID Gene.Symbol Accession
+1           4625 ENSG00000092054        MYH7    P12883
+2           4624 ENSG00000197616        MYH6    P13533
+3           7273 ENSG00000155657         TTN    Q8WZ42
+4             70 ENSG00000159251       ACTC1    P68032
+5             58 ENSG00000143632       ACTA1    P68133
+6             60 ENSG00000075624        ACTB    P60709
+  Abundance..F1..Sample..Dox..n.a Abundance..F3..Sample..Dox..n.a
+1                        5.25e+10                        7.41e+10
+2                        1.00e+09                        1.47e+09
+3                        1.39e+10                        2.08e+10
+4                        3.92e+10                        4.11e+10
+5                        1.72e+07                        5.81e+07
+6                        4.02e+09                        8.43e+08
+  Abundance..F5..Sample..Dox..Dox Abundance..F7..Sample..Dox..Dox
+1                        5.28e+10                        6.82e+10
+2                        5.11e+09                        4.25e+09
+3                        2.19e+10                        2.49e+10
+4                        3.76e+10                        3.54e+10
+5                        3.85e+07                        5.07e+07
+6                        2.04e+09                        1.62e+09
+  Abundance..F9..Sample..Dox..Dox Abundance..F2..Control..Veh..n.a
+1                        6.43e+10                         4.33e+10
+2                        2.62e+09                         1.50e+09
+3                        2.34e+10                         1.29e+10
+4                        3.69e+10                         3.54e+10
+5                        6.19e+07                         1.64e+07
+6                        1.61e+09                         4.16e+09
+  Abundance..F4..Control..Veh..n.a Abundance..F6..Control..Veh..Veh
+1                         7.41e+10                         7.00e+10
+2                         1.17e+09                         2.42e+09
+3                         2.25e+10                         2.52e+10
+4                         2.96e+10                         3.56e+10
+5                         3.44e+07                         5.42e+07
+6                         6.45e+08                         1.92e+09
+  Abundance..F8..Control..Veh..Veh Abundance..F10..Control..Veh..Veh
+1                         5.64e+10                          5.26e+10
+2                         3.67e+09                          3.27e+09
+3                         2.46e+10                          2.21e+10
+4                         2.98e+10                          2.91e+10
+5                         3.36e+07                          4.05e+07
+6                         1.81e+09                          1.56e+09</code></pre>
+<pre class="r"><code># 2.
+# Get set of DE proteins as per BH adjusted P-value 
+DE_ENTREZ_Padj &lt;- toptable_Threshold_0.05 %&gt;%
+  filter(adj.P.Val &lt; 0.05) %&gt;% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where &#39;var&#39; is in &#39;values&#39;
+rows &lt;- which(Full_DF$Accession %in% DE_ENTREZ_Padj)
+
+# Subset the data frame
+subset_Full_data &lt;- Full_DF[rows, ]
+
+# Here are the SYMBOL IDs for the DE proteins as per BH adj P value &lt; 0.05
+DE_ENTREZ_Padj &lt;- subset_Full_data$Entrez.Gene.ID %&gt;% unique() %&gt;% na.omit()
+
+
+# Get background Symbol IDs 
+All_proteins_tested &lt;- toptable_Threshold_0.05 %&gt;%
+  filter(adj.P.Val &lt; 1) %&gt;% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where &#39;var&#39; is in &#39;values&#39;
+rows &lt;- which(Full_DF$Accession %in% All_proteins_tested)
+
+# Subset the data frame
+subset_back_data &lt;- Full_DF[rows, ]
+Background_ENTREZ &lt;- subset_back_data$Entrez.Gene.ID %&gt;% unique() %&gt;% na.omit() 
+
+
+# Fusion proteins in ENTREZ ids. Therefore, need to split them up 
+# vector to split 
+my_vector_test &lt;- DE_ENTREZ_Padj
+
+# Split the elements of the vector on semicolons
+split_vector &lt;- strsplit(my_vector_test, split = &quot;;&quot;)
+
+# Unlist the split vector
+new_vector_ENTREZ &lt;- unlist(split_vector)
+
+# Do the same for background 
+back_vector_test &lt;- Background_ENTREZ
+
+# Split the elements of the vector on semicolons
+split_vector &lt;- strsplit(back_vector_test, split = &quot;;&quot;)
+
+# Unlist the split vector
+back_new_vector_ENTREZ &lt;- unlist(split_vector)
+
+
+EnrichPathobj &lt;- ReactomePA::enrichPathway(
+  new_vector_ENTREZ,
+  organism = &quot;human&quot;,
+  pvalueCutoff = 0.05,
+  pAdjustMethod = &quot;BH&quot;,
+  qvalueCutoff = 0.05,
+  universe = back_new_vector_ENTREZ,
+  minGSSize = 2,
+  maxGSSize = 500,
+  readable = FALSE
+)
+
+
+
+# summary of the result that most people use 
+plot(barplot(EnrichPathobj, showCategory = 15 ))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-22-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># View the top enriched GO terms as a tibble 
+GO_Tibble &lt;- EnrichPathobj %&gt;% as_tibble()
+
+
+# Arrange by adjusted p value 
+GO_Tibble &lt;- GO_Tibble %&gt;%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description &lt;- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value &lt;- GO_Tibble$qvalue %&gt;% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = &quot;identity&quot;) + 
+  geom_bar(stat = &quot;identity&quot;, fill = &quot;#4B9CD3&quot;)+
+  labs(x = &quot;-log(p-adj)&quot;,
+       y = &quot;Molecular Functions&quot;,
+       fill = &quot;P.adjusted&quot;,
+       title = &quot;GO enrichment analysis&quot;) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,105))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-22-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#* the input for these plots will be one of the following variables 
+#* that we obtained in previous sections of the code, such as 1. go_enrichment, 
+#* 2. EnrichPathobj, or 3. enrichdiseaseobj.  
+#* 
+cnetplot(x = EnrichPathobj, showCategory = 5, categorySize = &quot;pvalue&quot; )</code></pre>
+<pre><code>Warning: ggrepel: 1 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-22-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># heatplot to see gene overlaps 
+heatplot(EnrichPathobj, showCategory = 20)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-22-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Enrichmap by emapplot
+library(enrichplot)
+edo &lt;- pairwise_termsim(EnrichPathobj)
+
+emapplot(edo, cex_category=1.5)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-22-5.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div
+id="enrich-pathway-through-reactome-downregulated-de-entrez---de_pval"
+class="section level4">
+<h4>Enrich Pathway through reactome downregulated DE ENTREZ -
+DE_Pval</h4>
+<pre class="r"><code># Wrangle ENTREZ IDs for Pval 
+# 1. Read in the comprehensive DF that contains all sample info
+Full_DF %&gt;% head()</code></pre>
+<pre><code>  Entrez.Gene.ID Ensembl.Gene.ID Gene.Symbol Accession
+1           4625 ENSG00000092054        MYH7    P12883
+2           4624 ENSG00000197616        MYH6    P13533
+3           7273 ENSG00000155657         TTN    Q8WZ42
+4             70 ENSG00000159251       ACTC1    P68032
+5             58 ENSG00000143632       ACTA1    P68133
+6             60 ENSG00000075624        ACTB    P60709
+  Abundance..F1..Sample..Dox..n.a Abundance..F3..Sample..Dox..n.a
+1                        5.25e+10                        7.41e+10
+2                        1.00e+09                        1.47e+09
+3                        1.39e+10                        2.08e+10
+4                        3.92e+10                        4.11e+10
+5                        1.72e+07                        5.81e+07
+6                        4.02e+09                        8.43e+08
+  Abundance..F5..Sample..Dox..Dox Abundance..F7..Sample..Dox..Dox
+1                        5.28e+10                        6.82e+10
+2                        5.11e+09                        4.25e+09
+3                        2.19e+10                        2.49e+10
+4                        3.76e+10                        3.54e+10
+5                        3.85e+07                        5.07e+07
+6                        2.04e+09                        1.62e+09
+  Abundance..F9..Sample..Dox..Dox Abundance..F2..Control..Veh..n.a
+1                        6.43e+10                         4.33e+10
+2                        2.62e+09                         1.50e+09
+3                        2.34e+10                         1.29e+10
+4                        3.69e+10                         3.54e+10
+5                        6.19e+07                         1.64e+07
+6                        1.61e+09                         4.16e+09
+  Abundance..F4..Control..Veh..n.a Abundance..F6..Control..Veh..Veh
+1                         7.41e+10                         7.00e+10
+2                         1.17e+09                         2.42e+09
+3                         2.25e+10                         2.52e+10
+4                         2.96e+10                         3.56e+10
+5                         3.44e+07                         5.42e+07
+6                         6.45e+08                         1.92e+09
+  Abundance..F8..Control..Veh..Veh Abundance..F10..Control..Veh..Veh
+1                         5.64e+10                          5.26e+10
+2                         3.67e+09                          3.27e+09
+3                         2.46e+10                          2.21e+10
+4                         2.98e+10                          2.91e+10
+5                         3.36e+07                          4.05e+07
+6                         1.81e+09                          1.56e+09</code></pre>
+<pre class="r"><code># 2.
+# Get set of DE proteins as per BH adjusted P-value 
+DE_ENTREZ_Padj &lt;- toptable_Threshold_0.05 %&gt;%
+  filter((logFC &lt; 0 )&amp;(adj.P.Val &lt; 0.05)) %&gt;% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where &#39;var&#39; is in &#39;values&#39;
+rows &lt;- which(Full_DF$Accession %in% DE_ENTREZ_Padj)
+
+
+# Subset the data frame
+subset_Full_data &lt;- Full_DF[rows, ]
+
+# Here are the SYMBOL IDs for the DE proteins as per BH adj P value &lt; 0.05
+DE_ENTREZ_Padj &lt;- subset_Full_data$Entrez.Gene.ID %&gt;% unique() %&gt;% na.omit()
+
+
+# Get background Symbol IDs 
+All_proteins_tested &lt;- toptable_Threshold_0.05 %&gt;%
+  filter(adj.P.Val &lt; 1) %&gt;% rownames()
+
+# Get SYMBOL ID for the proteins in DE_proteins_Padj
+# Find the rows where &#39;var&#39; is in &#39;values&#39;
+rows &lt;- which(Full_DF$Accession %in% All_proteins_tested)
+
+# Subset the data frame
+subset_back_data &lt;- Full_DF[rows, ]
+Background_ENTREZ &lt;- subset_back_data$Entrez.Gene.ID %&gt;% unique() %&gt;% na.omit() 
+
+
+# Fusion proteins in ENTREZ ids. Therefore, need to split them up 
+# vector to split 
+my_vector_test &lt;- DE_ENTREZ_Padj
+
+
+# Split the elements of the vector on semicolons
+split_vector &lt;- strsplit(my_vector_test, split = &quot;;&quot;)
+
+# Unlist the split vector
+new_vector_ENTREZ &lt;- unlist(split_vector)
+
+# Do the same for background 
+back_vector_test &lt;- Background_ENTREZ
+
+# Split the elements of the vector on semicolons
+split_vector &lt;- strsplit(back_vector_test, split = &quot;;&quot;)
+
+# Unlist the split vector
+back_new_vector_ENTREZ &lt;- unlist(split_vector)
+
+new_vector_ENTREZ %&gt;% length()</code></pre>
+<pre><code>[1] 211</code></pre>
+<pre class="r"><code>EnrichPathobj &lt;- ReactomePA::enrichPathway(
+  new_vector_ENTREZ,
+  organism = &quot;human&quot;,
+  pvalueCutoff = 0.05,
+  pAdjustMethod = &quot;BH&quot;,
+  qvalueCutoff = 0.05,
+  universe = back_new_vector_ENTREZ,
+  minGSSize = 2,
+  maxGSSize = 500,
+  readable = FALSE
+)
+
+
+# summary of the result that most people use 
+plot(barplot(EnrichPathobj, showCategory = 20))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-23-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># View the top enriched GO terms as a tibble 
+GO_Tibble &lt;- EnrichPathobj %&gt;% as_tibble()
+
+# Arrange by adjusted p value 
+GO_Tibble &lt;- GO_Tibble %&gt;%
+  arrange(desc(p.adjust))
+
+# Factor by P.adjusted value 
+GO_Tibble$Description &lt;- factor(GO_Tibble$Description, levels = GO_Tibble$Description[order(GO_Tibble$p.adjust)])
+
+# Get P value for consistent gradient fill
+Gradient_value &lt;- GO_Tibble$qvalue %&gt;% median()
+
+# Visualize the total enriched GO terms using a vertical bar plot 
+ggplot(data = GO_Tibble, aes(x = -log(p.adjust), y = reorder(Description, -log(p.adjust)))) +
+  geom_bar(stat = &quot;identity&quot;) + 
+  geom_bar(stat = &quot;identity&quot;, fill = &quot;#4B9CD3&quot;)+
+  labs(x = &quot;-log(p-adj)&quot;,
+       y = &quot;Molecular Functions&quot;,
+       fill = &quot;P.adjusted&quot;,
+       title = &quot;GO enrichment analysis&quot;) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  xlim(c(0,120))</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-23-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>####* - Read in and wrangle RNA-Seq data ####</p>
+<pre class="r"><code>#### RNA-Seq Wrangling ####
+# Get data 
+RNA_Seq_Top_Table &lt;- read_csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/RNA_Seq/Doxtoplist.csv&quot;, col_names = TRUE, row.names(1))</code></pre>
+<pre><code>New names:
+Rows: 28168 Columns: 9
+── Column specification
+──────────────────────────────────────────────────────── Delimiter: &quot;,&quot; chr
+(4): ...1, time, id, SYMBOL dbl (5): ENTREZID, logFC, AveExpr, P.Value,
+adj.P.Val
+ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
+Specify the column types or set `show_col_types = FALSE` to quiet this message.
+• `` -&gt; `...1`</code></pre>
+<pre class="r"><code>RNA_Seq_Top_Table %&gt;% dim()</code></pre>
+<pre><code>[1] 28168     9</code></pre>
+<pre class="r"><code># Group the 24hr data together 
+RNA_Seq_Top_Table_24hr &lt;- RNA_Seq_Top_Table %&gt;% dplyr::filter(time == &quot;24_hours&quot;)
+
+
+# Generate q values for the 24hr Dox toptable 
+qobj &lt;- qvalue(RNA_Seq_Top_Table_24hr$P.Value)
+adj_q_values &lt;- qobj$qvalues
+
+RNA_Seq_Top_Table_24hr$adj_q_values &lt;- adj_q_values
+
+sum(RNA_Seq_Top_Table_24hr$adj_q_values &lt; 0.05 &amp; RNA_Seq_Top_Table_24hr$logFC &gt; 0 )</code></pre>
+<pre><code>[1] 4143</code></pre>
+<pre class="r"><code>sum(RNA_Seq_Top_Table_24hr$adj_q_values &lt; 0.05 &amp; RNA_Seq_Top_Table_24hr$logFC &lt; 0 )</code></pre>
+<pre><code>[1] 4119</code></pre>
+<pre class="r"><code># Group the 3hr data together 
+RNA_Seq_Top_Table_3hr &lt;- RNA_Seq_Top_Table %&gt;% dplyr::filter(time == &quot;3_hours&quot; )</code></pre>
+</div>
+<div id="hr-plots" class="section level4">
+<h4>24 hr Plots</h4>
+<pre class="r"><code># 1. Create a column to threshold adjusted P-values/q-values 
+RNA_24hr_Dox_toptable_Threshold_0.05 &lt;- RNA_Seq_Top_Table_24hr %&gt;%  mutate(threshold_P = adj.P.Val &lt; 0.05)
+
+
+# 2. Do the volcano plot 
+ggplot(RNA_24hr_Dox_toptable_Threshold_0.05)+
+  geom_point(mapping = aes(x = logFC, y = -log10(adj.P.Val), color = threshold_P ))+
+  xlab(&quot;log2FC&quot;)+
+  ylab(&quot;-log10 adjusted p-value&quot;)+
+  ylim(0, 25)+
+  xlim(-8, 8)+
+  theme(legend.position = &quot;none&quot;, 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-25-1.png" width="672" style="display: block; margin: auto;" />
+#### Volcano plot with labels ####</p>
+<pre class="r"><code>ggplot(RNA_24hr_Dox_toptable_Threshold_0.05)+
+  geom_point(mapping = aes(x = logFC, y = -log10(adj.P.Val), color = threshold_P))+
+  geom_text(mapping = aes(x = logFC, y = -log10(adj.P.Val), label = SYMBOL), 
+            hjust = -0.1, vjust = -0.1, check_overlap = TRUE, size = 3)+
+  xlab(&quot;log2FC&quot;)+
+  ylab(&quot;-log10 adjusted p-value&quot;)+
+  ylim(0, 30)+
+  xlim(-10, 10)+
+  theme(legend.position = &quot;none&quot;, 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()</code></pre>
+<pre><code>Warning: Removed 70 rows containing missing values (`geom_text()`).</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-26-1.png" width="672" style="display: block; margin: auto;" />
+#### RNA-Seq + proteomic sign test Next to do ####</p>
+<pre class="r"><code># Use the ensembl dataset
+mart &lt;- useMart(&quot;ensembl&quot;, dataset = &quot;hsapiens_gene_ensembl&quot;)
+
+# vector of Uniprot IDs
+uniprot_ids &lt;- toptable_Dupcor %&gt;% rownames()
+
+uniprot_ids %&gt;% length()</code></pre>
+<pre><code>[1] 3384</code></pre>
+<pre class="r"><code># Get the corresponding ENTREZ IDs
+results_Pro &lt;- getBM(filters = &quot;uniprotswissprot&quot;, 
+                     attributes = c(&quot;uniprotswissprot&quot;, &quot;hgnc_symbol&quot;), 
+                     values = uniprot_ids, 
+                     mart = mart)
+
+
+# Get the corresponding SYMBOLs
+results_RNA &lt;- getBM(filters = &quot;hgnc_symbol&quot;, 
+                     attributes = c(&quot;entrezgene_id&quot;,&quot;uniprotswissprot&quot;, &quot;hgnc_symbol&quot;), 
+                     values = RNA_24hr_Dox_toptable_Threshold_0.05$SYMBOL, 
+                     mart = mart)
+
+
+
+
+# Simplify Proteomic DF 
+Pro_DF &lt;- data.frame( uniprotswissprot = rownames(toptable_Dupcor), Pro_LogFC = toptable_Dupcor$logFC, Pro_Pval = toptable_Dupcor$adj.P.Val )
+
+
+Joined_ProDF_results_Pro &lt;- full_join(Pro_DF, results_Pro, by = &quot;uniprotswissprot&quot;)
+Joined_ProDF_results_Pro &lt;- Joined_ProDF_results_Pro %&gt;% na.omit()
+
+
+
+# Simplify RNA DF 
+RNA_DF &lt;- data.frame( hgnc_symbol = RNA_24hr_Dox_toptable_Threshold_0.05$SYMBOL, RNA_LogFC = RNA_24hr_Dox_toptable_Threshold_0.05$logFC, RNA_Pval = RNA_24hr_Dox_toptable_Threshold_0.05$adj.P.Val )
+
+RNA_DF %&gt;% head()</code></pre>
+<pre><code>  hgnc_symbol RNA_LogFC     RNA_Pval
+1        DDB2 -2.593915 2.444720e-24
+2      H2AC18 -3.004897 8.254799e-20
+3      PTP4A1 -1.902640 1.473790e-19
+4         ADK -2.059920 1.473790e-19
+5      CEP295  2.008745 1.473790e-19
+6      H2AC19 -2.947133 1.473790e-19</code></pre>
+<pre class="r"><code>Joined_ProDF_results_Pro_RNA_DF &lt;- full_join(Joined_ProDF_results_Pro, RNA_DF, by = &quot;hgnc_symbol&quot;)
+Joined_ProDF_results_Pro_RNA_DF_NAomit &lt;- Joined_ProDF_results_Pro_RNA_DF %&gt;% na.omit() 
+
+
+Results_RNA_DF_Pro_DF_Merged_NAomit &lt;- data.frame(uniprotswissprot = Joined_ProDF_results_Pro_RNA_DF_NAomit$uniprotswissprot, 
+                                                  hgnc_symbol =Joined_ProDF_results_Pro_RNA_DF_NAomit$hgnc_symbol , 
+                                                  RNA_LogFC = Joined_ProDF_results_Pro_RNA_DF_NAomit$RNA_LogFC, 
+                                                  RNA_Pval = Joined_ProDF_results_Pro_RNA_DF_NAomit$RNA_Pval, 
+                                                  Pro_LogFC = Joined_ProDF_results_Pro_RNA_DF_NAomit$Pro_LogFC, 
+                                                  Pro_Pval =  Joined_ProDF_results_Pro_RNA_DF_NAomit$Pro_Pval)
+
+Results_RNA_DF_Pro_DF_Merged_NAomit %&gt;% head()</code></pre>
+<pre><code>  uniprotswissprot hgnc_symbol    RNA_LogFC  RNA_Pval Pro_LogFC     Pro_Pval
+1           Q15327      ANKRD1  0.542369649 0.3495016 -3.553817 6.951913e-05
+2           O76021      RSL1D1 -0.316532413 0.0903693 -2.141093 2.443330e-04
+3           Q96LW7      CARD19 -0.376258841 0.1269744 -1.634296 3.034614e-04
+4           Q969Q1      TRIM63 -0.688160365 0.1389441 -4.342380 3.918893e-04
+5           P19388      POLR2E  0.183353536 0.1788005 -1.165897 3.940743e-04
+6           O43159        RRP8  0.001877949 0.9922191 -2.109689 8.142856e-04</code></pre>
+</div>
+<div id="sign-testing" class="section level4">
+<h4>Sign Testing</h4>
+<pre class="r"><code># Add a new column to the data frame indicating whether the signs of Pro_LogFC and RNA_LogFC match
+Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match &lt;- sign(Results_RNA_DF_Pro_DF_Merged_NAomit$RNA_LogFC) == sign(Results_RNA_DF_Pro_DF_Merged_NAomit$Pro_LogFC)
+
+# Calculate the proportion of matches
+proportion_sign_matches &lt;- mean(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match)
+print(proportion_sign_matches)</code></pre>
+<pre><code>[1] 0.4603417</code></pre>
+<pre class="r"><code># Fit linear model
+model_LogFC &lt;- lm(RNA_LogFC ~ Pro_LogFC, data = Results_RNA_DF_Pro_DF_Merged_NAomit)
+
+
+
+# Get R-squared
+r2 &lt;- summary(model_LogFC)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot(Results_RNA_DF_Pro_DF_Merged_NAomit, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-28-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#------ Plot for same sign 
+SAME_SIGN &lt;- Results_RNA_DF_Pro_DF_Merged_NAomit[Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == TRUE, ]
+
+# Fit linear model
+model_LogFC &lt;- lm(RNA_LogFC ~ Pro_LogFC, data = SAME_SIGN)
+
+nrow(SAME_SIGN)/nrow(Results_RNA_DF_Pro_DF_Merged_NAomit)</code></pre>
+<pre><code>[1] 0.4603417</code></pre>
+<pre class="r"><code># Get R-squared
+r2 &lt;- summary(model_LogFC)$r.squared
+
+
+ggplot(SAME_SIGN, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-28-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#------ Plot for opposite signs
+OPPOSITE_SIGN &lt;- Results_RNA_DF_Pro_DF_Merged_NAomit[Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == FALSE, ]
+
+# Fit linear model
+model_LogFC &lt;- lm(RNA_LogFC ~ Pro_LogFC, data = OPPOSITE_SIGN)
+
+
+# Get R-squared
+r2 &lt;- summary(model_LogFC)$r.squared
+
+ggplot(OPPOSITE_SIGN, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-28-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Plot for Same sign &amp; DE in both cases 
+SAME_Sign_DE &lt;- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == TRUE),  ]
+
+SAME_Sign_DE_2 &lt;- SAME_Sign_DE[ (SAME_Sign_DE$RNA_Pval &lt; 0.05) &amp; (SAME_Sign_DE$Pro_Pval &lt; 0.05),  ]
+
+# Fit linear model
+model_LogFC &lt;- lm(RNA_LogFC ~ Pro_LogFC, data = SAME_Sign_DE_2)
+
+
+# Get R-squared
+r2 &lt;- summary(model_LogFC)$r.squared
+
+
+ggplot(SAME_Sign_DE_2, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-29-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Plot for opposite sign &amp; DE 
+SAME_Sign_DE &lt;- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == FALSE),  ]
+
+SAME_Sign_DE_2 &lt;- SAME_Sign_DE[ (SAME_Sign_DE$RNA_Pval &lt; 0.05) &amp; (SAME_Sign_DE$Pro_Pval &lt; 0.05),  ]
+
+SAME_Sign_DE_2 %&gt;% dim()</code></pre>
+<pre><code>[1] 62  7</code></pre>
+<pre class="r"><code># Fit linear model
+model_LogFC &lt;- lm(RNA_LogFC ~ Pro_LogFC, data = SAME_Sign_DE_2)
+
+
+
+# Get R-squared
+r2 &lt;- summary(model_LogFC)$r.squared
+
+ggplot(SAME_Sign_DE_2, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-30-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#---------- Plot for DE 
+RNA_Pro_DE &lt;- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$RNA_Pval &lt; 0.05) &amp; (Results_RNA_DF_Pro_DF_Merged_NAomit$Pro_Pval &lt; 0.05),  ]
+
+
+# Fit linear model
+model_LogFC &lt;- lm(RNA_LogFC ~ Pro_LogFC, data = RNA_Pro_DE)
+
+# Get R-squared
+r2 &lt;- summary(model_LogFC)$r.squared
+
+ggplot(RNA_Pro_DE, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-31-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="gwas-enrichment-tests" class="section level4">
+<h4>GWAS Enrichment Tests</h4>
+<pre class="r"><code>HF_GWAS &lt;- readRDS(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/HF_geneset.RDS&quot;)
+CAD_GWAS &lt;- readRDS(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/CAD_geneset.RDS&quot;)
+ARR_GWAS &lt;- readRDS(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Arr_geneset.RDS&quot;)
+
+# Combine data frames into a whole CVD GWAS data set 
+CVD_GWAS &lt;- rbind(HF_GWAS, CAD_GWAS, ARR_GWAS)
+
+# Get the unique genes from the CVD_GWAS data set 
+CVD_GWAS_Unique &lt;- CVD_GWAS$hgnc_symbol %&gt;% unique() </code></pre>
+<pre class="r"><code># Prepare:
+# A = number of DE things that are in the GWAS list
+# B = number of DE things that are not in the GWAS list
+# C = number of expressed things that are in the GWAS list but are not DE
+# D = number of expressed things that are not in the GWAS list and are not DE
+Expressed_protein &lt;- Results_RNA_DF_Pro_DF_Merged_NAomit$hgnc_symbol
+
+CAD_GWAS_Expressed &lt;- intersect(CAD_GWAS$hgnc_symbol, Expressed_protein)
+intersect(Expressed_protein,CAD_GWAS_Expressed )</code></pre>
+<pre><code> [1] &quot;GIGYF2&quot;    &quot;EDNRA&quot;     &quot;SNRPD2&quot;    &quot;LDLR&quot;      &quot;FBN2&quot;      &quot;PALLD&quot;    
+ [7] &quot;PTK7&quot;      &quot;HTRA1&quot;     &quot;COL4A2&quot;    &quot;RDX&quot;       &quot;AGPAT4&quot;    &quot;FN1&quot;      
+[13] &quot;ANXA6&quot;     &quot;CNPY2&quot;     &quot;HSD17B12&quot;  &quot;WDR11&quot;     &quot;RRBP1&quot;     &quot;CTAGE1&quot;   
+[19] &quot;GOSR2&quot;     &quot;NIPSNAP3B&quot; &quot;NDUFAF6&quot;   &quot;VPS29&quot;     &quot;NOC3L&quot;     &quot;APOE&quot;     
+[25] &quot;MRAS&quot;      &quot;FGD6&quot;      &quot;KANK2&quot;     &quot;TNS1&quot;      &quot;GIT2&quot;      &quot;NRIP1&quot;    
+[31] &quot;ACAA2&quot;     &quot;GFPT1&quot;     &quot;MAT2A&quot;     &quot;COMT&quot;      &quot;SOD2&quot;      &quot;ATP2A2&quot;   
+[37] &quot;MAP1S&quot;     &quot;MYL2&quot;      &quot;CDH13&quot;     &quot;ATP2B1&quot;    &quot;BCAP29&quot;    &quot;PAFAH1B1&quot; 
+[43] &quot;SERPINH1&quot;  &quot;PPCS&quot;      &quot;MIA3&quot;      &quot;BCAS3&quot;     &quot;HNRNPUL1&quot;  &quot;IGF2BP1&quot;  
+[49] &quot;SORBS2&quot;    &quot;SF3A3&quot;     &quot;ATP1B1&quot;    &quot;ITGA2&quot;     &quot;PDLIM5&quot;    &quot;RAC1&quot;     
+[55] &quot;NEK9&quot;      &quot;TMEM106B&quot;  &quot;CLINT1&quot;   </code></pre>
+<pre class="r"><code>ARR_GWAS_Expressed &lt;- intersect(ARR_GWAS$hgnc_symbol,Expressed_protein)
+intersect(Expressed_protein,ARR_GWAS_Expressed )</code></pre>
+<pre><code> [1] &quot;GTF2I&quot;    &quot;NUCKS1&quot;   &quot;DPF3&quot;     &quot;LRRC10&quot;   &quot;CAND2&quot;    &quot;RBM20&quot;   
+ [7] &quot;FXR2&quot;     &quot;HCN4&quot;     &quot;NACA&quot;     &quot;CASZ1&quot;    &quot;CAV1&quot;     &quot;HSPG2&quot;   
+[13] &quot;YWHAE&quot;    &quot;SYNPO2L&quot;  &quot;XXYLT1&quot;   &quot;CFL2&quot;     &quot;ASAH1&quot;    &quot;CUL4A&quot;   
+[19] &quot;MTHFD1&quot;   &quot;SCN5A&quot;    &quot;ARHGAP10&quot; &quot;IRF2BPL&quot;  &quot;MYO18B&quot;   &quot;MYPN&quot;    
+[25] &quot;MYH7&quot;     &quot;MYO1C&quot;    &quot;CAMK2D&quot;   &quot;MYH6&quot;     &quot;SYNE2&quot;    &quot;ANXA4&quot;   
+[31] &quot;ORMDL3&quot;   &quot;TTN&quot;      &quot;USP34&quot;    &quot;GNB4&quot;     &quot;IGF1R&quot;    &quot;PKP2&quot;    
+[37] &quot;SLIT3&quot;    &quot;XPO7&quot;     &quot;PLN&quot;      &quot;PHLDB2&quot;   &quot;CASQ2&quot;    &quot;SLC27A6&quot; 
+[43] &quot;CALU&quot;     &quot;DEK&quot;     </code></pre>
+<pre class="r"><code>HF_GWAS_Expressed &lt;- intersect(HF_GWAS$hgnc_symbol, Expressed_protein)
+intersect(Expressed_protein,HF_GWAS_Expressed )</code></pre>
+<pre><code>[1] &quot;GTF2I&quot;    &quot;SPEN&quot;     &quot;CACNB2&quot;   &quot;HSD17B12&quot; &quot;BAG3&quot;     &quot;YWHAE&quot;    &quot;SYNPO2L&quot; 
+[8] &quot;ALDH2&quot;    &quot;NPC1&quot;    </code></pre>
+<pre class="r"><code>HF_GWAS_Expressed</code></pre>
+<pre><code>[1] &quot;ALDH2&quot;    &quot;BAG3&quot;     &quot;CACNB2&quot;   &quot;GTF2I&quot;    &quot;HSD17B12&quot; &quot;NPC1&quot;     &quot;SPEN&quot;    
+[8] &quot;SYNPO2L&quot;  &quot;YWHAE&quot;   </code></pre>
+</div>
+<div id="enrichment-testing" class="section level4">
+<h4>Enrichment Testing</h4>
+<pre class="r"><code>####* --- DE protein ####
+# Protein coding universe GWAS 
+SAME_Sign_DE &lt;- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$Pro_Pval &lt;0.05 ),  ]
+ 
+
+# HF
+#**************************
+GWAS_Exp &lt;- intersect(Expressed_protein, HF_GWAS_Expressed)
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 1.4736, df = 1, p-value = 0.2248</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 0.1155
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+  0.4086789 21.4718469
+sample estimates:
+odds ratio 
+  4.055648 </code></pre>
+<pre class="r"><code># Record the gene list
+GWAS_List_3 &lt;- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp)
+
+colnames(mat) &lt;- c(&quot;DE&quot;, &quot;~DE&quot;)
+rownames(mat) &lt;- c(&quot;GWAS&quot;, &quot;~GWAS&quot;)
+mat</code></pre>
+<pre><code>       DE  ~DE
+GWAS    2    7
+~GWAS 215 3054</code></pre>
+<pre class="r"><code>table &lt;- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c(&quot;GWAS&quot;, &quot;Non-GWAS&quot;),
+                                         Protein = c(&quot;DE&quot;, &quot;Non-DE&quot;))))
+
+# Convert the table to a data frame
+df_mat &lt;- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key &lt;- c(&quot;DE + GWAS&quot;, &quot;DE ~ GWAS&quot;, &quot;~ DE + GWAS&quot;, &quot;~ DE ~ GWAS&quot;)
+df_mat$Group &lt;- c(&quot;DE&quot;, &quot;DE&quot;, &quot;~DE&quot;, &quot;~DE&quot;)
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat=&quot;identity&quot;) +
+  theme_minimal() +
+  ylab(&quot;Frequency&quot;) +
+  xlab(&quot;Category&quot;) +
+  ggtitle(&quot;Contingency Table Stacked Bar Chart&quot;) +
+  scale_fill_discrete(name=&quot;Key&quot;) +
+  theme(legend.position=&quot;bottom&quot;)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-34-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>table</code></pre>
+<pre><code>          Protein
+Gene         DE Non-DE
+  GWAS        2      7
+  Non-GWAS  215   3054</code></pre>
+<pre class="r"><code># CAD
+#**************************
+CAD_GWAS$hgnc_symbol %&gt;% length()</code></pre>
+<pre><code>[1] 279</code></pre>
+<pre class="r"><code>CAD_GWAS_Expressed %&gt;% length()</code></pre>
+<pre><code>[1] 57</code></pre>
+<pre class="r"><code>GWAS_Exp &lt;- intersect(Expressed_protein, CAD_GWAS_Expressed)
+intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %&gt;% length()</code></pre>
+<pre><code>[1] 2</code></pre>
+<pre class="r"><code># A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 0.4683, df = 1, p-value = 0.4938</code></pre>
+<pre class="r"><code># ARR
+#**************************
+GWAS_Exp &lt;- intersect(Expressed_protein, ARR_GWAS_Expressed)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 0.93886, df = 1, p-value = 0.3326</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 0.2109
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 0.5562774 4.7075648
+sample estimates:
+odds ratio 
+  1.827042 </code></pre>
+<p>####* — DE RNA ####</p>
+<pre class="r"><code>Results_RNA_DF_Pro_DF_Merged_NAomit %&gt;% dim()</code></pre>
+<pre><code>[1] 3278    7</code></pre>
+<pre class="r"><code># Protein coding universe GWAS 
+SAME_Sign_DE &lt;- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$RNA_Pval &lt; 0.05 ),  ]
+
+
+# HF
+#**************************
+GWAS_Exp &lt;- intersect(Expressed_protein, HF_GWAS_Expressed)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 1.907e-27, df = 1, p-value = 1</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 1
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 0.1987716 4.6718545
+sample estimates:
+odds ratio 
+  1.003585 </code></pre>
+<pre class="r"><code># CAD
+#**************************
+GWAS_Exp &lt;- intersect(Expressed_protein, CAD_GWAS_Expressed)
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 1.0353, df = 1, p-value = 0.3089</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 0.283
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 0.4018611 1.2874959
+sample estimates:
+odds ratio 
+ 0.7279137 </code></pre>
+<pre class="r"><code># ARR --- Restricted to most DE genes that are protein coding ( Pval &lt; 0.01)
+#**************************
+GWAS_Exp &lt;- intersect(Expressed_protein, ARR_GWAS_Expressed)
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE$hgnc_symbol)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 3.3413, df = 1, p-value = 0.06756</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 0.06556
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 0.9593184 3.5517673
+sample estimates:
+odds ratio 
+   1.82643 </code></pre>
+<pre class="r"><code># Collect enriched genes 
+GWAS_List_1 &lt;- intersect(SAME_Sign_DE$hgnc_symbol, GWAS_Exp)
+
+
+# Plot result 
+colnames(mat) &lt;- c(&quot;DE&quot;, &quot;~DE&quot;)
+rownames(mat) &lt;- c(&quot;GWAS&quot;, &quot;~GWAS&quot;)
+mat</code></pre>
+<pre><code>        DE  ~DE
+GWAS    26   18
+~GWAS 1428 1806</code></pre>
+<pre class="r"><code>table &lt;- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c(&quot;GWAS&quot;, &quot;Non-GWAS&quot;),
+                                         Protein = c(&quot;DE&quot;, &quot;Non-DE&quot;))))
+table</code></pre>
+<pre><code>          Protein
+Gene         DE Non-DE
+  GWAS       26     18
+  Non-GWAS 1428   1806</code></pre>
+<pre class="r"><code># Convert the table to a data frame
+df_mat &lt;- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key &lt;- c(&quot;DE + GWAS&quot;, &quot;DE ~ GWAS&quot;, &quot;~ DE + GWAS&quot;, &quot;~ DE ~ GWAS&quot;)
+df_mat$Group &lt;- c(&quot;DE&quot;, &quot;DE&quot;, &quot;~DE&quot;, &quot;~DE&quot;)
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat=&quot;identity&quot;) +
+  theme_minimal() +
+  ylab(&quot;Frequency&quot;) +
+  xlab(&quot;Category&quot;) +
+  ggtitle(&quot;Contingency Table Stacked Bar Chart&quot;) +
+  scale_fill_discrete(name=&quot;Key&quot;) +
+  theme(legend.position=&quot;bottom&quot;)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-39-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>####* — DE-Same-Sign ####</p>
+<pre class="r"><code># Protein coding universe GWAS 
+SAME_Sign_DE &lt;- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == TRUE),  ]
+
+SAME_Sign_DE_2 &lt;- SAME_Sign_DE[ (SAME_Sign_DE$RNA_Pval &lt; 0.05) &amp; (SAME_Sign_DE$Pro_Pval &lt; 0.05),  ]
+
+
+# HF
+#**************************
+GWAS_Exp &lt;- intersect(Expressed_protein, HF_GWAS_Expressed)
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE_2$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 2.4696e-25, df = 1, p-value = 1</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 1
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+  0.00000 66.67481
+sample estimates:
+odds ratio 
+         0 </code></pre>
+<pre class="r"><code># CAD
+#**************************
+GWAS_Exp &lt;- intersect(Expressed_protein, CAD_GWAS_Expressed)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE_2$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 1.3975e-26, df = 1, p-value = 1</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 1
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 0.000000 8.807611
+sample estimates:
+odds ratio 
+         0 </code></pre>
+<pre class="r"><code># ARR --- Restricted to most DE genes that are protein coding ( Pval &lt; 0.01)
+#**************************
+GWAS_Exp &lt;- intersect(Expressed_protein, ARR_GWAS_Expressed)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE_2$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 5.7723e-26, df = 1, p-value = 1</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 1
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+  0.0000 11.5501
+sample estimates:
+odds ratio 
+         0 </code></pre>
+<p>####* — DE-Opposite-Sign ####</p>
+<pre class="r"><code># Protein coding universe GWAS 
+SAME_Sign_DE &lt;- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == FALSE),  ]
+
+SAME_Sign_DE_2 &lt;- SAME_Sign_DE[ (SAME_Sign_DE$RNA_Pval &lt; 0.05) &amp; (SAME_Sign_DE$Pro_Pval &lt; 0.05),  ]
+
+
+# HF
+#**************************
+GWAS_Exp &lt;- intersect(Expressed_protein, HF_GWAS_Expressed)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE_2$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 5.8352e-29, df = 1, p-value = 1</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 1
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+  0.00000 26.80925
+sample estimates:
+odds ratio 
+         0 </code></pre>
+<pre class="r"><code># CAD
+#**************************
+GWAS_Exp &lt;- intersect(Expressed_protein, CAD_GWAS_Expressed)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE_2$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 1.4172e-29, df = 1, p-value = 1</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 1
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 0.02264808 5.56715786
+sample estimates:
+odds ratio 
+ 0.9250796 </code></pre>
+<pre class="r"><code># ARR --- Restricted to most DE genes that are protein coding ( Pval &lt; 0.05)
+#**************************
+GWAS_Exp &lt;- intersect(Expressed_protein, ARR_GWAS_Expressed)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(SAME_Sign_DE_2$hgnc_symbol) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(SAME_Sign_DE_2$hgnc_symbol)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 3.4531, df = 1, p-value = 0.06313</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 0.04929
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+  0.7581648 12.8969707
+sample estimates:
+odds ratio 
+  3.934371 </code></pre>
+<pre class="r"><code># Record the genes in this set
+GWAS_List_2 &lt;- intersect(SAME_Sign_DE_2$hgnc_symbol, GWAS_Exp)
+
+
+
+# Plot result 
+colnames(mat) &lt;- c(&quot;DE&quot;, &quot;~DE&quot;)
+rownames(mat) &lt;- c(&quot;GWAS&quot;, &quot;~GWAS&quot;)
+mat</code></pre>
+<pre><code>      DE  ~DE
+GWAS   3   41
+~GWAS 59 3175</code></pre>
+<pre class="r"><code>table &lt;- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c(&quot;GWAS&quot;, &quot;Non-GWAS&quot;),
+                                         Protein = c(&quot;DE&quot;, &quot;Non-DE&quot;))))
+table</code></pre>
+<pre><code>          Protein
+Gene         DE Non-DE
+  GWAS        3     41
+  Non-GWAS   59   3175</code></pre>
+<pre class="r"><code># Convert the table to a data frame
+df_mat &lt;- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key &lt;- c(&quot;DE + GWAS&quot;, &quot;DE ~ GWAS&quot;, &quot;~ DE + GWAS&quot;, &quot;~ DE ~ GWAS&quot;)
+df_mat$Group &lt;- c(&quot;DE&quot;, &quot;DE&quot;, &quot;~DE&quot;, &quot;~DE&quot;)
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat=&quot;identity&quot;) +
+  theme_minimal() +
+  ylab(&quot;Frequency&quot;) +
+  xlab(&quot;Category&quot;) +
+  ggtitle(&quot;Contingency Table Stacked Bar Chart&quot;) +
+  scale_fill_discrete(name=&quot;Key&quot;) +
+  theme(legend.position=&quot;bottom&quot;)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-45-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>####* — Divergent sets ####</p>
+<pre class="r"><code># Calculate the deltaLogFC and plot dstribution and define quantile sets 
+New_RNA_PRO_DF &lt;- Results_RNA_DF_Pro_DF_Merged_NAomit %&gt;% mutate(delta_logFC = abs(RNA_LogFC - Pro_LogFC))
+New_RNA_PRO_DF$delta_logFC %&gt;% hist()</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-46-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>quantile(x = New_RNA_PRO_DF$delta_logFC , 0.95) </code></pre>
+<pre><code>     95% 
+1.837277 </code></pre>
+<pre class="r"><code>hist(New_RNA_PRO_DF$delta_logFC, breaks = 20)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-46-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_RNA_PRO_DF &lt;- New_RNA_PRO_DF %&gt;% mutate(Upper_quant = New_RNA_PRO_DF$delta_logFC &gt; quantile(x = New_RNA_PRO_DF$delta_logFC , 0.95))
+
+
+New_RNA_PRO_DF &lt;- New_RNA_PRO_DF %&gt;% mutate(Lower_quant = New_RNA_PRO_DF$delta_logFC &lt; quantile(x = New_RNA_PRO_DF$delta_logFC , 0.05))
+
+
+New_RNA_PRO_DF %&gt;% head()</code></pre>
+<pre><code>  uniprotswissprot hgnc_symbol    RNA_LogFC  RNA_Pval Pro_LogFC     Pro_Pval
+1           Q15327      ANKRD1  0.542369649 0.3495016 -3.553817 6.951913e-05
+2           O76021      RSL1D1 -0.316532413 0.0903693 -2.141093 2.443330e-04
+3           Q96LW7      CARD19 -0.376258841 0.1269744 -1.634296 3.034614e-04
+4           Q969Q1      TRIM63 -0.688160365 0.1389441 -4.342380 3.918893e-04
+5           P19388      POLR2E  0.183353536 0.1788005 -1.165897 3.940743e-04
+6           O43159        RRP8  0.001877949 0.9922191 -2.109689 8.142856e-04
+  sign_match delta_logFC Upper_quant Lower_quant
+1      FALSE    4.096186        TRUE       FALSE
+2       TRUE    1.824560       FALSE       FALSE
+3       TRUE    1.258037       FALSE       FALSE
+4       TRUE    3.654220        TRUE       FALSE
+5      FALSE    1.349250       FALSE       FALSE
+6      FALSE    2.111567        TRUE       FALSE</code></pre>
+<pre class="r"><code># High Divergent Gene-Proteins HF 
+Non_DE_Divergent &lt;- New_RNA_PRO_DF[New_RNA_PRO_DF$Upper_quant == TRUE, ]$hgnc_symbol
+
+GWAS_Exp &lt;- intersect(Expressed_protein, HF_GWAS_Expressed)
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(Non_DE_Divergent, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(Non_DE_Divergent) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 6.6505e-26, df = 1, p-value = 1</code></pre>
+<pre class="r"><code># Low Divergent Gene-Proteins HF 
+Non_DE_Divergent &lt;- New_RNA_PRO_DF[New_RNA_PRO_DF$Lower_quant == TRUE, ]$hgnc_symbol
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(Non_DE_Divergent, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(Non_DE_Divergent) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 6.6505e-26, df = 1, p-value = 1</code></pre>
+<pre class="r"><code># High Divergent Gene-Proteins CAD Upper .95, 0.9
+Non_DE_Divergent &lt;- New_RNA_PRO_DF[New_RNA_PRO_DF$Upper_quant == TRUE, ]$hgnc_symbol
+
+GWAS_Exp &lt;- intersect(Expressed_protein, CAD_GWAS_Expressed)
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(Non_DE_Divergent, GWAS_Exp) %&gt;% length()
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(Non_DE_Divergent) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 0.046477, df = 1, p-value = 0.8293</code></pre>
+<pre class="r"><code># Low Divergent Gene-Proteins CAD
+Non_DE_Divergent &lt;- New_RNA_PRO_DF[New_RNA_PRO_DF$Lower_quant == TRUE, ]$hgnc_symbol
+
+GWAS_Exp &lt;- intersect(Expressed_protein, CAD_GWAS_Expressed)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(Non_DE_Divergent, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(Non_DE_Divergent) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 2.0777, df = 1, p-value = 0.1495</code></pre>
+<pre class="r"><code># High Divergent Gene-Proteins ARR 
+Non_DE_Divergent &lt;- New_RNA_PRO_DF[New_RNA_PRO_DF$Upper_quant == TRUE, ]$hgnc_symbol
+
+GWAS_Exp &lt;- intersect(Results_RNA_DF_Pro_DF_Merged_NAomit$hgnc_symbol, ARR_GWAS$hgnc_symbol)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(Non_DE_Divergent, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(Non_DE_Divergent) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 13.608, df = 1, p-value = 0.0002252</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 0.001252
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 1.729378 9.793788
+sample estimates:
+odds ratio 
+  4.380849 </code></pre>
+<pre class="r"><code>GWAS_List_4 &lt;- intersect(Non_DE_Divergent, GWAS_Exp)
+
+
+# Plot result 
+colnames(mat) &lt;- c(&quot;DE&quot;, &quot;~DE&quot;)
+rownames(mat) &lt;- c(&quot;GWAS&quot;, &quot;~GWAS&quot;)
+mat</code></pre>
+<pre><code>       DE  ~DE
+GWAS    8   36
+~GWAS 156 3078</code></pre>
+<pre class="r"><code>table &lt;- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c(&quot;GWAS&quot;, &quot;Non-GWAS&quot;),
+                                         Protein = c(&quot;DE&quot;, &quot;Non-DE&quot;))))
+table</code></pre>
+<pre><code>          Protein
+Gene         DE Non-DE
+  GWAS        8     36
+  Non-GWAS  156   3078</code></pre>
+<pre class="r"><code># Convert the table to a data frame
+df_mat &lt;- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key &lt;- c(&quot;Divergent + GWAS&quot;, &quot;Divergent ~ GWAS&quot;, &quot;~ Divergent + GWAS&quot;, &quot;~ Divergent ~ GWAS&quot;)
+df_mat$Group &lt;- c(&quot;DE&quot;, &quot;DE&quot;, &quot;~DE&quot;, &quot;~DE&quot;)
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat=&quot;identity&quot;) +
+  theme_minimal() +
+  ylab(&quot;Frequency&quot;) +
+  xlab(&quot;Category&quot;) +
+  ggtitle(&quot;Contingency Table Stacked Bar Chart&quot;) +
+  scale_fill_discrete(name=&quot;Key&quot;) +
+  theme(legend.position=&quot;bottom&quot;)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-50-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Low Divergent Gene-Proteins ARR
+Non_DE_Divergent &lt;- New_RNA_PRO_DF[New_RNA_PRO_DF$Lower_quant == TRUE, ]$hgnc_symbol
+
+GWAS_Exp &lt;- intersect(Results_RNA_DF_Pro_DF_Merged_NAomit$hgnc_symbol, ARR_GWAS$hgnc_symbol)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(Non_DE_Divergent, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(Non_DE_Divergent) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 6.492e-27, df = 1, p-value = 1</code></pre>
+<pre class="r"><code># High Divergent Gene-Proteins ARR DE 
+Non_DE_Divergent &lt;- New_RNA_PRO_DF[New_RNA_PRO_DF$Upper_quant == TRUE, ]$hgnc_symbol
+
+
+GWAS_Exp &lt;- intersect(Results_RNA_DF_Pro_DF_Merged_NAomit$hgnc_symbol, ARR_GWAS$hgnc_symbol)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(Non_DE_Divergent, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(Non_DE_Divergent) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(Non_DE_Divergent)) - C
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 13.608, df = 1, p-value = 0.0002252</code></pre>
+<pre class="r"><code># High Divergent Proteins ARR DE 
+Non_DE_Divergent &lt;- New_RNA_PRO_DF[New_RNA_PRO_DF$Upper_quant == TRUE, ]
+DE_Divergent &lt;- Non_DE_Divergent[Non_DE_Divergent$Pro_Pval &lt; 0.05, ]$hgnc_symbol
+
+GWAS_Exp &lt;- intersect(Results_RNA_DF_Pro_DF_Merged_NAomit$hgnc_symbol, ARR_GWAS$hgnc_symbol)
+
+
+# A = number of DE gene/proteins that are in the GWAS list
+A &lt;- intersect(DE_Divergent, GWAS_Exp) %&gt;% length()
+
+
+# B = number of DE gene/proteins that are not in the GWAS list
+B &lt;- length(DE_Divergent) - A
+
+# C = number of expressed gene/proteins that are in the GWAS list but are not DE
+C &lt;- length(GWAS_Exp) - A
+
+# D = number of expressed gene/proteins that are not in the GWAS list and are not DE
+D &lt;- (nrow(Results_RNA_DF_Pro_DF_Merged_NAomit) - length(DE_Divergent)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 5.9006, df = 1, p-value = 0.01514</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 0.02293
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+  1.034867 18.066639
+sample estimates:
+odds ratio 
+  5.423342 </code></pre>
+<pre class="r"><code># Record gene set, differentially expressed and divergent. 
+GWAS_List_5 &lt;- intersect(DE_Divergent, GWAS_Exp)
+GWAS_List_5</code></pre>
+<pre><code>[1] &quot;DPF3&quot;   &quot;LRRC10&quot; &quot;CAND2&quot; </code></pre>
+<pre class="r"><code># Plot result 
+colnames(mat) &lt;- c(&quot;DE&quot;, &quot;~DE&quot;)
+rownames(mat) &lt;- c(&quot;GWAS&quot;, &quot;~GWAS&quot;)
+mat</code></pre>
+<pre><code>      DE  ~DE
+GWAS   3   41
+~GWAS 43 3191</code></pre>
+<pre class="r"><code>table &lt;- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c(&quot;GWAS&quot;, &quot;Non-GWAS&quot;),
+                                         Protein = c(&quot;DE&quot;, &quot;Non-DE&quot;))))
+table</code></pre>
+<pre><code>          Protein
+Gene         DE Non-DE
+  GWAS        3     41
+  Non-GWAS   43   3191</code></pre>
+<pre class="r"><code># Convert the table to a data frame
+df_mat &lt;- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key &lt;- c(&quot;In GWAS&quot;, &quot;Not in GWAS&quot;, &quot;In GWAS&quot;, &quot;Not in GWAS&quot;)
+df_mat$Group &lt;- c(&quot;Divergent&quot;, &quot;Divergent&quot;, &quot;~ Divergent&quot;, &quot;~ Divergent&quot;)
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat=&quot;identity&quot;) +
+  theme_minimal() +
+  ylab(&quot;Frequency&quot;) +
+  xlab(&quot;Category&quot;) +
+  ggtitle(&quot;Contingency Table Stacked Bar Chart&quot;) +
+  scale_fill_discrete(name=&quot;Key&quot;) +
+  theme(legend.position=&quot;bottom&quot;)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-53-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>GWAS_List_1</code></pre>
+<pre><code> [1] &quot;DPF3&quot;     &quot;LRRC10&quot;   &quot;CAND2&quot;    &quot;RBM20&quot;    &quot;CASZ1&quot;    &quot;YWHAE&quot;   
+ [7] &quot;CUL4A&quot;    &quot;MTHFD1&quot;   &quot;SCN5A&quot;    &quot;ARHGAP10&quot; &quot;IRF2BPL&quot;  &quot;MYO18B&quot;  
+[13] &quot;MYH7&quot;     &quot;MYO1C&quot;    &quot;CAMK2D&quot;   &quot;MYH6&quot;     &quot;ANXA4&quot;    &quot;TTN&quot;     
+[19] &quot;USP34&quot;    &quot;GNB4&quot;     &quot;IGF1R&quot;    &quot;PKP2&quot;     &quot;SLIT3&quot;    &quot;XPO7&quot;    
+[25] &quot;PHLDB2&quot;   &quot;DEK&quot;     </code></pre>
+<pre class="r"><code>GWAS_List_2</code></pre>
+<pre><code>[1] &quot;DPF3&quot;   &quot;LRRC10&quot; &quot;CAND2&quot; </code></pre>
+<pre class="r"><code>GWAS_List_3</code></pre>
+<pre><code>[1] &quot;GTF2I&quot; &quot;SPEN&quot; </code></pre>
+<pre class="r"><code>GWAS_List_4</code></pre>
+<pre><code>[1] &quot;DPF3&quot;     &quot;LRRC10&quot;   &quot;CAND2&quot;    &quot;SCN5A&quot;    &quot;ARHGAP10&quot; &quot;MYH7&quot;     &quot;MYH6&quot;    
+[8] &quot;ANXA4&quot;   </code></pre>
+<pre class="r"><code>GWAS_List_5</code></pre>
+<pre><code>[1] &quot;DPF3&quot;   &quot;LRRC10&quot; &quot;CAND2&quot; </code></pre>
+</div>
+<div id="mammalian-stress-granule-msg-gene-protein-sets"
+class="section level4">
+<h4>Mammalian Stress Granule (MSG) Gene-Protein Sets</h4>
+<pre class="r"><code># Read in data frame curated from (https://msgp.pt/)
+MSG &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/SG_RBP_AUtoph/MSG.csv&quot;, header = TRUE)
+
+
+# 1. Generate lists of gene-protein pairs with interesting functional genomic properties
+#*DE proteins
+MSG_DE &lt;- New_RNA_PRO_DF[New_RNA_PRO_DF$Pro_Pval &lt; 0.05, ]
+
+#*DE proteins same sign 
+MSG_DE_SAME &lt;- New_RNA_PRO_DF[(New_RNA_PRO_DF$sign_match == TRUE) &amp; (New_RNA_PRO_DF$Pro_Pval &lt; 0.05), ]
+
+#*DE proteins opposite sign 
+MSG_DE_OPPOSITE &lt;- New_RNA_PRO_DF[(New_RNA_PRO_DF$sign_match == FALSE) &amp; (New_RNA_PRO_DF$Pro_Pval &lt; 0.05), ]
+
+#*Divergent proteins 
+MSG_DIVERGENT &lt;- New_RNA_PRO_DF[ New_RNA_PRO_DF$Upper_quant == TRUE, ]
+
+#*Conserved proteins 
+MSG_CONSERVED &lt;- New_RNA_PRO_DF[ New_RNA_PRO_DF$Lower_quant == TRUE, ]
+
+#*DE Divergent
+MSG_DE_DIVERGENT &lt;- New_RNA_PRO_DF[(New_RNA_PRO_DF$Upper_quant == TRUE) &amp; (New_RNA_PRO_DF$Pro_Pval &lt; 0.05), ]
+
+#*DE Conserved 
+MSG_DE_Conserved &lt;- New_RNA_PRO_DF[(New_RNA_PRO_DF$Lower_quant == TRUE) &amp; (New_RNA_PRO_DF$Pro_Pval &lt; 0.05), ]
+
+#*DE Protein Expressing RNA 
+MSG_DE_RNAasprotein &lt;- New_RNA_PRO_DF[(New_RNA_PRO_DF$RNA_Pval &lt; 0.05), ]
+
+#* RNA as 
+MSG_DE_RNA &lt;- RNA_Seq_Top_Table_24hr[RNA_Seq_Top_Table_24hr$adj.P.Val &lt; 0.05, ]
+
+
+
+# 2. Generate sets from MSG data frame 
+
+#* RPB
+MSG_RPB &lt;- MSG[MSG$RPB == TRUE, ]
+
+#* Autophagy
+MSG_Auto &lt;- MSG[MSG$Autophagy == TRUE, ]
+
+#* Heat shock 
+MSG_HSP &lt;- MSG[MSG$Heat_shock == TRUE, ]
+
+#* RPB-Autophagy
+MSG_RPB_Auto &lt;- MSG[(MSG$RPB == TRUE) &amp; (MSG$Autophagy == TRUE), ]
+
+#* RPB-Heat shock
+MSG_RPB_HSP &lt;- MSG[(MSG$RPB == TRUE) &amp; (MSG$Heat_shock == TRUE), ]
+
+#* Autophagy Heat_shock 
+MSG_Auto_HSP &lt;- MSG[(MSG$Autophagy == TRUE) &amp; (MSG$Heat_shock == TRUE), ]</code></pre>
+</div>
+<div id="testing-msg-enrichment-for-de-proteins" class="section level4">
+<h4>Testing MSG Enrichment for DE Proteins</h4>
+<pre class="r"><code>SAME_Sign_DE &lt;- MSG_DE
+Expressed_protein &lt;- New_RNA_PRO_DF$uniprotswissprot
+
+
+# 1. MSG (All)
+#**************************
+MSG_Exp &lt;- intersect(Expressed_protein, MSG$Uniprot)
+
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A &lt;- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %&gt;% length()
+
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B &lt;- length(SAME_Sign_DE$uniprotswissprot) - A
+
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C &lt;- length(MSG_Exp) - A
+
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D &lt;- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 39.252, df = 1, p-value = 3.725e-10</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 2.225e-08
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 2.088190 4.437598
+sample estimates:
+odds ratio 
+  3.069105 </code></pre>
+<pre class="r"><code>table &lt;- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c(&quot;MSG&quot;, &quot;Non-MSG&quot;),
+                                         Protein = c(&quot;DE&quot;, &quot;Non-DE&quot;))))
+table</code></pre>
+<pre><code>         Protein
+Gene        DE Non-DE
+  MSG       43    228
+  Non-MSG  174   2833</code></pre>
+<pre class="r"><code># Convert the table to a data frame
+df_mat &lt;- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key &lt;- c(&quot;DE + MSG&quot;, &quot;DE ~ MSG&quot;, &quot;~ DE + MSG&quot;, &quot;~ DE ~ MSG&quot;)
+df_mat$Group &lt;- c(&quot;DE&quot;, &quot;DE&quot;, &quot;~DE&quot;, &quot;~DE&quot;)
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat=&quot;identity&quot;) +
+  theme_minimal() +
+  ylab(&quot;Frequency&quot;) +
+  xlab(&quot;Category&quot;) +
+  ggtitle(&quot;Contingency Table Stacked Bar Chart&quot;) +
+  scale_fill_discrete(name=&quot;Key&quot;) +
+  theme(legend.position=&quot;bottom&quot;)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-56-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein &lt;- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE &lt;- MSG_DE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp &lt;- intersect(Expressed_protein, MSG_RPB$Uniprot)
+
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A &lt;- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %&gt;% length()
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B &lt;- length(SAME_Sign_DE$uniprotswissprot) - A
+
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C &lt;- length(MSG_Exp) - A
+
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D &lt;- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 60.319, df = 1, p-value = 8.068e-15</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 6.682e-11
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 2.874198 6.639167
+sample estimates:
+odds ratio 
+  4.409909 </code></pre>
+<pre class="r"><code>table &lt;- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c(&quot;RPB&quot;, &quot;Non-RPB&quot;),
+                                         Protein = c(&quot;DE&quot;, &quot;Non-DE&quot;))))
+table</code></pre>
+<pre><code>         Protein
+Gene        DE Non-DE
+  RPB       36    132
+  Non-RPB  181   2929</code></pre>
+<pre class="r"><code># Convert the table to a data frame
+df_mat &lt;- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key &lt;- c(&quot;DE + RPB&quot;, &quot;DE ~ RPB&quot;, &quot;~ DE + RPB&quot;, &quot;~ DE ~ RPB&quot;)
+df_mat$Group &lt;- c(&quot;DE&quot;, &quot;DE&quot;, &quot;~DE&quot;, &quot;~DE&quot;)
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat=&quot;identity&quot;) +
+  theme_minimal() +
+  ylab(&quot;Frequency&quot;) +
+  xlab(&quot;Category&quot;) +
+  ggtitle(&quot;&quot;) +
+  scale_fill_discrete(name=&quot;Key&quot;) +
+  theme(legend.position=&quot;bottom&quot;)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-57-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein &lt;- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE &lt;- MSG_DE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp &lt;- intersect(Expressed_protein, MSG_Auto$Uniprot)
+
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A &lt;- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %&gt;% length()
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B &lt;- length(SAME_Sign_DE$uniprotswissprot) - A
+
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C &lt;- length(MSG_Exp) - A
+
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D &lt;- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 0.08596, df = 1, p-value = 0.7694</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 0.3368
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 0.1961725 7.6061265
+sample estimates:
+odds ratio 
+  1.769951 </code></pre>
+<pre class="r"><code>table &lt;- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c(&quot;Autophagy&quot;, &quot;Non-Autophagy&quot;),
+                                         Protein = c(&quot;DE&quot;, &quot;Non-DE&quot;))))
+table</code></pre>
+<pre><code>               Protein
+Gene              DE Non-DE
+  Autophagy        2     16
+  Non-Autophagy  215   3045</code></pre>
+<pre class="r"><code># Convert the table to a data frame
+df_mat &lt;- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key &lt;- c(&quot;DE + Autophagy&quot;, &quot;DE ~ Autophagy&quot;, &quot;~ DE + Autophagy&quot;, &quot;~ DE ~ Autophagy&quot;)
+df_mat$Group &lt;- c(&quot;DE&quot;, &quot;DE&quot;, &quot;~DE&quot;, &quot;~DE&quot;)
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat=&quot;identity&quot;) +
+  theme_minimal() +
+  ylab(&quot;Frequency&quot;) +
+  xlab(&quot;Category&quot;) +
+  ggtitle(&quot;&quot;) +
+  scale_fill_discrete(name=&quot;Key&quot;) +
+  theme(legend.position=&quot;bottom&quot;)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-58-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein &lt;- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE &lt;- MSG_DE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp &lt;- intersect(Expressed_protein, MSG_HSP$Uniprot)
+
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A &lt;- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %&gt;% length()
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B &lt;- length(SAME_Sign_DE$uniprotswissprot) - A
+
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C &lt;- length(MSG_Exp) - A
+
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D &lt;- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+
+
+# Chi-Squared Test
+mat &lt;- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)</code></pre>
+<pre><code>Warning in chisq.test(mat): Chi-squared approximation may be incorrect</code></pre>
+<pre><code>
+    Pearson&#39;s Chi-squared test with Yates&#39; continuity correction
+
+data:  mat
+X-squared = 0.7503, df = 1, p-value = 0.3864</code></pre>
+<pre class="r"><code>fisher.test(mat)</code></pre>
+<pre><code>
+    Fisher&#39;s Exact Test for Count Data
+
+data:  mat
+p-value = 0.2808
+alternative hypothesis: true odds ratio is not equal to 1
+95 percent confidence interval:
+ 0.4810595 5.4548711
+sample estimates:
+odds ratio 
+  1.896921 </code></pre>
+<pre class="r"><code>table &lt;- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c(&quot;HSP&quot;, &quot;Non-HSP&quot;),
+                                         Protein = c(&quot;DE&quot;, &quot;Non-DE&quot;))))
+table</code></pre>
+<pre><code>         Protein
+Gene        DE Non-DE
+  HSP        4     30
+  Non-HSP  213   3031</code></pre>
+<pre class="r"><code># Convert the table to a data frame
+df_mat &lt;- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key &lt;- c(&quot;DE + HSP&quot;, &quot;DE ~ HSP&quot;, &quot;~ DE + HSP&quot;, &quot;~ DE ~ HSP&quot;)
+df_mat$Group &lt;- c(&quot;DE&quot;, &quot;DE&quot;, &quot;~DE&quot;, &quot;~DE&quot;)
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat=&quot;identity&quot;) +
+  theme_minimal() +
+  ylab(&quot;Frequency&quot;) +
+  xlab(&quot;Category&quot;) +
+  ggtitle(&quot;&quot;) +
+  scale_fill_discrete(name=&quot;Key&quot;) +
+  theme(legend.position=&quot;bottom&quot;)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-59-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="subcellular-compartments" class="section level4">
+<h4>Subcellular Compartments</h4>
+<pre class="r"><code># Read in compartment data frames 
+Comp_Cytoplasm &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Cytoplasm.csv&quot;, header = TRUE)
+Comp_Cytosol &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Cytosol.csv&quot;, header = TRUE)
+Comp_ER &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Endoplasmic_Reticulum.csv&quot;, header = TRUE)
+Comp_Endosome &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Endosome.csv&quot;, header = TRUE)
+Comp_Golgi &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Golgi_apparatus.csv&quot;, header = TRUE)
+Comp_Lysosome &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Lysosome.csv&quot;, header = TRUE)
+Comp_membrane &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Membrane.csv&quot;, header = TRUE)
+Comp_mitochondrion &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Mitochondrion.csv&quot;, header = TRUE)
+Comp_Nucleus &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Nucleus.csv&quot;, header = TRUE)
+Comp_Pbody &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Pbody.csv&quot;, header = TRUE)
+Comp_Peroxisome &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Peroxisome.csv&quot;, header = TRUE)
+Comp_Secreted &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Compartment_Summaries/New_Pro_RNA_DF_Compartments/ID_Secreted.csv&quot;, header = TRUE)</code></pre>
+<p>####*——–All Protein Sets ####</p>
+<pre class="r"><code>list_input &lt;- list(
+  Cytoplasm = Comp_Cytoplasm$Entry, 
+  Cytosol = Comp_Cytosol$Entry, 
+  ER = Comp_ER$Entry,
+  Endosome = Comp_Endosome$Entry,
+  Golgi = Comp_Golgi$Entry,
+  Lysosome = Comp_Lysosome$Entry,
+  Membrane = Comp_membrane$Entry,
+  Mitochondrion = Comp_mitochondrion$Entry,
+  Nucleus = Comp_Nucleus$Entry,
+  Pbody = Comp_Pbody$Entry,
+  Peroxisome = Comp_Peroxisome$Entry, 
+  Secreted = Comp_Secreted$Entry
+)
+
+# Upset Plots
+upset(
+  fromList(list_input), 
+  sets = names(list_input), # show all sets in the plot
+  order.by = &quot;freq&quot;,
+  
+  sets.bar.color = &quot;#56B4E9&quot;,
+  matrix.color = &quot;black&quot;,
+  main.bar.color = &quot;#D55E00&quot;,
+)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-61-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Convert to incidence matrix
+matrix_input &lt;- fromList(list_input)
+
+# common item row numbers across sets. Example: Cytoplasm and Cytosol (Code here is variable to interests)
+common_items &lt;- rownames(matrix_input)[matrix_input[,&quot;Cytoplasm&quot;] == 1 &amp; matrix_input[,&quot;Cytosol&quot;] == 1]
+
+# Unlist the lisst input
+all_entries &lt;- unlist(list_input)
+
+# Get Uniprot IDs 
+common_items_names &lt;- all_entries[as.numeric(common_items)]
+common_items_names[length(common_items_names)]</code></pre>
+<pre><code>Cytoplasm998 
+    &quot;Q9Y6I9&quot; </code></pre>
+<pre class="r"><code># Venn
+ggvenn(list_input)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-61-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>####*——–DE proteins Upset ####</p>
+<pre class="r"><code>intersect(MSG_DE$uniprotswissprot, Comp_Cytoplasm$Entry)</code></pre>
+<pre><code>  [1] &quot;Q969Q1&quot; &quot;P17844&quot; &quot;P67809&quot; &quot;Q9BQG0&quot; &quot;P48634&quot; &quot;Q92841&quot; &quot;P78347&quot; &quot;Q00341&quot;
+  [9] &quot;Q13123&quot; &quot;Q14980&quot; &quot;Q14694&quot; &quot;Q9P258&quot; &quot;Q86XP3&quot; &quot;Q9NZB2&quot; &quot;P16989&quot; &quot;P08865&quot;
+ [17] &quot;P62906&quot; &quot;P62854&quot; &quot;P62750&quot; &quot;Q9UQB8&quot; &quot;P62753&quot; &quot;P62273&quot; &quot;Q99536&quot; &quot;P61254&quot;
+ [25] &quot;Q86U42&quot; &quot;P61313&quot; &quot;Q01780&quot; &quot;P46782&quot; &quot;Q9NQT5&quot; &quot;P62280&quot; &quot;P62701&quot; &quot;Q92747&quot;
+ [33] &quot;P36578&quot; &quot;P62888&quot; &quot;P49207&quot; &quot;Q7Z739&quot; &quot;Q8NC51&quot; &quot;P18621&quot; &quot;P46783&quot; &quot;P19338&quot;
+ [41] &quot;P53396&quot; &quot;Q99459&quot; &quot;Q9Y2I6&quot; &quot;P61513&quot; &quot;Q13509&quot; &quot;P62263&quot; &quot;P83731&quot; &quot;P62249&quot;
+ [49] &quot;P83881&quot; &quot;Q06830&quot; &quot;P08708&quot; &quot;P62269&quot; &quot;P62910&quot; &quot;P50914&quot; &quot;P61353&quot; &quot;P62841&quot;
+ [57] &quot;P61247&quot; &quot;P62857&quot; &quot;Q99873&quot; &quot;P62424&quot; &quot;P18077&quot; &quot;P06748&quot; &quot;Q8IWC1&quot; &quot;O00571&quot;
+ [65] &quot;P46778&quot; &quot;P32969&quot; &quot;P60510&quot; &quot;Q71RC2&quot; &quot;Q6P5Q4&quot; &quot;Q9H832&quot; &quot;P62851&quot; &quot;P62847&quot;
+ [73] &quot;P11940&quot; &quot;P62899&quot; &quot;Q16658&quot; &quot;Q13310&quot; &quot;Q9NR56&quot; &quot;Q12972&quot; &quot;P62917&quot; &quot;Q9Y3U8&quot;
+ [81] &quot;P39019&quot; &quot;P63244&quot; &quot;P46781&quot; &quot;P46776&quot; &quot;Q9NY33&quot; &quot;Q9BR76&quot; &quot;Q9BQ95&quot; &quot;Q9Y224&quot;
+ [89] &quot;O96013&quot; &quot;Q14444&quot; &quot;Q13283&quot; &quot;P23396&quot; &quot;P62244&quot; &quot;P19474&quot; &quot;P47914&quot; &quot;P60866&quot;
+ [97] &quot;Q14839&quot; &quot;O95433&quot; &quot;P39023&quot; &quot;P36873&quot; &quot;Q16555&quot;</code></pre>
+<pre class="r"><code>list_input &lt;- list(
+  Cytoplasm = intersect(Comp_Cytoplasm$Entry, MSG_DE$uniprotswissprot) , 
+  Cytosol = intersect(Comp_Cytosol$Entry, MSG_DE$uniprotswissprot) , 
+  ER = intersect(Comp_ER$Entry, MSG_DE$uniprotswissprot) ,
+  Endosome = intersect(Comp_Endosome$Entry, MSG_DE$uniprotswissprot) ,
+  Golgi = intersect(Comp_Golgi$Entry , MSG_DE$uniprotswissprot) ,
+  Lysosome = intersect(Comp_Lysosome$Entry, MSG_DE$uniprotswissprot) ,
+  Membrane = intersect(Comp_membrane$Entry, MSG_DE$uniprotswissprot) ,
+  Mitochondrion = intersect(Comp_mitochondrion$Entry, MSG_DE$uniprotswissprot) ,
+  Nucleus = intersect(Comp_Nucleus$Entry, MSG_DE$uniprotswissprot) ,
+  Pbody = intersect(Comp_Pbody$Entry, MSG_DE$uniprotswissprot) ,
+  Peroxisome = intersect(Comp_Peroxisome$Entry, MSG_DE$uniprotswissprot) , 
+  Secreted = intersect(Comp_Secreted$Entry, MSG_DE$uniprotswissprot) 
+)
+
+
+# Upset Plots
+upset(
+  fromList(list_input), 
+  sets = names(list_input), # show all sets in the plot
+  order.by = &quot;freq&quot;,
+  
+  sets.bar.color = &quot;#56B4E9&quot;,
+  matrix.color = &quot;black&quot;,
+  main.bar.color = &quot;#D55E00&quot;,
+)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-62-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>####*——–Divergent proteins Upset ####</p>
+<pre class="r"><code>list_input &lt;- list(
+  Cytoplasm = intersect(Comp_Cytoplasm$Entry, MSG_DIVERGENT$uniprotswissprot) , 
+  Cytosol = intersect(Comp_Cytosol$Entry, MSG_DIVERGENT$uniprotswissprot) , 
+  ER = intersect(Comp_ER$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Endosome = intersect(Comp_Endosome$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Golgi = intersect(Comp_Golgi$Entry , MSG_DIVERGENT$uniprotswissprot) ,
+  Lysosome = intersect(Comp_Lysosome$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Membrane = intersect(Comp_membrane$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Mitochondrion = intersect(Comp_mitochondrion$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Nucleus = intersect(Comp_Nucleus$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Pbody = intersect(Comp_Pbody$Entry, MSG_DIVERGENT$uniprotswissprot) ,
+  Peroxisome = intersect(Comp_Peroxisome$Entry, MSG_DIVERGENT$uniprotswissprot) , 
+  Secreted = intersect(Comp_Secreted$Entry, MSG_DIVERGENT$uniprotswissprot) 
+)
+
+
+# Upset all members 
+upset(
+  fromList(list_input), 
+  sets = names(list_input), # show all sets in the plot
+  order.by = &quot;freq&quot;,
+  
+  sets.bar.color = &quot;#56B4E9&quot;,
+  matrix.color = &quot;black&quot;,
+  main.bar.color = &quot;#D55E00&quot;,
+)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-63-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>####*——–DE Divergent proteins Upset ####</p>
+<pre class="r"><code>list_input &lt;- list(
+  Cytoplasm = intersect(Comp_Cytoplasm$Entry, MSG_DE_DIVERGENT$uniprotswissprot) , 
+  Cytosol = intersect(Comp_Cytosol$Entry, MSG_DE_DIVERGENT$uniprotswissprot) , 
+  ER = intersect(Comp_ER$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Endosome = intersect(Comp_Endosome$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Golgi = intersect(Comp_Golgi$Entry , MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Lysosome = intersect(Comp_Lysosome$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Membrane = intersect(Comp_membrane$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Mitochondrion = intersect(Comp_mitochondrion$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Nucleus = intersect(Comp_Nucleus$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Pbody = intersect(Comp_Pbody$Entry, MSG_DE_DIVERGENT$uniprotswissprot) ,
+  Peroxisome = intersect(Comp_Peroxisome$Entry, MSG_DE_DIVERGENT$uniprotswissprot) , 
+  Secreted = intersect(Comp_Secreted$Entry, MSG_DE_DIVERGENT$uniprotswissprot) 
+)
+
+
+upset(
+  fromList(list_input), 
+  sets = names(list_input), # show all sets in the plot
+  order.by = &quot;freq&quot;,
+  
+  sets.bar.color = &quot;#56B4E9&quot;,
+  matrix.color = &quot;black&quot;,
+  main.bar.color = &quot;#D55E00&quot;,
+)</code></pre>
+<p><img src="figure/Small_script.Rmd/unnamed-chunk-64-1.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.2.0 (2022-04-22)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur/Monterey 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] grid      stats4    stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] enrichplot_1.16.2                      
+ [2] ggvenn_0.1.10                          
+ [3] UpSetR_1.4.0                           
+ [4] DOSE_3.22.1                            
+ [5] clusterProfiler_4.4.4                  
+ [6] pheatmap_1.0.12                        
+ [7] qvalue_2.28.0                          
+ [8] Homo.sapiens_1.3.1                     
+ [9] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2
+[10] org.Hs.eg.db_3.15.0                    
+[11] GO.db_3.15.0                           
+[12] OrganismDbi_1.38.1                     
+[13] GenomicFeatures_1.48.4                 
+[14] AnnotationDbi_1.58.0                   
+[15] biomaRt_2.52.0                         
+[16] cluster_2.1.4                          
+[17] ggfortify_0.4.16                       
+[18] lubridate_1.9.2                        
+[19] forcats_1.0.0                          
+[20] stringr_1.5.0                          
+[21] dplyr_1.1.2                            
+[22] purrr_1.0.2                            
+[23] readr_2.1.4                            
+[24] tidyr_1.3.0                            
+[25] tibble_3.2.1                           
+[26] ggplot2_3.4.3                          
+[27] tidyverse_2.0.0                        
+[28] RColorBrewer_1.1-3                     
+[29] RUVSeq_1.30.0                          
+[30] edgeR_3.38.4                           
+[31] limma_3.52.4                           
+[32] EDASeq_2.30.0                          
+[33] ShortRead_1.54.0                       
+[34] GenomicAlignments_1.32.1               
+[35] SummarizedExperiment_1.26.1            
+[36] MatrixGenerics_1.8.1                   
+[37] matrixStats_1.0.0                      
+[38] Rsamtools_2.12.0                       
+[39] GenomicRanges_1.48.0                   
+[40] Biostrings_2.64.1                      
+[41] GenomeInfoDb_1.32.4                    
+[42] XVector_0.36.0                         
+[43] IRanges_2.30.1                         
+[44] S4Vectors_0.34.0                       
+[45] BiocParallel_1.30.4                    
+[46] Biobase_2.56.0                         
+[47] BiocGenerics_0.42.0                    
+[48] workflowr_1.7.1                        
+
+loaded via a namespace (and not attached):
+  [1] utf8_1.2.3             R.utils_2.12.2         tidyselect_1.2.0      
+  [4] RSQLite_2.3.1          scatterpie_0.2.1       munsell_0.5.0         
+  [7] codetools_0.2-19       statmod_1.5.0          interp_1.1-4          
+ [10] withr_2.5.0            colorspace_2.1-0       GOSemSim_2.22.0       
+ [13] filelock_1.0.2         highr_0.10             knitr_1.43            
+ [16] rstudioapi_0.15.0      labeling_0.4.2         git2r_0.32.0          
+ [19] GenomeInfoDbData_1.2.8 hwriter_1.3.2.1        polyclip_1.10-4       
+ [22] bit64_4.0.5            farver_2.1.1           rprojroot_2.0.3       
+ [25] downloader_0.4         treeio_1.20.2          vctrs_0.6.3           
+ [28] generics_0.1.3         xfun_0.40              timechange_0.2.0      
+ [31] BiocFileCache_2.4.0    R6_2.5.1               graphlayouts_1.0.0    
+ [34] locfit_1.5-9.8         bitops_1.0-7           cachem_1.0.8          
+ [37] fgsea_1.22.0           gridGraphics_0.5-1     DelayedArray_0.22.0   
+ [40] vroom_1.6.3            promises_1.2.1         BiocIO_1.6.0          
+ [43] scales_1.2.1           ggraph_2.1.0           gtable_0.3.4          
+ [46] processx_3.8.2         tidygraph_1.2.3        rlang_1.1.1           
+ [49] splines_4.2.0          lazyeval_0.2.2         rtracklayer_1.56.1    
+ [52] BiocManager_1.30.22    yaml_2.3.7             reshape2_1.4.4        
+ [55] httpuv_1.6.11          RBGL_1.72.0            tools_4.2.0           
+ [58] ggplotify_0.1.2        jquerylib_0.1.4        Rcpp_1.0.11           
+ [61] plyr_1.8.8             progress_1.2.2         zlibbioc_1.42.0       
+ [64] RCurl_1.98-1.12        ps_1.7.5               prettyunits_1.1.1     
+ [67] deldir_1.0-9           viridis_0.6.4          ggrepel_0.9.3         
+ [70] fs_1.6.3               magrittr_2.0.3         data.table_1.14.8     
+ [73] DO.db_2.9              reactome.db_1.81.0     whisker_0.4.1         
+ [76] ggnewscale_0.4.9       aroma.light_3.26.0     hms_1.1.3             
+ [79] patchwork_1.1.3        evaluate_0.21          XML_3.99-0.14         
+ [82] jpeg_0.1-10            gridExtra_2.3          compiler_4.2.0        
+ [85] shadowtext_0.1.2       crayon_1.5.2           R.oo_1.25.0           
+ [88] htmltools_0.5.6        mgcv_1.9-0             ggfun_0.1.2           
+ [91] later_1.3.1            tzdb_0.4.0             aplot_0.2.0           
+ [94] ReactomePA_1.40.0      DBI_1.1.3              tweenr_2.0.2          
+ [97] dbplyr_2.3.3           MASS_7.3-60            rappdirs_0.3.3        
+[100] Matrix_1.5-4.1         cli_3.6.1              R.methodsS3_1.8.2     
+[103] parallel_4.2.0         igraph_1.5.1           pkgconfig_2.0.3       
+[106] getPass_0.2-2          xml2_1.3.5             ggtree_3.4.4          
+[109] bslib_0.5.1            yulab.utils_0.0.8      callr_3.7.3           
+[112] digest_0.6.33          graph_1.74.0           rmarkdown_2.24        
+[115] fastmatch_1.1-4        tidytree_0.4.5         restfulr_0.0.15       
+[118] curl_5.0.2             graphite_1.42.0        rjson_0.2.21          
+[121] nlme_3.1-163           lifecycle_1.0.3        jsonlite_1.8.7        
+[124] viridisLite_0.4.2      fansi_1.0.4            pillar_1.9.0          
+[127] lattice_0.21-8         KEGGREST_1.36.3        fastmap_1.1.1         
+[130] httr_1.4.7             glue_1.6.2             png_0.1-8             
+[133] bit_4.0.5              ggforce_0.4.1          stringi_1.7.12        
+[136] sass_0.4.7             blob_1.2.4             latticeExtra_0.6-30   
+[139] memoise_2.0.1          ape_5.7-1             </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
