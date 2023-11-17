@@ -1,6 +1,4 @@
-#### Title #### 
 
-# Proteomic wrangle 
 #### REQUIRED Libraries ####
 ```{r}
 library(EDASeq)

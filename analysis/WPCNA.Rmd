@@ -1,0 +1,488 @@
+---
+title: "Dox_prot_WGCNA"
+output: html_document
+date: "2023-11-04"
+---
+
+# Libraries 
+```{r libraries}
+library(EDASeq)
+library(RUVSeq)
+library(RColorBrewer)
+library(edgeR)
+library(limma)
+library(Biobase) 
+library(SummarizedExperiment)
+library(tidyverse) 
+library(ggfortify)
+library(cluster)
+library(edgeR)
+library(limma)
+library(biomaRt)
+library(Homo.sapiens)
+library(BiocParallel)
+library(qvalue)
+library(pheatmap)
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(RColorBrewer)
+library(DOSE)
+library(UpSetR)
+library(ggvenn)
+library(WGCNA)
+library(BioNERO)
+```
+
+# Getting toptable data frame and gene names 
+```{r df and names}
+ENZYME_DF <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Functional_Annotations_ENZYME.csv" , header = TRUE)
+ 
+toptable_Dupcor <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Important_DF_Final/toptable_Dupcor.csv" , header = TRUE)
+
+Toptable_for_ENZYME <- toptable_Dupcor
+
+
+# Get the corresponding Gene name IDs
+mart <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+
+results_Pro_names <- getBM(filters = "hgnc_symbol", 
+                           attributes = c("uniprotswissprot", "hgnc_symbol",""), 
+                           values = ENZYME_DF$Gene.Symbol, 
+                           mart = mart)
+
+
+merged_results_Pro_names_AND_Toptable_for_ENZYME <- merge(Toptable_for_ENZYME, results_Pro_names, by.x = "Protein", by.y = "uniprotswissprot")
+
+merged_results_Pro_names_AND_Toptable_for_ENZYME_AND_ENZYME_DF <- merge(merged_results_Pro_names_AND_Toptable_for_ENZYME, 
+                                                                        ENZYME_DF, by.x = "hgnc_symbol", by.y = "Gene.Symbol")
+
+ENZYME_DF_Toptable <- merged_results_Pro_names_AND_Toptable_for_ENZYME_AND_ENZYME_DF
+
+DE_Enzymes <- ENZYME_DF_Toptable[(ENZYME_DF_Toptable$P.Value < 0.05) & (!is.na(ENZYME_DF_Toptable$ENZYME)), ]$hgnc_symbol
+
+All_Proteins_ENZYMES <- ENZYME_DF_Toptable[(!is.na(ENZYME_DF_Toptable$ENZYME)), ]$hgnc_symbol
+```
+
+# Get protein abundance matrix 
+```{r abundance df}
+
+phenoData <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/WGCNA/phenoData.csv" , header = TRUE)
+
+vobjE <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/WGCNA/vobjE.csv" , header = TRUE)
+
+vobjdesign <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/WGCNA/vobjdesign.csv" , header = TRUE)
+
+# WGCNA requires a summarized experiment object using vobj$E 
+WGCNA_phenodata <- phenoData[ ,4:5] 
+
+colnames(WGCNA_phenodata) <- c("trait", "individual_cond")
+
+rownames(vobjE) <- vobjE$X
+vobjE <- vobjE[,-c(1)]
+vobjE %>% head()
+```
+
+
+
+# WGCNA Workflow
+# Fit abundance matrix to scale free topology  
+```{r connectivity}
+
+# Create summarized experiiment object 
+WGCNA_DF <- SummarizedExperiment(assays = vobjE)
+
+# Determine the soft power threshold to get scale free shape
+sft <- SFT_fit(vobjE, net_type = "signed", rsquared = 0.8,  cor_method = "pearson")
+sft$power
+
+power <- sft$power
+sft$plot 
+
+WGCNA_DF <- SummarizedExperiment(assays = vobjE)
+```
+
+
+# Modules unmerged
+```{r net unmerged}
+net <- exp2gcn(
+  WGCNA_DF, net_type = "signed", module_merging_threshold = 0.9, SFTpower = power, 
+  cor_method = "pearson"
+)
+```
+
+
+# Modules unmerged summary plots 
+```{r dend unmerged,  fig.width=10, fig.height=8 }
+# Dendogram
+plot_dendro_and_colors(gcn = net )
+
+
+# Eigengene networks
+plot_eigengene_network(net)
+
+
+# Genes per module 
+plot_ngenes_per_module(net)
+```
+
+# Merge modules 
+```{r net merged}
+net <- exp2gcn(
+  WGCNA_DF, net_type = "signed", module_merging_threshold = 0.65, SFTpower = power, 
+  cor_method = "pearson"
+)
+```
+
+# Summary plots for merged modules
+```{r Dend merged,  fig.width=10, fig.height=8 }
+# Dendogram
+plot_dendro_and_colors(gcn = net )
+
+
+# Eigengene networks
+plot_eigengene_network(net)
+
+
+# Genes per module 
+plot_ngenes_per_module(net)
+```
+
+# Module stability 
+```{r Mod stability,  fig.width=13, fig.height=10 }
+# Looking at module stability 
+module_stability(WGCNA_DF, net, nRuns = 50)
+```
+
+
+# Correlate moules to DOX trait  
+```{r connectivity 2}
+
+# Ave K total
+net$kIN$kTotal %>% mean()
+
+# Ave KDiff
+net$kIN$kWithin %>% hist()
+
+# Median KDiff
+net$kIN$kDiff %>% median()
+
+
+# Calculate percentage of positive numbers in kDiff
+percentage_positive <- sum(net$kIN$kDiff > 0) / length(net$kIN$kDiff) * 100
+print(percentage_positive)
+
+
+# Correlation test 
+WGCNA_DF$trait <- c(1,1,1,1,1,0,0,0,0,0) 
+names(WGCNA_DF$trait) <- c("S1", "S3", "S5", "S7", "S9", "S2", "S4", "S6", "S8", "S10")
+
+
+eigenmatrix <- net$MEs %>% as.matrix()
+correlationResults <- cor(eigenmatrix, WGCNA_DF$trait, method="pearson")
+
+pvalues <- sapply(1:ncol(eigenmatrix), function(column) cor.test(eigenmatrix[,column], WGCNA_DF$trait)$p.value )
+
+WGCNA_DF$trait <- as.matrix(WGCNA_DF$trait)
+
+Modeigen <- as.matrix(net$MEs)
+
+
+# Trait data frame
+trait_data <- data.frame(
+  ME = correlationResults %>% rownames(),
+  Value = correlationResults[,1],
+  PValue = pvalues
+)
+trait_data$neglogP <- -log(trait_data$PValue)
+trait_data
+
+
+# Plot correlation across modules
+ggplot(trait_data, aes(x = ME, y = neglogP, color = Value)) + 
+  geom_segment(aes(xend = ME, yend = 0), linetype = "solid") +
+  geom_point(size = 10) + 
+  scale_color_gradient(
+    low = "red", 
+    high = "blue", 
+    name = "corr",
+    limits = c(-1, 1),
+    breaks = seq(-1, 1, by = 0.5)
+  ) +
+  labs(x = "Module", y = "-log(P-value)", title = "Module correlation with DOX treatment") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  geom_hline(yintercept = 2.995732, color = "black", linetype = "dashed") +
+  geom_text(aes(x = 0, y = 3.5, label = "P-Val Threshold"), hjust = -0.1, vjust = 1.5)
+```
+
+
+# Subset DOX correlated modules 
+```{r mods,  fig.width = 8, fig.height = 6}
+# Get modules that significantly associate with DOX treatment 
+Signifigant_modules <-  trait_data[trait_data$PValue < 0.05, ]$ME
+
+
+# Get your genes/proteins and modules DF 
+Gene_mod_DF <- net$genes_and_modules 
+ 
+
+
+# Module data gets merged with toptable
+toptable_Dupcor %>% head()
+
+Toptable_Modules <- merge(toptable_Dupcor, 
+                          Gene_mod_DF, by.x = "Protein", by.y = "Genes")
+
+```
+
+# Wrangling 
+```{r modplot}
+
+
+# Plotting LogFC in significant modules module 
+Signifigant_modules 
+
+Significant_modules_NoME <- stringr::str_replace(Signifigant_modules, "^ME", "")
+
+Toptable_Modules_Sig <- Toptable_Modules[Toptable_Modules$Modules %in% Significant_modules_NoME, ]
+
+
+
+# n-modules total 
+Toptable_Modules$Modules %>% unique() %>% length()
+
+# n-sig modules
+Signifigant_modules %>% length()
+
+
+# Percent sig modules 
+(Signifigant_modules %>% length()) / (Toptable_Modules$Modules %>% unique() %>% length())
+
+
+
+# Get modules that significantly associate with DOX treatment 
+Signifigant_modules <-  trait_data[trait_data$PValue < 0.05, ]$ME
+
+
+# Get your genes/proteins and modules DF 
+Gene_mod_DF <- net$genes_and_modules 
+
+
+# Subset genes/proteins and modules DF by the significantly correlated modules to DOX 
+Sig_Gene_mod_DF <- Gene_mod_DF[Gene_mod_DF$Modules %in% Signifigant_modules, ]
+
+
+# Module data gets merged with toptable
+toptable_Dupcor %>% head()
+
+Toptable_Modules <- merge(toptable_Dupcor, 
+                          Gene_mod_DF, by.x = "Protein", by.y = "Genes")
+
+Toptable_Modules %>% head()
+Toptable_Modules %>% dim()
+```
+
+
+# Ridge plots 
+```{r other mod plots}
+
+
+# LogFC Ridge plot 
+ggplot(Toptable_Modules_Sig, aes(x = logFC, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.8) +
+  labs(title = "Dox Associated Module LogFC distribution from DE test",
+       x = "Log Fold Change",
+       y = "Modules") +
+  ggridges::theme_ridges() 
+
+
+# LogFC Ridge plot 
+ggplot(Toptable_Modules, aes(x = logFC, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.8) +
+  labs(title = "Dox Associated Module LogFC distribution from DE test",
+       x = "Log Fold Change",
+       y = "Modules") +
+  ggridges::theme_ridges() 
+
+
+# Pval Ridge plot 
+ggplot(Toptable_Modules_Sig, aes(x = P.Value, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.8) +
+  labs(title = "Module pval distribution from DE test",
+       x = "Pval",
+       y = "") +
+  ggridges::theme_ridges()+
+  scale_x_continuous(breaks = seq(0, 1, by = 0.05), limits = c(0, 1))
+
+
+# Pval Ridge plot 
+ggplot(Toptable_Modules, aes(x = P.Value, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.6) +
+  labs(title = "Module pval distribution from DE test",
+       x = "Pval",
+       y = "Modules") +
+  ggridges::theme_ridges()+
+  scale_x_continuous(breaks = seq(0, 1, by = 0.05), limits = c(0, 1))
+
+
+
+# Plotting LogFC between DE and non DE proteins 
+Toptable_Modules$DE_or_Not <- Toptable_Modules$P.Value < 0.05
+```
+
+
+# DE protein content in modules 
+```{r many mod plt}
+# Calculate percentage of DE genes for each module
+DE_Mod_result <- Toptable_Modules %>%
+  group_by(Modules) %>%
+  summarize(
+    total_genes = n(),
+    DE_genes = sum(P.Value < 0.05),
+    percent_DE = (DE_genes / total_genes) * 100
+  )
+
+print(DE_Mod_result)
+
+
+# Plot
+ggplot(DE_Mod_result, aes(x = Modules, y = percent_DE, fill = Modules)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Module",
+    y = "Percentage of DE genes",
+    title = "Percentage of DE genes in each module",
+    fill = "Module"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# Compute complementary percentage for non-DE genes
+DE_Mod_result$percent_nonDE <- 100 - DE_Mod_result$percent_DE
+
+# Reshape data to long format
+long_data <- DE_Mod_result %>% 
+  pivot_longer(cols = c(percent_DE, percent_nonDE), 
+               names_to = "type", 
+               values_to = "percentage")
+
+
+# Plot stacked bar chart
+ggplot(long_data, aes(x = Modules, y = percentage, fill = type)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Module",
+    y = "Percentage",
+    title = "Percentage of DE and non-DE genes in each module",
+    fill = "Type"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_y_continuous(breaks = rev(seq(0, 100, by = 10)))
+
+
+```
+
+
+# Wrangle 2 
+```{r randoplots}
+metatestDF <- phenoData$Cond %>% as.data.frame()
+
+
+
+assay_data <- assay(WGCNA_DF)
+row_data <- rowData(WGCNA_DF)
+col_data <- colData(WGCNA_DF)
+
+row_data[] <- lapply(row_data, as.character)
+col_data[] <- lapply(col_data, as.character)
+
+rowData(WGCNA_DF) <- row_data
+colData(WGCNA_DF) <- col_data
+```
+
+
+
+# Module protein GO Enrichment 
+```{r GO loop}
+hubs <- get_hubs_gcn(WGCNA_DF, net)
+
+Significant_modules_NoME 
+ontology_categories <- c("BP","CC")
+
+# Loop over each module and ontology category
+for (module in Significant_modules_NoME) {
+    # Extract hub genes for the current module
+    module_hubs <- hubs[hubs$Module == module, ]$Gene
+
+    # All module proteins
+    module_proteins <- Toptable_Modules[(Toptable_Modules$Modules == module), ]$Protein
+
+    # Get gene names for the proteins in the module
+    module_genes <- ENZYME_DF_Toptable[ENZYME_DF_Toptable$Protein %in% module_proteins, ]$hgnc_symbol
+
+    # Define background genes
+    background_genes_mod <- ENZYME_DF_Toptable$hgnc_symbol
+
+    for (ont in ontology_categories) {
+        # GO Enrichment
+        go_enrichment <- enrichGO(gene = module_genes,
+                                  OrgDb = org.Hs.eg.db,
+                                  keyType = "SYMBOL",
+                                  universe = background_genes_mod,
+                                  ont = ont,
+                                  pvalueCutoff = 0.05,
+                                  qvalueCutoff = 0.05)
+
+        # Plotting the results
+# Plotting the results
+        p <- barplot(go_enrichment, showCategory = 20) +
+            ggtitle(paste("Module:", module, "- Ontology:", ont))
+
+        print(p)   
+        
+    }
+}
+
+
+```
+
+
+
+# Abundance correlation network plot 
+```{r network plots,  fig.width=13, fig.height=10}
+
+# Remove edges based on p-value
+edges_filtered <- get_edge_list(
+  net, module = c("darkslateblue", "darkorange2", "brown","pink"),
+  filter = TRUE, method = "pvalue", 
+  pvalue_cutoff = 0.00008,
+  nSamples = ncol(WGCNA_DF),
+  check_SFT = TRUE
+)
+
+dim(edges_filtered)
+
+
+
+# Plot filtered network 
+plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = "module", 
+  hubs = hubs,
+  top_n_hubs = 10,
+  show_labels = "allhubs"
+)
+
+edges_filtered %>% head()
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+

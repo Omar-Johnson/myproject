@@ -1,13 +1,13 @@
 
 
-#### REQUIRED Libraries ####
-```{r, include=FALSE}
+# REQUIRED Libraries 
+```{r Name of chunk, include = FALSE}
 library(EDASeq)
 library(RUVSeq)
 library(RColorBrewer)
 library(edgeR)
 library(limma)
-library(Biobase)
+library(Biobase) 
 library(SummarizedExperiment)
 library(tidyverse) 
 library(ggfortify)
