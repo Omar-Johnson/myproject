@@ -1,5 +1,5 @@
 ---
-title: "Home"
+title: "Doxorubicin treated iPSC-cms proteomics"
 site: workflowr::wflow_site
 output:
   workflowr::wflow_html:
@@ -8,4 +8,5 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
+ 
+[Differentially abundant proteins](https://omar-johnson.github.io/myproject/Differentially_abunddant_proteins.html)

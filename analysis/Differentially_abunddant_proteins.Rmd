@@ -3,7 +3,7 @@ title: "Differential abundance testing"
 output: html_document
 date: "2023-12-04"
 ---
-#### Load Libraries #### 
+# Load Libraries 
 ```{r Libraries, include=FALSE}
 
 library(EDASeq)
@@ -38,7 +38,7 @@ library(WGCNA)
 ```
 
 
-#### Steps #### 
+# Steps  
 ```{r Steps to take}
 #* 1. Take Abundance values/counts 
 #* 2. Remove NA values from Abundance values 
@@ -49,7 +49,7 @@ library(WGCNA)
 ```
 
 
-#### Read in Data #### 
+# Read in Data 
 ```{r Read in Data}
 
 # Load your data
@@ -60,7 +60,7 @@ Meta <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Da
 ```
 
 
-#### Wrangle Data Frame #### 
+# Wrangle Data Frame 
 ```{r Wrangle Data Frame}
 # Save the original 
 Full_DF <- Protein_DF 
@@ -96,7 +96,7 @@ colnames(Protein_DF_Abundance) <- Meta$Samples
 ```
 
 
-#### Remove rows with at least one NA ####
+# Remove rows with at least one NA 
 ```{r Remove NA}
 #1.  Find rows with any NA values
 rows_with_na <- apply(Protein_DF_Abundance, 1, function(x) any(is.na(x))) %>% which()
@@ -113,19 +113,19 @@ Protein_DF_Abundance %>% dim()
 ```
 
 
-#### Log2 transform #### 
+# Log2 transform
 ```{r Log2}
 log2_norm_counts <- log2(Protein_DF_Abundance)
 ```
 
 
-#### Quantile Normalization #### 
+# Quantile Normalization 
 ```{r Quantile Normalization, include=FALSE}
 normalizedData <- limma::normalizeBetweenArrays(log2_norm_counts, method = "quantile")
 ```
 
 
-###### Prepare Data Object for RUVs ####
+# Prepare Data Object for RUVs 
 ```{r Prepare Data Object for RUVs}
 #  counts need to be integer values and in a numeric matrix 
 counts <- as.matrix(normalizedData) 
@@ -138,7 +138,7 @@ set <- SummarizedExperiment(assays =  normalizedData, metadata =phenoData)
 ```
 
 
-##### RUVs Matrix ####
+# RUVs Matrix 
 ```{r RUVs}
 # Generate a background matrix where each set of replicates are in a row
 # and null spaces where there are replicate mismatches get the value -1. 
@@ -156,7 +156,7 @@ scIdx
 ```
 
 
-##### Linear Modelling ####
+# Linear Modelling 
 ```{r Linear Modelling}
 # Apply RUVs function from RUVSeq and add to set object
 set <- RUVSeq::RUVs(x = normalizedData, k = 1, scIdx = scIdx, isLog = TRUE)
@@ -197,7 +197,7 @@ summary(results_summary)
 ```
  
 
-#### Organize toptable ####
+# Organize toptable 
 ```{r Organize toptable}
 # Toptable summary organized to contain results for all tested proteins   
 toptable_summary <- topTable(fit2, coef = "DoxvNorm",number = (nrow(set$normalizedCounts )), p.value = 1, adjust.method = "none")
@@ -205,7 +205,7 @@ toptable_summary$Protein <- rownames(toptable_summary)
 ```
 
 
-#### Histograms of Abundance and P-values #### 
+# Histograms of Abundance and P-values 
 ```{r Histograms}
 # log2 transformed abundance values per sample 
 long_df <- pivot_longer(log2_norm_counts, cols = everything(), names_to = "Sample", values_to = "Abundance")
@@ -241,7 +241,7 @@ toptable_summary$P.Value %>% hist(breaks = 100)
 ```
 
 
-##### Volcano plots ####
+# Volcano plots 
 ```{r Volcano plots}
 # 1. Create a column to threshold P-values 
 toptable_summary <- toptable_summary %>%  mutate(threshold_P = P.Value < 0.05)
@@ -260,7 +260,7 @@ ggplot(toptable_summary)+
 ```
 
 
-#### Boxplots for top 3 most differentially abundant proteins #####
+# Boxplots for top 3 most differentially abundant proteins
 ```{r Boxplots}
 # View most signifigantly differentially abundant proteins in toptable_summary
 toptable_summary[1:3, ]
@@ -286,7 +286,7 @@ boxplot(quantnormcountmatrix["Q969Q1",] ~ Meta$Cond, data=Meta, main="Q969Q1",
 ```
 
 
-##### PCA ####
+# PCA 
 ```{r PCA}
 # PCA of log2-quantile normalized-RUVs values:
 prcomp_res <- prcomp(t(set$normalizedCounts %>% as.matrix()), center = TRUE)
@@ -296,7 +296,7 @@ ggplot2::autoplot(prcomp_res, data = Meta, colour = "Cond", shape = "Ind", size 
 ```
 
 
-#### Heatmaps #### 
+# Heatmaps  
 ```{r Heatmaps}
 phenoData
 
