@@ -1,0 +1,317 @@
+---
+title: "Differential abundance testing"
+output: html_document
+date: "2023-12-04"
+---
+#### Load Libraries #### 
+```{r Libraries, include=FALSE}
+
+library(EDASeq)
+library(RUVSeq)
+library(RColorBrewer)
+library(edgeR)
+library(limma)
+library(Biobase)
+library(SummarizedExperiment)
+library(tidyverse) 
+library(ggfortify)
+library(cluster)
+library(edgeR)
+library(limma)
+library(Homo.sapiens)
+library(BiocParallel)
+library(qvalue)
+library(pheatmap)
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(RColorBrewer)
+library(variancePartition)
+library(DOSE)
+library(UpSetR)
+library(ggvenn)
+library(biomaRt)
+library(ggridges)
+library(reshape2)
+library(BioNERO)
+library(WGCNA)
+```
+
+
+#### Steps #### 
+```{r Steps to take}
+#* 1. Take Abundance values/counts 
+#* 2. Remove NA values from Abundance values 
+#* 3. Apply log2 transform to Abundance values 
+#* 4. Quantile normalize abundance values 
+#* 5. RUVs applied to account for technical variation 
+#* 6. Use Limma to model differential protein abundaance 
+```
+
+
+#### Read in Data #### 
+```{r Read in Data}
+
+# Load your data
+Protein_DF <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Abundance.csv", header = TRUE)
+
+# Include metadata about samples 
+Meta <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Meta.csv", header = TRUE)
+```
+
+
+#### Wrangle Data Frame #### 
+```{r Wrangle Data Frame}
+# Save the original 
+Full_DF <- Protein_DF 
+
+
+# Subset the columns referring to abundance
+Protein_DF_Abundance <- Protein_DF[,c(4, 5:ncol(Protein_DF))] 
+
+# Check for duplicated rows 
+# Identify duplicated values
+Protein_DF_Abundance$duplicated_name <- duplicated(Protein_DF_Abundance$Accession)
+
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+# To see only rows with duplicated values, you can subset the dataframe like this:
+duplicated_rows <- Protein_DF_Abundance[Protein_DF_Abundance$duplicated_name == TRUE, ]
+print(duplicated_rows)
+
+# We have 3 rows with duplicates, two of which have NA values. We will remove them now since we will go ahead 
+# and remove the duplicated rows later on anyways. 
+Protein_DF_Abundance <- Protein_DF_Abundance[- c(61, 276, 997), ] 
+
+# Make rownames of the data frame accession IDs
+rownames(Protein_DF_Abundance) <- Protein_DF_Abundance$Accession
+
+# Change colnames 
+colnames(Protein_DF_Abundance)
+Protein_DF_Abundance <- Protein_DF_Abundance[, -c(1, 12)]
+
+# Assuming column names of Protein_DF match with the rows in Meta
+rownames(Meta) <- Meta$Samples
+
+colnames(Protein_DF_Abundance) <- Meta$Samples
+```
+
+
+#### Remove rows with at least one NA ####
+```{r Remove NA}
+#1.  Find rows with any NA values
+rows_with_na <- apply(Protein_DF_Abundance, 1, function(x) any(is.na(x))) %>% which()
+ 
+
+rows_with_na <- as.numeric(rows_with_na)
+Protein_DF_Abundance %>% dim()
+
+# 2. Remove rows with NA values 
+Protein_DF_Abundance <- Protein_DF_Abundance[-rows_with_na, ]
+
+# 3. Sanity check 
+Protein_DF_Abundance %>% dim()
+```
+
+
+#### Log2 transform #### 
+```{r Log2}
+log2_norm_counts <- log2(Protein_DF_Abundance)
+```
+
+
+#### Quantile Normalization #### 
+```{r Quantile Normalization, include=FALSE}
+normalizedData <- limma::normalizeBetweenArrays(log2_norm_counts, method = "quantile")
+```
+
+
+###### Prepare Data Object for RUVs ####
+```{r Prepare Data Object for RUVs}
+#  counts need to be integer values and in a numeric matrix 
+counts <- as.matrix(normalizedData) 
+
+# Create a DataFrame for the phenoData
+phenoData <- DataFrame(Meta)
+
+# Now create the RangedSummarizedExperiment necessary for RUVs input 
+set <- SummarizedExperiment(assays =  normalizedData, metadata =phenoData)
+```
+
+
+##### RUVs Matrix ####
+```{r RUVs}
+# Generate a background matrix where each set of replicates are in a row
+# and null spaces where there are replicate mismatches get the value -1. 
+# This will be used in the RUVs function, which is the typeII method to
+# remove unwanted variation in the RUVs package. This will be used for all 
+# RUVs permutations where the number of variation factors will be changed. 
+scIdx <- matrix(-1, nrow = 6, ncol = 3)
+scIdx[1, 1:3] <- c(which(colnames(counts) %in% c("S6", "S8", "S10"))) # Control group- Technical reps Ind. 48-1
+scIdx[2, 1:3] <- c(which(colnames(counts) %in% c("S5", "S7", "S9"))) # Dox group- Technical reps Ind. 48-1
+scIdx[3, 1] <- c(which(colnames(counts) %in% c("S2"))) # Control group- Bio reps Ind. 77-1
+scIdx[4, 1] <- c(which(colnames(counts) %in% c("S1"))) # Dox group- 77-1
+scIdx[5, 1] <- c(which(colnames(counts) %in% c("S4"))) # Control group- Bio reps Ind. 87-1
+scIdx[6, 1] <- c(which(colnames(counts) %in% c("S3"))) # Dox group- 87-1
+scIdx
+```
+
+
+##### Linear Modelling ####
+```{r Linear Modelling}
+# Apply RUVs function from RUVSeq and add to set object
+set <- RUVSeq::RUVs(x = normalizedData, k = 1, scIdx = scIdx, isLog = TRUE)
+RUV_1 <- set$W[,1]
+
+set$W
+phenoData$RUV_1 <- RUV_1
+
+
+# Create Design Matrix 
+# phenoData$Cond <- factor(phenoData$Cond , levels = c("Control", "Dox"))
+design <- model.matrix(~0 + Cond + RUV_1, phenoData)
+design
+
+# rename columns 
+colnames(design) <- c('Control', "Dox", "RUV_1")
+
+
+# Fit model
+fit <- lmFit(set$normalizedCounts, design)
+fit2 <- eBayes(fit)
+
+
+# Make contrasts
+cm <- makeContrasts(
+  DoxvNorm = Dox - Control,
+  levels = design)
+
+
+# Model with contrasts
+fit2 <- contrasts.fit(fit, cm)
+fit2 <- eBayes(fit2, robust = TRUE, trend = TRUE)
+
+
+# Summarize
+results_summary <- decideTests(fit2, adjust.method = "none", p.value = 0.05)
+summary(results_summary)
+```
+ 
+
+#### Organize toptable ####
+```{r Organize toptable}
+# Toptable summary organized to contain results for all tested proteins   
+toptable_summary <- topTable(fit2, coef = "DoxvNorm",number = (nrow(set$normalizedCounts )), p.value = 1, adjust.method = "none")
+toptable_summary$Protein <- rownames(toptable_summary)
+```
+
+
+#### Histograms of Abundance and P-values #### 
+```{r Histograms}
+# log2 transformed abundance values per sample 
+long_df <- pivot_longer(log2_norm_counts, cols = everything(), names_to = "Sample", values_to = "Abundance")
+
+ggplot(long_df, aes(x = Abundance, y = Sample, fill = Sample)) +
+  geom_density_ridges(scale = 0.9) +
+  labs(x = "Abundance", y = "Sample", title = "Log2 Abundance distribution") +
+  theme_ridges() +
+  scale_fill_viridis_d()
+
+
+
+
+# log2-quantile normalized-RUVs- abundance values per sample 
+quantnormcountmatrix <- as.data.frame(set$normalizedCounts)
+
+long_df <- pivot_longer(quantnormcountmatrix, cols = everything(), names_to = "Sample", values_to = "Abundance")
+
+ggplot(long_df, aes(x = Abundance, y = Sample, fill = Sample)) +
+  geom_density_ridges(scale = 0.9) +
+  labs(x = " Abundance", y = "Sample", title = "Log2-Quantile Norm.- RUVs Abundance distribution") +
+  theme_ridges() +
+  scale_fill_viridis_d()
+
+
+
+# Average expression of log2 quantile normalized values
+toptable_summary$AveExpr %>% hist(breaks = 100)
+
+
+# Nominal Pvalue distribution 
+toptable_summary$P.Value %>% hist(breaks = 100)
+```
+
+
+##### Volcano plots ####
+```{r Volcano plots}
+# 1. Create a column to threshold P-values 
+toptable_summary <- toptable_summary %>%  mutate(threshold_P = P.Value < 0.05)
+
+# 2. Plot 
+ggplot(toptable_summary)+
+  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+  xlab("log2FC")+
+  ylab("-log10 nominal p-value")+
+  ylim(0, 10)+
+  xlim(-7, 7)+
+  theme(legend.position = "none", 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()
+```
+
+
+#### Boxplots for top 3 most differentially abundant proteins #####
+```{r Boxplots}
+# View most signifigantly differentially abundant proteins in toptable_summary
+toptable_summary[1:3, ]
+
+
+# 1. Plot the first most signifigant diff. abundant protein 
+quantnormcountmatrix <- as.matrix(quantnormcountmatrix)
+boxplot(quantnormcountmatrix["Q15327",] ~ Meta$Cond, data=Meta, main="Q15327",
+        ylab="Log2 Abundance", xlab="", col = c("skyblue2","red")) 
+
+
+# 2. Plot the second most signifigant diff. abundant protein 
+quantnormcountmatrix <- as.matrix(quantnormcountmatrix)
+boxplot(quantnormcountmatrix["O76021",] ~ Meta$Cond, data=Meta, main="O76021",
+        ylab="Log2 Abundance", xlab="", col = c("skyblue2","red")) 
+
+
+# 3. Plot the third most signifigant diff. abundant protein 
+quantnormcountmatrix <- as.matrix(quantnormcountmatrix)
+boxplot(quantnormcountmatrix["Q969Q1",] ~ Meta$Cond, data=Meta, main="Q969Q1",
+        ylab="Log2 Abundance", xlab="", col = c("skyblue2","red")) 
+
+```
+
+
+##### PCA ####
+```{r PCA}
+# PCA of log2-quantile normalized-RUVs values:
+prcomp_res <- prcomp(t(set$normalizedCounts %>% as.matrix()), center = TRUE)
+
+ggplot2::autoplot(prcomp_res, data = Meta, colour = "Cond", shape = "Ind", size =4)+
+  theme_bw()
+```
+
+
+#### Heatmaps #### 
+```{r Heatmaps}
+phenoData
+
+pheatmap::pheatmap(set$normalizedCounts %>% as.matrix(),
+                   cluster_rows = TRUE, 
+                   cluster_cols = TRUE,
+                   show_rownames = FALSE,
+                   show_colnames = TRUE
+)
+
+
+cor(set$normalizedCounts %>% as.matrix()) %>% pheatmap(
+  cluster_rows = TRUE, 
+  cluster_cols = TRUE,
+  show_rownames = TRUE,
+  show_colnames = TRUE)
+```
+
