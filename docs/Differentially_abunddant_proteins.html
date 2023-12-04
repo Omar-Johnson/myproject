@@ -519,15 +519,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree01a8df67a56c6e580df747321ac783ef10a05048targetblank01a8df6a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree7448b1271351e35d29316128fc6035e55633e291targetblank7448b12a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/Omar-Johnson/myproject/tree/01a8df67a56c6e580df747321ac783ef10a05048" target="_blank">01a8df6</a>
+<a href="https://github.com/Omar-Johnson/myproject/tree/7448b1271351e35d29316128fc6035e55633e291" target="_blank">7448b12</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree01a8df67a56c6e580df747321ac783ef10a05048targetblank01a8df6a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree7448b1271351e35d29316128fc6035e55633e291targetblank7448b12a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -537,7 +537,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/Omar-Johnson/myproject/tree/01a8df67a56c6e580df747321ac783ef10a05048" target="_blank">01a8df6</a>.
+<a href="https://github.com/Omar-Johnson/myproject/tree/7448b1271351e35d29316128fc6035e55633e291" target="_blank">7448b12</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -605,6 +605,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/7448b1271351e35d29316128fc6035e55633e291/analysis/Differentially_abunddant_proteins.Rmd" target="_blank">7448b12</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+<td>
+Publish diff abundance files for myproject
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Omar-Johnson/myproject/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/Differentially_abunddant_proteins.html" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/01a8df67a56c6e580df747321ac783ef10a05048/analysis/Differentially_abunddant_proteins.Rmd" target="_blank">01a8df6</a>
 </td>
 <td>
@@ -624,11 +658,11 @@ Publish diff abundance files for myproject
 </div>
 </div>
 </div>
-<div id="load-libraries" class="section level4">
-<h4>Load Libraries</h4>
+<div id="load-libraries" class="section level1">
+<h1>Load Libraries</h1>
 </div>
-<div id="steps" class="section level4">
-<h4>Steps</h4>
+<div id="steps" class="section level1">
+<h1>Steps</h1>
 <pre class="r"><code>#* 1. Take Abundance values/counts 
 #* 2. Remove NA values from Abundance values 
 #* 3. Apply log2 transform to Abundance values 
@@ -636,16 +670,16 @@ Publish diff abundance files for myproject
 #* 5. RUVs applied to account for technical variation 
 #* 6. Use Limma to model differential protein abundaance </code></pre>
 </div>
-<div id="read-in-data" class="section level4">
-<h4>Read in Data</h4>
+<div id="read-in-data" class="section level1">
+<h1>Read in Data</h1>
 <pre class="r"><code># Load your data
 Protein_DF &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Abundance.csv&quot;, header = TRUE)
 
 # Include metadata about samples 
 Meta &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Meta.csv&quot;, header = TRUE)</code></pre>
 </div>
-<div id="wrangle-data-frame" class="section level4">
-<h4>Wrangle Data Frame</h4>
+<div id="wrangle-data-frame" class="section level1">
+<h1>Wrangle Data Frame</h1>
 <pre class="r"><code># Save the original 
 Full_DF &lt;- Protein_DF 
 
@@ -707,8 +741,8 @@ rownames(Meta) &lt;- Meta$Samples
 
 colnames(Protein_DF_Abundance) &lt;- Meta$Samples</code></pre>
 </div>
-<div id="remove-rows-with-at-least-one-na" class="section level4">
-<h4>Remove rows with at least one NA</h4>
+<div id="remove-rows-with-at-least-one-na" class="section level1">
+<h1>Remove rows with at least one NA</h1>
 <pre class="r"><code>#1.  Find rows with any NA values
 rows_with_na &lt;- apply(Protein_DF_Abundance, 1, function(x) any(is.na(x))) %&gt;% which()
  
@@ -723,14 +757,15 @@ Protein_DF_Abundance &lt;- Protein_DF_Abundance[-rows_with_na, ]
 Protein_DF_Abundance %&gt;% dim()</code></pre>
 <pre><code>[1] 3384   10</code></pre>
 </div>
-<div id="log2-transform" class="section level4">
-<h4>Log2 transform</h4>
+<div id="log2-transform" class="section level1">
+<h1>Log2 transform</h1>
 <pre class="r"><code>log2_norm_counts &lt;- log2(Protein_DF_Abundance)</code></pre>
 </div>
-<div id="quantile-normalization" class="section level4">
-<h4>Quantile Normalization</h4>
-<div id="prepare-data-object-for-ruvs" class="section level6">
-<h6>Prepare Data Object for RUVs</h6>
+<div id="quantile-normalization" class="section level1">
+<h1>Quantile Normalization</h1>
+</div>
+<div id="prepare-data-object-for-ruvs" class="section level1">
+<h1>Prepare Data Object for RUVs</h1>
 <pre class="r"><code>#  counts need to be integer values and in a numeric matrix 
 counts &lt;- as.matrix(normalizedData) 
 
@@ -740,8 +775,8 @@ phenoData &lt;- DataFrame(Meta)
 # Now create the RangedSummarizedExperiment necessary for RUVs input 
 set &lt;- SummarizedExperiment(assays =  normalizedData, metadata =phenoData)</code></pre>
 </div>
-<div id="ruvs-matrix" class="section level5">
-<h5>RUVs Matrix</h5>
+<div id="ruvs-matrix" class="section level1">
+<h1>RUVs Matrix</h1>
 <pre class="r"><code># Generate a background matrix where each set of replicates are in a row
 # and null spaces where there are replicate mismatches get the value -1. 
 # This will be used in the RUVs function, which is the typeII method to
@@ -763,8 +798,8 @@ scIdx</code></pre>
 [5,]    7   -1   -1
 [6,]    2   -1   -1</code></pre>
 </div>
-<div id="linear-modelling" class="section level5">
-<h5>Linear Modelling</h5>
+<div id="linear-modelling" class="section level1">
+<h1>Linear Modelling</h1>
 <pre class="r"><code># Apply RUVs function from RUVSeq and add to set object
 set &lt;- RUVSeq::RUVs(x = normalizedData, k = 1, scIdx = scIdx, isLog = TRUE)
 RUV_1 &lt;- set$W[,1]
@@ -831,15 +866,14 @@ Down        300
 NotSig     2882
 Up          202</code></pre>
 </div>
-</div>
-<div id="organize-toptable" class="section level4">
-<h4>Organize toptable</h4>
+<div id="organize-toptable" class="section level1">
+<h1>Organize toptable</h1>
 <pre class="r"><code># Toptable summary organized to contain results for all tested proteins   
 toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(set$normalizedCounts )), p.value = 1, adjust.method = &quot;none&quot;)
 toptable_summary$Protein &lt;- rownames(toptable_summary)</code></pre>
 </div>
-<div id="histograms-of-abundance-and-p-values" class="section level4">
-<h4>Histograms of Abundance and P-values</h4>
+<div id="histograms-of-abundance-and-p-values" class="section level1">
+<h1>Histograms of Abundance and P-values</h1>
 <pre class="r"><code># log2 transformed abundance values per sample 
 long_df &lt;- pivot_longer(log2_norm_counts, cols = everything(), names_to = &quot;Sample&quot;, values_to = &quot;Abundance&quot;)
 
@@ -850,6 +884,43 @@ ggplot(long_df, aes(x = Abundance, y = Sample, fill = Sample)) +
   scale_fill_viridis_d()</code></pre>
 <pre><code>Picking joint bandwidth of 0.462</code></pre>
 <p><img src="figure/Differentially_abunddant_proteins.Rmd/Histograms-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-Histograms-1">
+Past versions of Histograms-1.png
+</button>
+</p>
+<div id="fig-Histograms-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/figure/Differentially_abunddant_proteins.Rmd/Histograms-1.png" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># log2-quantile normalized-RUVs- abundance values per sample 
 quantnormcountmatrix &lt;- as.data.frame(set$normalizedCounts)
 
@@ -862,14 +933,126 @@ ggplot(long_df, aes(x = Abundance, y = Sample, fill = Sample)) +
   scale_fill_viridis_d()</code></pre>
 <pre><code>Picking joint bandwidth of 0.461</code></pre>
 <p><img src="figure/Differentially_abunddant_proteins.Rmd/Histograms-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-Histograms-2">
+Past versions of Histograms-2.png
+</button>
+</p>
+<div id="fig-Histograms-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/figure/Differentially_abunddant_proteins.Rmd/Histograms-2.png" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Average expression of log2 quantile normalized values
 toptable_summary$AveExpr %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Differentially_abunddant_proteins.Rmd/Histograms-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-Histograms-3">
+Past versions of Histograms-3.png
+</button>
+</p>
+<div id="fig-Histograms-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/figure/Differentially_abunddant_proteins.Rmd/Histograms-3.png" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Nominal Pvalue distribution 
 toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Differentially_abunddant_proteins.Rmd/Histograms-4.png" width="672" style="display: block; margin: auto;" /></p>
-<div id="volcano-plots" class="section level5">
-<h5>Volcano plots</h5>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-Histograms-4">
+Past versions of Histograms-4.png
+</button>
+</p>
+<div id="fig-Histograms-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/figure/Differentially_abunddant_proteins.Rmd/Histograms-4.png" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="volcano-plots" class="section level1">
+<h1>Volcano plots</h1>
 <pre class="r"><code># 1. Create a column to threshold P-values 
 toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
 
@@ -885,11 +1068,47 @@ ggplot(toptable_summary)+
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
 <p><img src="figure/Differentially_abunddant_proteins.Rmd/Volcano%20plots-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Volcano-plots-1">
+Past versions of "Volcano plots-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-Volcano-plots-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/figure/Differentially_abunddant_proteins.Rmd/Volcano plots-1.png" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 <div id="boxplots-for-top-3-most-differentially-abundant-proteins"
-class="section level4">
-<h4>Boxplots for top 3 most differentially abundant proteins</h4>
+class="section level1">
+<h1>Boxplots for top 3 most differentially abundant proteins</h1>
 <pre class="r"><code># View most signifigantly differentially abundant proteins in toptable_summary
 toptable_summary[1:3, ]</code></pre>
 <pre><code>           logFC  AveExpr          t      P.Value    adj.P.Val        B Protein
@@ -905,28 +1124,176 @@ quantnormcountmatrix &lt;- as.matrix(quantnormcountmatrix)
 boxplot(quantnormcountmatrix[&quot;Q15327&quot;,] ~ Meta$Cond, data=Meta, main=&quot;Q15327&quot;,
         ylab=&quot;Log2 Abundance&quot;, xlab=&quot;&quot;, col = c(&quot;skyblue2&quot;,&quot;red&quot;)) </code></pre>
 <p><img src="figure/Differentially_abunddant_proteins.Rmd/Boxplots-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-Boxplots-1">
+Past versions of Boxplots-1.png
+</button>
+</p>
+<div id="fig-Boxplots-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/figure/Differentially_abunddant_proteins.Rmd/Boxplots-1.png" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># 2. Plot the second most signifigant diff. abundant protein 
 quantnormcountmatrix &lt;- as.matrix(quantnormcountmatrix)
 boxplot(quantnormcountmatrix[&quot;O76021&quot;,] ~ Meta$Cond, data=Meta, main=&quot;O76021&quot;,
         ylab=&quot;Log2 Abundance&quot;, xlab=&quot;&quot;, col = c(&quot;skyblue2&quot;,&quot;red&quot;)) </code></pre>
 <p><img src="figure/Differentially_abunddant_proteins.Rmd/Boxplots-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-Boxplots-2">
+Past versions of Boxplots-2.png
+</button>
+</p>
+<div id="fig-Boxplots-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/figure/Differentially_abunddant_proteins.Rmd/Boxplots-2.png" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># 3. Plot the third most signifigant diff. abundant protein 
 quantnormcountmatrix &lt;- as.matrix(quantnormcountmatrix)
 boxplot(quantnormcountmatrix[&quot;Q969Q1&quot;,] ~ Meta$Cond, data=Meta, main=&quot;Q969Q1&quot;,
         ylab=&quot;Log2 Abundance&quot;, xlab=&quot;&quot;, col = c(&quot;skyblue2&quot;,&quot;red&quot;)) </code></pre>
 <p><img src="figure/Differentially_abunddant_proteins.Rmd/Boxplots-3.png" width="672" style="display: block; margin: auto;" /></p>
-<div id="pca" class="section level5">
-<h5>PCA</h5>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-Boxplots-3">
+Past versions of Boxplots-3.png
+</button>
+</p>
+<div id="fig-Boxplots-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/figure/Differentially_abunddant_proteins.Rmd/Boxplots-3.png" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="pca" class="section level1">
+<h1>PCA</h1>
 <pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
 prcomp_res &lt;- prcomp(t(set$normalizedCounts %&gt;% as.matrix()), center = TRUE)
 
 ggplot2::autoplot(prcomp_res, data = Meta, colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
 <p><img src="figure/Differentially_abunddant_proteins.Rmd/PCA-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-PCA-1">
+Past versions of PCA-1.png
+</button>
+</p>
+<div id="fig-PCA-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/figure/Differentially_abunddant_proteins.Rmd/PCA-1.png" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
-<div id="heatmaps" class="section level4">
-<h4>Heatmaps</h4>
+</div>
+<div id="heatmaps" class="section level1">
+<h1>Heatmaps</h1>
 <pre class="r"><code>phenoData</code></pre>
 <pre><code>DataFrame with 10 rows and 6 columns
         Samples         Ind         Rep        Cond     Cond_Ind      RUV_1
@@ -948,12 +1315,86 @@ S10         S10        A_48        Tech     Control A_48_Control  0.4844914</cod
                    show_colnames = TRUE
 )</code></pre>
 <p><img src="figure/Differentially_abunddant_proteins.Rmd/Heatmaps-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-Heatmaps-1">
+Past versions of Heatmaps-1.png
+</button>
+</p>
+<div id="fig-Heatmaps-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/figure/Differentially_abunddant_proteins.Rmd/Heatmaps-1.png" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>cor(set$normalizedCounts %&gt;% as.matrix()) %&gt;% pheatmap(
   cluster_rows = TRUE, 
   cluster_cols = TRUE,
   show_rownames = TRUE,
   show_colnames = TRUE)</code></pre>
 <p><img src="figure/Differentially_abunddant_proteins.Rmd/Heatmaps-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-Heatmaps-2">
+Past versions of Heatmaps-2.png
+</button>
+</p>
+<div id="fig-Heatmaps-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/cd2c0edf4e55a3d78070a87fbaa76ab42c21655f/docs/figure/Differentially_abunddant_proteins.Rmd/Heatmaps-2.png" target="_blank">cd2c0ed</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
