@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2023-12-04" />
+
+<title>Differential abundance testing</title>
+
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">myproject</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/Omar-Johnson/myproject">
+    <span class="fab fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Differential abundance testing</h1>
+<h4 class="date">2023-12-04</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2023-12-04
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>myproject/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.1). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20230911code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20230911)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20230911code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20230911)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree01a8df67a56c6e580df747321ac783ef10a05048targetblank01a8df6a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/Omar-Johnson/myproject/tree/01a8df67a56c6e580df747321ac783ef10a05048" target="_blank">01a8df6</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree01a8df67a56c6e580df747321ac783ef10a05048targetblank01a8df6a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/Omar-Johnson/myproject/tree/01a8df67a56c6e580df747321ac783ef10a05048" target="_blank">01a8df6</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    analysis/.DS_Store
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were
+made to the R Markdown
+(<code>analysis/Differentially_abunddant_proteins.Rmd</code>) and HTML
+(<code>docs/Differentially_abunddant_proteins.html</code>) files. If
+you’ve configured a remote Git repository (see
+<code>?wflow_git_remote</code>), click on the hyperlinks in the table
+below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/01a8df67a56c6e580df747321ac783ef10a05048/analysis/Differentially_abunddant_proteins.Rmd" target="_blank">01a8df6</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-04
+</td>
+<td>
+Publish diff abundance files for myproject
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="load-libraries" class="section level4">
+<h4>Load Libraries</h4>
+</div>
+<div id="steps" class="section level4">
+<h4>Steps</h4>
+<pre class="r"><code>#* 1. Take Abundance values/counts 
+#* 2. Remove NA values from Abundance values 
+#* 3. Apply log2 transform to Abundance values 
+#* 4. Quantile normalize abundance values 
+#* 5. RUVs applied to account for technical variation 
+#* 6. Use Limma to model differential protein abundaance </code></pre>
+</div>
+<div id="read-in-data" class="section level4">
+<h4>Read in Data</h4>
+<pre class="r"><code># Load your data
+Protein_DF &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Abundance.csv&quot;, header = TRUE)
+
+# Include metadata about samples 
+Meta &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Meta.csv&quot;, header = TRUE)</code></pre>
+</div>
+<div id="wrangle-data-frame" class="section level4">
+<h4>Wrangle Data Frame</h4>
+<pre class="r"><code># Save the original 
+Full_DF &lt;- Protein_DF 
+
+
+# Subset the columns referring to abundance
+Protein_DF_Abundance &lt;- Protein_DF[,c(4, 5:ncol(Protein_DF))] 
+
+# Check for duplicated rows 
+# Identify duplicated values
+Protein_DF_Abundance$duplicated_name &lt;- duplicated(Protein_DF_Abundance$Accession)
+
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+# To see only rows with duplicated values, you can subset the dataframe like this:
+duplicated_rows &lt;- Protein_DF_Abundance[Protein_DF_Abundance$duplicated_name == TRUE, ]
+print(duplicated_rows)</code></pre>
+<pre><code>    Accession Abundance..F1..Sample..Dox..n.a Abundance..F3..Sample..Dox..n.a
+61     P04264                        3.87e+08                        1.45e+08
+276    P35908                              NA                              NA
+997    P04040                              NA                              NA
+    Abundance..F5..Sample..Dox..Dox Abundance..F7..Sample..Dox..Dox
+61                         2.58e+08                        7.07e+08
+276                              NA                              NA
+997                              NA                              NA
+    Abundance..F9..Sample..Dox..Dox Abundance..F2..Control..Veh..n.a
+61                         3.17e+08                         1.19e+10
+276                              NA                         5.31e+06
+997                              NA                               NA
+    Abundance..F4..Control..Veh..n.a Abundance..F6..Control..Veh..Veh
+61                          1.11e+09                         8.03e+08
+276                         1.14e+06                               NA
+997                               NA                               NA
+    Abundance..F8..Control..Veh..Veh Abundance..F10..Control..Veh..Veh
+61                          4.61e+08                          5.45e+08
+276                         5.00e+05                          4.90e+05
+997                               NA                                NA
+    duplicated_name
+61             TRUE
+276            TRUE
+997            TRUE</code></pre>
+<pre class="r"><code># We have 3 rows with duplicates, two of which have NA values. We will remove them now since we will go ahead 
+# and remove the duplicated rows later on anyways. 
+Protein_DF_Abundance &lt;- Protein_DF_Abundance[- c(61, 276, 997), ] 
+
+# Make rownames of the data frame accession IDs
+rownames(Protein_DF_Abundance) &lt;- Protein_DF_Abundance$Accession
+
+# Change colnames 
+colnames(Protein_DF_Abundance)</code></pre>
+<pre><code> [1] &quot;Accession&quot;                         &quot;Abundance..F1..Sample..Dox..n.a&quot;  
+ [3] &quot;Abundance..F3..Sample..Dox..n.a&quot;   &quot;Abundance..F5..Sample..Dox..Dox&quot;  
+ [5] &quot;Abundance..F7..Sample..Dox..Dox&quot;   &quot;Abundance..F9..Sample..Dox..Dox&quot;  
+ [7] &quot;Abundance..F2..Control..Veh..n.a&quot;  &quot;Abundance..F4..Control..Veh..n.a&quot; 
+ [9] &quot;Abundance..F6..Control..Veh..Veh&quot;  &quot;Abundance..F8..Control..Veh..Veh&quot; 
+[11] &quot;Abundance..F10..Control..Veh..Veh&quot; &quot;duplicated_name&quot;                  </code></pre>
+<pre class="r"><code>Protein_DF_Abundance &lt;- Protein_DF_Abundance[, -c(1, 12)]
+
+# Assuming column names of Protein_DF match with the rows in Meta
+rownames(Meta) &lt;- Meta$Samples
+
+colnames(Protein_DF_Abundance) &lt;- Meta$Samples</code></pre>
+</div>
+<div id="remove-rows-with-at-least-one-na" class="section level4">
+<h4>Remove rows with at least one NA</h4>
+<pre class="r"><code>#1.  Find rows with any NA values
+rows_with_na &lt;- apply(Protein_DF_Abundance, 1, function(x) any(is.na(x))) %&gt;% which()
+ 
+
+rows_with_na &lt;- as.numeric(rows_with_na)
+Protein_DF_Abundance %&gt;% dim()</code></pre>
+<pre><code>[1] 4501   10</code></pre>
+<pre class="r"><code># 2. Remove rows with NA values 
+Protein_DF_Abundance &lt;- Protein_DF_Abundance[-rows_with_na, ]
+
+# 3. Sanity check 
+Protein_DF_Abundance %&gt;% dim()</code></pre>
+<pre><code>[1] 3384   10</code></pre>
+</div>
+<div id="log2-transform" class="section level4">
+<h4>Log2 transform</h4>
+<pre class="r"><code>log2_norm_counts &lt;- log2(Protein_DF_Abundance)</code></pre>
+</div>
+<div id="quantile-normalization" class="section level4">
+<h4>Quantile Normalization</h4>
+<div id="prepare-data-object-for-ruvs" class="section level6">
+<h6>Prepare Data Object for RUVs</h6>
+<pre class="r"><code>#  counts need to be integer values and in a numeric matrix 
+counts &lt;- as.matrix(normalizedData) 
+
+# Create a DataFrame for the phenoData
+phenoData &lt;- DataFrame(Meta)
+
+# Now create the RangedSummarizedExperiment necessary for RUVs input 
+set &lt;- SummarizedExperiment(assays =  normalizedData, metadata =phenoData)</code></pre>
+</div>
+<div id="ruvs-matrix" class="section level5">
+<h5>RUVs Matrix</h5>
+<pre class="r"><code># Generate a background matrix where each set of replicates are in a row
+# and null spaces where there are replicate mismatches get the value -1. 
+# This will be used in the RUVs function, which is the typeII method to
+# remove unwanted variation in the RUVs package. This will be used for all 
+# RUVs permutations where the number of variation factors will be changed. 
+scIdx &lt;- matrix(-1, nrow = 6, ncol = 3)
+scIdx[1, 1:3] &lt;- c(which(colnames(counts) %in% c(&quot;S6&quot;, &quot;S8&quot;, &quot;S10&quot;))) # Control group- Technical reps Ind. 48-1
+scIdx[2, 1:3] &lt;- c(which(colnames(counts) %in% c(&quot;S5&quot;, &quot;S7&quot;, &quot;S9&quot;))) # Dox group- Technical reps Ind. 48-1
+scIdx[3, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S2&quot;))) # Control group- Bio reps Ind. 77-1
+scIdx[4, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S1&quot;))) # Dox group- 77-1
+scIdx[5, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S4&quot;))) # Control group- Bio reps Ind. 87-1
+scIdx[6, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S3&quot;))) # Dox group- 87-1
+scIdx</code></pre>
+<pre><code>     [,1] [,2] [,3]
+[1,]    8    9   10
+[2,]    3    4    5
+[3,]    6   -1   -1
+[4,]    1   -1   -1
+[5,]    7   -1   -1
+[6,]    2   -1   -1</code></pre>
+</div>
+<div id="linear-modelling" class="section level5">
+<h5>Linear Modelling</h5>
+<pre class="r"><code># Apply RUVs function from RUVSeq and add to set object
+set &lt;- RUVSeq::RUVs(x = normalizedData, k = 1, scIdx = scIdx, isLog = TRUE)
+RUV_1 &lt;- set$W[,1]
+
+set$W</code></pre>
+<pre><code>            W_1
+S1   0.14326547
+S3  -0.08146518
+S5  -0.25579041
+S7   0.54847999
+S9  -0.50097929
+S2   0.15639944
+S4  -0.04767015
+S6  -0.35626503
+S8  -0.19216750
+S10  0.48449144</code></pre>
+<pre class="r"><code>phenoData$RUV_1 &lt;- RUV_1
+
+
+# Create Design Matrix 
+# phenoData$Cond &lt;- factor(phenoData$Cond , levels = c(&quot;Control&quot;, &quot;Dox&quot;))
+design &lt;- model.matrix(~0 + Cond + RUV_1, phenoData)
+design</code></pre>
+<pre><code>    CondControl CondDox       RUV_1
+S1            0       1  0.14326547
+S3            0       1 -0.08146518
+S5            0       1 -0.25579041
+S7            0       1  0.54847999
+S9            0       1 -0.50097929
+S2            1       0  0.15639944
+S4            1       0 -0.04767015
+S6            1       0 -0.35626503
+S8            1       0 -0.19216750
+S10           1       0  0.48449144
+attr(,&quot;assign&quot;)
+[1] 1 1 2
+attr(,&quot;contrasts&quot;)
+attr(,&quot;contrasts&quot;)$Cond
+[1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code># rename columns 
+colnames(design) &lt;- c(&#39;Control&#39;, &quot;Dox&quot;, &quot;RUV_1&quot;)
+
+
+# Fit model
+fit &lt;- lmFit(set$normalizedCounts, design)
+fit2 &lt;- eBayes(fit)
+
+
+# Make contrasts
+cm &lt;- makeContrasts(
+  DoxvNorm = Dox - Control,
+  levels = design)
+
+
+# Model with contrasts
+fit2 &lt;- contrasts.fit(fit, cm)
+fit2 &lt;- eBayes(fit2, robust = TRUE, trend = TRUE)</code></pre>
+<pre><code>Warning: 3 very small variances detected, have been offset away from zero</code></pre>
+<pre class="r"><code># Summarize
+results_summary &lt;- decideTests(fit2, adjust.method = &quot;none&quot;, p.value = 0.05)
+summary(results_summary)</code></pre>
+<pre><code>       DoxvNorm
+Down        300
+NotSig     2882
+Up          202</code></pre>
+</div>
+</div>
+<div id="organize-toptable" class="section level4">
+<h4>Organize toptable</h4>
+<pre class="r"><code># Toptable summary organized to contain results for all tested proteins   
+toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(set$normalizedCounts )), p.value = 1, adjust.method = &quot;none&quot;)
+toptable_summary$Protein &lt;- rownames(toptable_summary)</code></pre>
+</div>
+<div id="histograms-of-abundance-and-p-values" class="section level4">
+<h4>Histograms of Abundance and P-values</h4>
+<pre class="r"><code># log2 transformed abundance values per sample 
+long_df &lt;- pivot_longer(log2_norm_counts, cols = everything(), names_to = &quot;Sample&quot;, values_to = &quot;Abundance&quot;)
+
+ggplot(long_df, aes(x = Abundance, y = Sample, fill = Sample)) +
+  geom_density_ridges(scale = 0.9) +
+  labs(x = &quot;Abundance&quot;, y = &quot;Sample&quot;, title = &quot;Log2 Abundance distribution&quot;) +
+  theme_ridges() +
+  scale_fill_viridis_d()</code></pre>
+<pre><code>Picking joint bandwidth of 0.462</code></pre>
+<p><img src="figure/Differentially_abunddant_proteins.Rmd/Histograms-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># log2-quantile normalized-RUVs- abundance values per sample 
+quantnormcountmatrix &lt;- as.data.frame(set$normalizedCounts)
+
+long_df &lt;- pivot_longer(quantnormcountmatrix, cols = everything(), names_to = &quot;Sample&quot;, values_to = &quot;Abundance&quot;)
+
+ggplot(long_df, aes(x = Abundance, y = Sample, fill = Sample)) +
+  geom_density_ridges(scale = 0.9) +
+  labs(x = &quot; Abundance&quot;, y = &quot;Sample&quot;, title = &quot;Log2-Quantile Norm.- RUVs Abundance distribution&quot;) +
+  theme_ridges() +
+  scale_fill_viridis_d()</code></pre>
+<pre><code>Picking joint bandwidth of 0.461</code></pre>
+<p><img src="figure/Differentially_abunddant_proteins.Rmd/Histograms-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Average expression of log2 quantile normalized values
+toptable_summary$AveExpr %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Differentially_abunddant_proteins.Rmd/Histograms-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Nominal Pvalue distribution 
+toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Differentially_abunddant_proteins.Rmd/Histograms-4.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="volcano-plots" class="section level5">
+<h5>Volcano plots</h5>
+<pre class="r"><code># 1. Create a column to threshold P-values 
+toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
+
+# 2. Plot 
+ggplot(toptable_summary)+
+  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+  xlab(&quot;log2FC&quot;)+
+  ylab(&quot;-log10 nominal p-value&quot;)+
+  ylim(0, 10)+
+  xlim(-7, 7)+
+  theme(legend.position = &quot;none&quot;, 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()</code></pre>
+<p><img src="figure/Differentially_abunddant_proteins.Rmd/Volcano%20plots-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="boxplots-for-top-3-most-differentially-abundant-proteins"
+class="section level4">
+<h4>Boxplots for top 3 most differentially abundant proteins</h4>
+<pre class="r"><code># View most signifigantly differentially abundant proteins in toptable_summary
+toptable_summary[1:3, ]</code></pre>
+<pre><code>           logFC  AveExpr          t      P.Value    adj.P.Val        B Protein
+Q15327 -3.510579 23.99385 -16.206595 1.439598e-08 1.439598e-08 9.198952  Q15327
+O76021 -2.101028 24.26413 -13.346701 9.464205e-08 9.464205e-08 7.858831  O76021
+Q969Q1 -4.160727 20.89793  -9.786021 1.771490e-06 1.771490e-06 5.466554  Q969Q1
+       threshold_P
+Q15327        TRUE
+O76021        TRUE
+Q969Q1        TRUE</code></pre>
+<pre class="r"><code># 1. Plot the first most signifigant diff. abundant protein 
+quantnormcountmatrix &lt;- as.matrix(quantnormcountmatrix)
+boxplot(quantnormcountmatrix[&quot;Q15327&quot;,] ~ Meta$Cond, data=Meta, main=&quot;Q15327&quot;,
+        ylab=&quot;Log2 Abundance&quot;, xlab=&quot;&quot;, col = c(&quot;skyblue2&quot;,&quot;red&quot;)) </code></pre>
+<p><img src="figure/Differentially_abunddant_proteins.Rmd/Boxplots-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># 2. Plot the second most signifigant diff. abundant protein 
+quantnormcountmatrix &lt;- as.matrix(quantnormcountmatrix)
+boxplot(quantnormcountmatrix[&quot;O76021&quot;,] ~ Meta$Cond, data=Meta, main=&quot;O76021&quot;,
+        ylab=&quot;Log2 Abundance&quot;, xlab=&quot;&quot;, col = c(&quot;skyblue2&quot;,&quot;red&quot;)) </code></pre>
+<p><img src="figure/Differentially_abunddant_proteins.Rmd/Boxplots-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># 3. Plot the third most signifigant diff. abundant protein 
+quantnormcountmatrix &lt;- as.matrix(quantnormcountmatrix)
+boxplot(quantnormcountmatrix[&quot;Q969Q1&quot;,] ~ Meta$Cond, data=Meta, main=&quot;Q969Q1&quot;,
+        ylab=&quot;Log2 Abundance&quot;, xlab=&quot;&quot;, col = c(&quot;skyblue2&quot;,&quot;red&quot;)) </code></pre>
+<p><img src="figure/Differentially_abunddant_proteins.Rmd/Boxplots-3.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="pca" class="section level5">
+<h5>PCA</h5>
+<pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
+prcomp_res &lt;- prcomp(t(set$normalizedCounts %&gt;% as.matrix()), center = TRUE)
+
+ggplot2::autoplot(prcomp_res, data = Meta, colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Differentially_abunddant_proteins.Rmd/PCA-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="heatmaps" class="section level4">
+<h4>Heatmaps</h4>
+<pre class="r"><code>phenoData</code></pre>
+<pre><code>DataFrame with 10 rows and 6 columns
+        Samples         Ind         Rep        Cond     Cond_Ind      RUV_1
+    &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;  &lt;character&gt;  &lt;numeric&gt;
+S1           S1        B_77         Bio         Dox     B_77_Dox  0.1432655
+S3           S3        C_87         Bio         Dox     C_87_Dox -0.0814652
+S5           S5        A_48        Tech         Dox     A_48_Dox -0.2557904
+S7           S7        A_48        Tech         Dox     A_48_Dox  0.5484800
+S9           S9        A_48        Tech         Dox     A_48_Dox -0.5009793
+S2           S2        B_77         Bio     Control B_77_Control  0.1563994
+S4           S4        C_87         Bio     Control C_87_Control -0.0476701
+S6           S6        A_48        Tech     Control A_48_Control -0.3562650
+S8           S8        A_48        Tech     Control A_48_Control -0.1921675
+S10         S10        A_48        Tech     Control A_48_Control  0.4844914</code></pre>
+<pre class="r"><code>pheatmap::pheatmap(set$normalizedCounts %&gt;% as.matrix(),
+                   cluster_rows = TRUE, 
+                   cluster_cols = TRUE,
+                   show_rownames = FALSE,
+                   show_colnames = TRUE
+)</code></pre>
+<p><img src="figure/Differentially_abunddant_proteins.Rmd/Heatmaps-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>cor(set$normalizedCounts %&gt;% as.matrix()) %&gt;% pheatmap(
+  cluster_rows = TRUE, 
+  cluster_cols = TRUE,
+  show_rownames = TRUE,
+  show_colnames = TRUE)</code></pre>
+<p><img src="figure/Differentially_abunddant_proteins.Rmd/Heatmaps-2.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.2.0 (2022-04-22)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur/Monterey 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] grid      stats4    stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] WGCNA_1.72-1                           
+ [2] fastcluster_1.2.3                      
+ [3] dynamicTreeCut_1.63-1                  
+ [4] BioNERO_1.4.2                          
+ [5] reshape2_1.4.4                         
+ [6] ggridges_0.5.4                         
+ [7] biomaRt_2.52.0                         
+ [8] ggvenn_0.1.10                          
+ [9] UpSetR_1.4.0                           
+[10] DOSE_3.22.1                            
+[11] variancePartition_1.26.0               
+[12] clusterProfiler_4.4.4                  
+[13] pheatmap_1.0.12                        
+[14] qvalue_2.28.0                          
+[15] Homo.sapiens_1.3.1                     
+[16] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2
+[17] org.Hs.eg.db_3.15.0                    
+[18] GO.db_3.15.0                           
+[19] OrganismDbi_1.38.1                     
+[20] GenomicFeatures_1.48.4                 
+[21] AnnotationDbi_1.58.0                   
+[22] cluster_2.1.4                          
+[23] ggfortify_0.4.16                       
+[24] lubridate_1.9.2                        
+[25] forcats_1.0.0                          
+[26] stringr_1.5.0                          
+[27] dplyr_1.1.2                            
+[28] purrr_1.0.2                            
+[29] readr_2.1.4                            
+[30] tidyr_1.3.0                            
+[31] tibble_3.2.1                           
+[32] ggplot2_3.4.3                          
+[33] tidyverse_2.0.0                        
+[34] RColorBrewer_1.1-3                     
+[35] RUVSeq_1.30.0                          
+[36] edgeR_3.38.4                           
+[37] limma_3.52.4                           
+[38] EDASeq_2.30.0                          
+[39] ShortRead_1.54.0                       
+[40] GenomicAlignments_1.32.1               
+[41] SummarizedExperiment_1.26.1            
+[42] MatrixGenerics_1.8.1                   
+[43] matrixStats_1.0.0                      
+[44] Rsamtools_2.12.0                       
+[45] GenomicRanges_1.48.0                   
+[46] Biostrings_2.64.1                      
+[47] GenomeInfoDb_1.32.4                    
+[48] XVector_0.36.0                         
+[49] IRanges_2.30.1                         
+[50] S4Vectors_0.34.0                       
+[51] BiocParallel_1.30.4                    
+[52] Biobase_2.56.0                         
+[53] BiocGenerics_0.42.0                    
+[54] workflowr_1.7.1                        
+
+loaded via a namespace (and not attached):
+  [1] rappdirs_0.3.3         rtracklayer_1.56.1     minet_3.54.0          
+  [4] R.methodsS3_1.8.2      coda_0.19-4            bit64_4.0.5           
+  [7] knitr_1.43             aroma.light_3.26.0     DelayedArray_0.22.0   
+ [10] R.utils_2.12.2         rpart_4.1.19           data.table_1.14.8     
+ [13] hwriter_1.3.2.1        KEGGREST_1.36.3        RCurl_1.98-1.12       
+ [16] doParallel_1.0.17      generics_0.1.3         preprocessCore_1.58.0 
+ [19] callr_3.7.3            RhpcBLASctl_0.23-42    RSQLite_2.3.1         
+ [22] shadowtext_0.1.2       bit_4.0.5              tzdb_0.4.0            
+ [25] enrichplot_1.16.2      xml2_1.3.5             httpuv_1.6.11         
+ [28] viridis_0.6.4          xfun_0.40              hms_1.1.3             
+ [31] jquerylib_0.1.4        evaluate_0.21          promises_1.2.1        
+ [34] fansi_1.0.4            restfulr_0.0.15        progress_1.2.2        
+ [37] caTools_1.18.2         dbplyr_2.3.3           htmlwidgets_1.6.2     
+ [40] igraph_1.5.1           DBI_1.1.3              ggnewscale_0.4.9      
+ [43] backports_1.4.1        annotate_1.74.0        aod_1.3.2             
+ [46] deldir_1.0-9           vctrs_0.6.3            abind_1.4-5           
+ [49] cachem_1.0.8           withr_2.5.0            ggforce_0.4.1         
+ [52] checkmate_2.2.0        treeio_1.20.2          prettyunits_1.1.1     
+ [55] ape_5.7-1              lazyeval_0.2.2         crayon_1.5.2          
+ [58] genefilter_1.78.0      labeling_0.4.2         pkgconfig_2.0.3       
+ [61] tweenr_2.0.2           nlme_3.1-163           nnet_7.3-19           
+ [64] rlang_1.1.1            lifecycle_1.0.3        downloader_0.4        
+ [67] filelock_1.0.2         BiocFileCache_2.4.0    rprojroot_2.0.3       
+ [70] polyclip_1.10-4        graph_1.74.0           Matrix_1.5-4.1        
+ [73] aplot_0.2.0            NetRep_1.2.7           boot_1.3-28.1         
+ [76] base64enc_0.1-3        GlobalOptions_0.1.2    whisker_0.4.1         
+ [79] processx_3.8.2         png_0.1-8              viridisLite_0.4.2     
+ [82] rjson_0.2.21           bitops_1.0-7           getPass_0.2-2         
+ [85] R.oo_1.25.0            ggnetwork_0.5.12       KernSmooth_2.23-22    
+ [88] blob_1.2.4             shape_1.4.6            jpeg_0.1-10           
+ [91] gridGraphics_0.5-1     scales_1.2.1           memoise_2.0.1         
+ [94] magrittr_2.0.3         plyr_1.8.8             gplots_3.1.3          
+ [97] zlibbioc_1.42.0        compiler_4.2.0         scatterpie_0.2.1      
+[100] BiocIO_1.6.0           clue_0.3-64            intergraph_2.0-3      
+[103] lme4_1.1-34            cli_3.6.1              patchwork_1.1.3       
+[106] ps_1.7.5               htmlTable_2.4.1        Formula_1.2-5         
+[109] mgcv_1.9-0             MASS_7.3-60            tidyselect_1.2.0      
+[112] stringi_1.7.12         highr_0.10             yaml_2.3.7            
+[115] GOSemSim_2.22.0        locfit_1.5-9.8         latticeExtra_0.6-30   
+[118] ggrepel_0.9.3          sass_0.4.7             fastmatch_1.1-4       
+[121] tools_4.2.0            timechange_0.2.0       parallel_4.2.0        
+[124] circlize_0.4.15        rstudioapi_0.15.0      foreign_0.8-84        
+[127] foreach_1.5.2          git2r_0.32.0           gridExtra_2.3         
+[130] farver_2.1.1           ggraph_2.1.0           digest_0.6.33         
+[133] BiocManager_1.30.22    networkD3_0.4          Rcpp_1.0.11           
+[136] broom_1.0.5            later_1.3.1            httr_1.4.7            
+[139] ComplexHeatmap_2.12.1  GENIE3_1.18.0          Rdpack_2.5            
+[142] colorspace_2.1-0       XML_3.99-0.14          fs_1.6.3              
+[145] splines_4.2.0          statmod_1.5.0          yulab.utils_0.0.8     
+[148] RBGL_1.72.0            tidytree_0.4.5         graphlayouts_1.0.0    
+[151] ggplotify_0.1.2        xtable_1.8-4           jsonlite_1.8.7        
+[154] nloptr_2.0.3           ggtree_3.4.4           tidygraph_1.2.3       
+[157] ggfun_0.1.2            R6_2.5.1               Hmisc_5.1-0           
+[160] pillar_1.9.0           htmltools_0.5.6        glue_1.6.2            
+[163] fastmap_1.1.1          minqa_1.2.5            codetools_0.2-19      
+[166] fgsea_1.22.0           utf8_1.2.3             sva_3.44.0            
+[169] lattice_0.21-8         bslib_0.5.1            network_1.18.1        
+[172] pbkrtest_0.5.2         curl_5.0.2             gtools_3.9.4          
+[175] interp_1.1-4           survival_3.5-7         statnet.common_4.9.0  
+[178] rmarkdown_2.24         munsell_0.5.0          GetoptLong_1.0.5      
+[181] DO.db_2.9              GenomeInfoDbData_1.2.8 iterators_1.0.14      
+[184] impute_1.70.0          gtable_0.3.4           rbibutils_2.2.15      </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
