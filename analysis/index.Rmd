@@ -18,3 +18,5 @@ editor_options:
 
 [2. All NA removed values + Simple tree](https://omar-johnson.github.io/myproject/WPCNA_shallow_split_2.html)
 
+# Enrichment of things 
+[1. DE proteins (imputed) in GO + Reactome ](https://omar-johnson.github.io/myproject/GO_Reactome_enrich_Imputed_proteins.html)
