@@ -1,7 +1,7 @@
 ---
-title: "Differential abundance testing"
+title: "Differentially_abundant_proteins_imputed"
 output: html_document
-date: "2023-12-04"
+date: "2023-12-06"
 ---
 # Load Libraries 
 ```{r Libraries, include=FALSE}
@@ -35,9 +35,15 @@ library(ggridges)
 library(reshape2)
 library(BioNERO)
 library(WGCNA)
+library(impute)
 ```
 
-
+# Added funtions 
+```{r Added functions}
+remove_rows_with_nas <- function(data_frame) {
+  data_frame[rowSums(is.na(data_frame)) < 5, ]
+}
+```
 # Steps  
 ```{r Steps to take}
 #* 1. Take Abundance values/counts 
@@ -96,26 +102,19 @@ colnames(Protein_DF_Abundance) <- Meta$Samples
 ```
 
 
-# Remove rows with at least one NA 
-```{r Remove NA}
-#1.  Find rows with any NA values
-rows_with_na <- apply(Protein_DF_Abundance, 1, function(x) any(is.na(x))) %>% which()
- 
+# NA removal and imputing with knn
+```{r knn impute NA}
+Protein_DF_Abundance_imp <- remove_rows_with_nas(Protein_DF_Abundance)
+Protein_DF_Abundance_imp %>% dim()
 
-rows_with_na <- as.numeric(rows_with_na)
-Protein_DF_Abundance %>% dim()
-
-# 2. Remove rows with NA values 
-Protein_DF_Abundance <- Protein_DF_Abundance[-rows_with_na, ]
-
-# 3. Sanity check 
-Protein_DF_Abundance %>% dim()
+Protein_DF_Abundance_imp_2 <- impute.knn(as.matrix(Protein_DF_Abundance_imp), k = 15, rowmax = 0.4)$data
+Protein_DF_Abundance_imp_2 %>% dim()
 ```
 
 
 # Log2 transform
 ```{r Log2}
-log2_norm_counts <- log2(Protein_DF_Abundance)
+log2_norm_counts <- log2(Protein_DF_Abundance_imp_2)
 ```
 
 
@@ -208,7 +207,7 @@ toptable_summary$Protein <- rownames(toptable_summary)
 # Histograms of Abundance and P-values 
 ```{r Histograms}
 # log2 transformed abundance values per sample 
-long_df <- pivot_longer(log2_norm_counts, cols = everything(), names_to = "Sample", values_to = "Abundance")
+long_df <- pivot_longer( as.data.frame(log2_norm_counts), cols = everything(), names_to = "Sample", values_to = "Abundance")
 
 ggplot(long_df, aes(x = Abundance, y = Sample, fill = Sample)) +
   geom_density_ridges(scale = 0.9) +
@@ -285,9 +284,19 @@ boxplot(quantnormcountmatrix["Q969Q1",] ~ Meta$Cond, data=Meta, main="Q969Q1",
 
 ```
 
+# PCA before processing
+```{r PCA before}
+# PCA of log2-quantile normalized-RUVs values:
+prcomp_res <- prcomp(t(log2_norm_counts %>% as.matrix()), center = TRUE)
 
-# PCA 
-```{r PCA}
+ggplot2::autoplot(prcomp_res, data = Meta, colour = "Cond", shape = "Ind", size =4)+
+  theme_bw()
+```
+
+
+
+# PCA after processing
+```{r PCA After}
 # PCA of log2-quantile normalized-RUVs values:
 prcomp_res <- prcomp(t(set$normalizedCounts %>% as.matrix()), center = TRUE)
 
@@ -296,8 +305,30 @@ ggplot2::autoplot(prcomp_res, data = Meta, colour = "Cond", shape = "Ind", size 
 ```
 
 
-# Heatmaps  
-```{r Heatmaps}
+
+# Heatmaps before processing 
+```{r Heatmaps before}
+phenoData
+
+pheatmap::pheatmap(log2_norm_counts %>% as.matrix(),
+                   cluster_rows = TRUE, 
+                   cluster_cols = TRUE,
+                   show_rownames = FALSE,
+                   show_colnames = TRUE
+)
+
+
+cor(log2_norm_counts %>% as.matrix()) %>% pheatmap(
+  cluster_rows = TRUE, 
+  cluster_cols = TRUE,
+  show_rownames = TRUE,
+  show_colnames = TRUE)
+
+```
+
+
+# Heatmaps after processing 
+```{r Heatmaps after}
 phenoData
 
 pheatmap::pheatmap(set$normalizedCounts %>% as.matrix(),
@@ -313,5 +344,5 @@ cor(set$normalizedCounts %>% as.matrix()) %>% pheatmap(
   cluster_cols = TRUE,
   show_rownames = TRUE,
   show_colnames = TRUE)
-```
 
+```

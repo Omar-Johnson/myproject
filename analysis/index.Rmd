@@ -8,5 +8,7 @@ editor_options:
   chunk_output_type: console
 ---
 
- 
-[Differentially abundant proteins](https://omar-johnson.github.io/myproject/Differentially_abunddant_proteins.html)
+# Differential abundance testing
+[1. All NA removed](https://omar-johnson.github.io/myproject/Differentially_abunddant_proteins.html)
+
+[2. With imputation](https://omar-johnson.github.io/myproject/Differentially_abundant_proteins_impute.html)
