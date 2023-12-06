@@ -15,3 +15,6 @@ editor_options:
 
 # WPCNA
 [1. Imputed values + Simple tree](https://omar-johnson.github.io/myproject/WPCNA_shallow_split.html)
+
+[2. All NA removed values + Simple tree](https://omar-johnson.github.io/myproject/WPCNA_shallow_split_2.html)
+

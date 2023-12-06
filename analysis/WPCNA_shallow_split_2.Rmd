@@ -1,0 +1,752 @@
+---
+title: "WPCNA_shallow_split_2"
+output: html_document
+date: "2023-12-06"
+---
+
+# Load Libraries 
+```{r Libraries, include=FALSE}
+
+library(EDASeq)
+library(RUVSeq)
+library(RColorBrewer)
+library(edgeR)
+library(limma)
+library(Biobase)
+library(SummarizedExperiment)
+library(tidyverse) 
+library(ggfortify)
+library(cluster)
+library(edgeR)
+library(limma)
+library(Homo.sapiens)
+library(BiocParallel)
+library(qvalue)
+library(pheatmap)
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(RColorBrewer)
+library(variancePartition)
+library(DOSE)
+library(UpSetR)
+library(ggvenn)
+library(biomaRt)
+library(ggridges)
+library(reshape2)
+library(BioNERO)
+library(WGCNA)
+library(impute)
+library(dynamicTreeCut)
+```
+
+# Added funtions 
+```{r Added functions}
+remove_rows_with_nas <- function(data_frame) {
+  data_frame[rowSums(is.na(data_frame)) < 5, ]
+}
+```
+# Steps  
+```{r Steps to take}
+#* 1. Take Abundance values/counts 
+#* 2. Remove NA values from Abundance values 
+#* 3. Apply log2 transform to Abundance values 
+#* 4. Quantile normalize abundance values 
+#* 5. RUVs applied to account for technical variation 
+#* 6. Use Limma to model differential protein abundaance 
+```
+
+
+# Read in Data 
+```{r Read in Data}
+
+# Load your data
+Protein_DF <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Abundance.csv", header = TRUE)
+
+# Include metadata about samples 
+Meta <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Meta.csv", header = TRUE)
+```
+
+
+# Wrangle Data Frame 
+```{r Wrangle Data Frame}
+# Save the original 
+Full_DF <- Protein_DF 
+
+
+# Subset the columns referring to abundance
+Protein_DF_Abundance <- Protein_DF[,c(4, 5:ncol(Protein_DF))] 
+
+# Check for duplicated rows 
+# Identify duplicated values
+Protein_DF_Abundance$duplicated_name <- duplicated(Protein_DF_Abundance$Accession)
+
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+# To see only rows with duplicated values, you can subset the dataframe like this:
+duplicated_rows <- Protein_DF_Abundance[Protein_DF_Abundance$duplicated_name == TRUE, ]
+print(duplicated_rows)
+
+# We have 3 rows with duplicates, two of which have NA values. We will remove them now since we will go ahead 
+# and remove the duplicated rows later on anyways. 
+Protein_DF_Abundance <- Protein_DF_Abundance[- c(61, 276, 997), ] 
+
+# Make rownames of the data frame accession IDs
+rownames(Protein_DF_Abundance) <- Protein_DF_Abundance$Accession
+
+# Change colnames 
+colnames(Protein_DF_Abundance)
+Protein_DF_Abundance <- Protein_DF_Abundance[, -c(1, 12)]
+
+# Assuming column names of Protein_DF match with the rows in Meta
+rownames(Meta) <- Meta$Samples
+
+colnames(Protein_DF_Abundance) <- Meta$Samples
+```
+
+# Remove NA values 
+```{r Remove NA values }
+#1.  Find rows with any NA values
+rows_with_na <- apply(Protein_DF_Abundance, 1, function(x) any(is.na(x))) %>% which()
+ 
+
+rows_with_na <- as.numeric(rows_with_na)
+Protein_DF_Abundance %>% dim()
+
+# 2. Remove rows with NA values 
+Protein_DF_Abundance <- Protein_DF_Abundance[-rows_with_na, ]
+
+# 3. Sanity check 
+Protein_DF_Abundance %>% dim()
+
+```
+
+
+# Log2 transform
+```{r Log2 transform}
+log2_norm_counts <- log2(Protein_DF_Abundance)
+```
+
+# Quantile Normalization 
+```{r Quantile Normalization}
+normalizedData <- limma::normalizeBetweenArrays(log2_norm_counts, method = "quantile")
+```
+
+
+# Prepare Data Object for RUVs 
+```{r Prepare Data Object for RUVs}
+#  counts need to be integer values and in a numeric matrix 
+counts <- as.matrix(normalizedData) 
+
+# Create a DataFrame for the phenoData
+phenoData <- DataFrame(Meta)
+
+# Now create the RangedSummarizedExperiment necessary for RUVs input 
+set <- SummarizedExperiment(assays =  normalizedData, metadata =phenoData)
+```
+
+
+# RUVs Matrix 
+```{r RUVs}
+# Generate a background matrix where each set of replicates are in a row
+# and null spaces where there are replicate mismatches get the value -1. 
+# This will be used in the RUVs function, which is the typeII method to
+# remove unwanted variation in the RUVs package. This will be used for all 
+# RUVs permutations where the number of variation factors will be changed. 
+scIdx <- matrix(-1, nrow = 6, ncol = 3)
+scIdx[1, 1:3] <- c(which(colnames(counts) %in% c("S6", "S8", "S10"))) # Control group- Technical reps Ind. 48-1
+scIdx[2, 1:3] <- c(which(colnames(counts) %in% c("S5", "S7", "S9"))) # Dox group- Technical reps Ind. 48-1
+scIdx[3, 1] <- c(which(colnames(counts) %in% c("S2"))) # Control group- Bio reps Ind. 77-1
+scIdx[4, 1] <- c(which(colnames(counts) %in% c("S1"))) # Dox group- 77-1
+scIdx[5, 1] <- c(which(colnames(counts) %in% c("S4"))) # Control group- Bio reps Ind. 87-1
+scIdx[6, 1] <- c(which(colnames(counts) %in% c("S3"))) # Dox group- 87-1
+scIdx
+```
+
+
+# Linear Modelling 
+```{r Linear Modelling}
+# Apply RUVs function from RUVSeq and add to set object
+set <- RUVSeq::RUVs(x = normalizedData, k = 1, scIdx = scIdx, isLog = TRUE)
+RUV_1 <- set$W[,1]
+
+set$W
+phenoData$RUV_1 <- RUV_1
+
+
+# Create Design Matrix 
+# phenoData$Cond <- factor(phenoData$Cond , levels = c("Control", "Dox"))
+design <- model.matrix(~0 + Cond + RUV_1, phenoData)
+design
+
+# rename columns 
+colnames(design) <- c('Control', "Dox", "RUV_1")
+
+
+# Fit model
+fit <- lmFit(set$normalizedCounts, design)
+fit2 <- eBayes(fit)
+
+
+# Make contrasts
+cm <- makeContrasts(
+  DoxvNorm = Dox - Control,
+  levels = design)
+
+
+# Model with contrasts
+fit2 <- contrasts.fit(fit, cm)
+fit2 <- eBayes(fit2, robust = TRUE, trend = TRUE)
+
+
+# Summarize
+results_summary <- decideTests(fit2, adjust.method = "none", p.value = 0.05)
+summary(results_summary)
+
+# Toptable summary organized to contain results for all tested proteins   
+toptable_summary <- topTable(fit2, coef = "DoxvNorm",number = (nrow(set$normalizedCounts )), p.value = 1, adjust.method = "none")
+toptable_summary$Protein <- rownames(toptable_summary)
+```
+ 
+
+# WPCNA- shallow cuts 
+```{r Create summarized experiment object}
+# Create summarized experiment object 
+WGCNA_DF <- SummarizedExperiment(assays = set$normalizedCounts)
+exp_filt <- filter_by_variance(WGCNA_DF, n = 3384)
+
+```
+
+# SFT power threshold  
+```{r SFT power threshold  }
+# Determine the soft power threshold to get scale free shape
+sft <- SFT_fit(exp_filt, net_type = "signed", rsquared = 0.8,  cor_method = "pearson")
+sft$power
+
+power <- sft$power
+sft$plot 
+power
+```
+
+
+# Modify workflow to have a simpler network  
+```{r  Modify workflow to have a simpler network}
+exp2gcn2_EDIT <- function (exp, net_type = "signed", module_merging_threshold = 0.8, 
+          SFTpower = NULL, cor_method = "spearman", verbose = FALSE) 
+{
+  params <- list(net_type = net_type, module_merging_threshold = module_merging_threshold, 
+                 SFTpower = SFTpower, cor_method = cor_method)
+  norm.exp <- BioNERO:::handleSE(exp)
+  if (is.null(SFTpower)) {
+    stop("Please, specify the SFT power.")
+  }
+  if (verbose) {
+    message("Calculating adjacency matrix...")
+  }
+  cor_matrix <- BioNERO:::calculate_cor_adj(cor_method, norm.exp, SFTpower, 
+                                  net_type)$cor
+  adj_matrix <- BioNERO:::calculate_cor_adj(cor_method, norm.exp, SFTpower, 
+                                  net_type)$adj
+  gene_ids <- rownames(adj_matrix)
+  adj_matrix <- matrix(adj_matrix, nrow = nrow(adj_matrix))
+  rownames(adj_matrix) <- gene_ids
+  colnames(adj_matrix) <- gene_ids
+  if (verbose) {
+    message("Calculating topological overlap matrix (TOM)...")
+  }
+  tomtype <- BioNERO:::get_TOMtype(net_type)
+  TOM <- WGCNA::TOMsimilarity(adj_matrix, TOMType = tomtype)
+  dissTOM <- 1 - TOM
+  geneTree <- hclust(as.dist(dissTOM), method = "average")
+  if (verbose) {
+    message("Detecting coexpression modules...")
+  }
+  old.module_labels <- dynamicTreeCut::cutreeDynamicTree(dendro = geneTree, maxTreeHeight = 4 , 
+                                                         minModuleSize = 30, deepSplit = FALSE)
+  nmod <- length(unique(old.module_labels))
+  palette <- rev(WGCNA::standardColors(nmod))
+  old.module_colors <- WGCNA::labels2colors(old.module_labels, 
+                                            colorSeq = palette)
+  if (verbose) {
+    message("Calculating module eigengenes (MEs)...")
+  }
+  old.MElist <- WGCNA::moduleEigengenes(t(norm.exp), colors = old.module_colors, 
+                                        softPower = SFTpower)
+  old.MEs <- old.MElist$eigengenes
+  MEDiss1 <- 1 - cor(old.MEs)
+  old.METree <- hclust(as.dist(MEDiss1), method = "average")
+  MEDissThreshold <- 1 - module_merging_threshold
+  if (verbose) {
+    message("Merging similar modules...")
+  }
+  if (cor_method == "pearson") {
+    merge1 <- WGCNA::mergeCloseModules(t(norm.exp), old.module_colors, 
+                                       cutHeight = MEDissThreshold, verbose = 0, colorSeq = palette)
+  }
+  else if (cor_method == "spearman") {
+    merge1 <- WGCNA::mergeCloseModules(t(norm.exp), old.module_colors, 
+                                       cutHeight = MEDissThreshold, verbose = 0, corOptions = list(use = "p", 
+                                                                                                   method = "spearman"), colorSeq = palette)
+  }
+  else if (cor_method == "biweight") {
+    merge1 <- WGCNA::mergeCloseModules(t(norm.exp), old.module_colors, 
+                                       cutHeight = MEDissThreshold, verbose = 0, corFnc = bicor, 
+                                       colorSeq = palette)
+  }
+  else {
+    stop("Please, specify a correlation method. One of 'spearman', 'pearson' or 'biweight'.")
+  }
+  new.module_colors <- merge1$colors
+  new.MEs <- merge1$newMEs
+  new.METree <- hclust(as.dist(1 - cor(new.MEs)), method = "average")
+  genes_and_modules <- as.data.frame(cbind(gene_ids, new.module_colors))
+  colnames(genes_and_modules) <- c("Genes", "Modules")
+  if (verbose) {
+    message("Calculating intramodular connectivity...")
+  }
+  kwithin <- WGCNA::intramodularConnectivity(adj_matrix, new.module_colors)
+  result.list <- list(adjacency_matrix = adj_matrix, MEs = new.MEs, 
+                      genes_and_modules = genes_and_modules, kIN = kwithin, 
+                      correlation_matrix = cor_matrix, params = params, dendro_plot_objects = list(tree = geneTree, 
+                                                                                                   unmerged = old.module_colors))
+  return(result.list)
+}
+```
+
+
+# Generate network with max merge threshold 
+```{r Generate network with max merge threshold }
+net <- exp2gcn2_EDIT(
+  exp_filt, net_type = "signed", module_merging_threshold = 0.99, SFTpower = power, 
+  cor_method = "pearson")
+
+# Dendogram
+plot_dendro_and_colors(net )
+
+
+
+# Eigengene networks
+plot_eigengene_network(net)
+
+
+# Genes per module 
+plot_ngenes_per_module(net)
+```
+
+
+# Generate network with desired merge threshold 
+```{r Generate network with desired merge threshold}
+net <- exp2gcn2_EDIT(
+  exp_filt, net_type = "signed", module_merging_threshold = 0.9, SFTpower = power, 
+  cor_method = "pearson")
+
+# Dendogram
+plot_dendro_and_colors(net )
+
+
+
+# Eigengene networks
+plot_eigengene_network(net)
+
+
+# Genes per module 
+plot_ngenes_per_module(net)
+```
+
+
+
+# Define trat and get eigen proteins 
+```{r Define trat and get eigen proteins }
+WGCNA_DF$trait <- c(1,1,1,1,1,0,0,0,0,0)
+names(WGCNA_DF$trait) <- c("S1", "S3", "S5", "S7", "S9", "S2", "S4", "S6", "S8", "S10")
+
+
+eigenmatrix <- net$MEs %>% as.matrix()
+eigenmatrix
+```
+
+# Trait-module correlation test 
+```{r Trait-module correlation test}
+correlationResults <- cor(eigenmatrix, WGCNA_DF$trait, method="pearson")
+
+pvalues <- sapply(1:ncol(eigenmatrix), function(column) cor.test(eigenmatrix[,column], WGCNA_DF$trait)$p.value )
+
+WGCNA_DF$trait <- as.matrix(WGCNA_DF$trait)
+
+Modeigen <- as.matrix(net$MEs)
+
+
+# Trait data frame
+trait_data <- data.frame(
+  ME = correlationResults %>% rownames(),
+  Value = correlationResults[,1],
+  PValue = pvalues
+)
+trait_data$neglogP <- -log(trait_data$PValue)
+trait_data
+
+
+
+# Plot correlation across modules
+ggplot(trait_data, aes(x = ME, y = neglogP, color = Value)) + 
+  geom_segment(aes(xend = ME, yend = 0), linetype = "solid") +
+  geom_point(size = 10) + 
+  scale_color_gradient(
+    low = "red", 
+    high = "blue", 
+    name = "corr",
+    limits = c(-1, 1),
+    breaks = seq(-1, 1, by = 0.5)
+  ) +
+  labs(x = "Module", y = "-log(P-value)", title = "Module correlation with DOX treatment") + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  geom_hline(yintercept = 2.995732, color = "black", linetype = "dashed") +
+  geom_text(aes(x = 0, y = 3.5, label = "P-Val Threshold"), hjust = -0.1, vjust = 1.5)
+```
+
+
+# General wrangling 
+```{r General wrangling }
+# Get modules that significantly associate with DOX treatment 
+Signifigant_modules <-  trait_data[trait_data$PValue < 0.05, ]$ME
+
+
+# Get your genes/proteins and modules DF 
+Gene_mod_DF <- net$genes_and_modules 
+
+
+
+# Module data gets merged with toptable
+toptable_summary %>% head()
+
+
+Toptable_Modules <- merge(toptable_summary, 
+                          Gene_mod_DF, by.x = "Protein", by.y = "Genes")
+
+
+
+
+
+# Get the corresponding Gene name IDs
+mart <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+
+results_Pro_names <- getBM(filters = "uniprotswissprot", 
+                           attributes = c("uniprotswissprot", "hgnc_symbol"), 
+                           values = toptable_summary$Protein, 
+                           mart = mart)
+
+
+merged_results_Pro_names_AND_Toptable_for_ENZYME <- merge(toptable_summary, results_Pro_names, by.x = "Protein", by.y = "uniprotswissprot")
+ENZYME_DF_Toptable <- merged_results_Pro_names_AND_Toptable_for_ENZYME
+
+DE_Enzymes <- ENZYME_DF_Toptable[(ENZYME_DF_Toptable$P.Value < 0.05) & (!is.na(ENZYME_DF_Toptable$ENZYME)), ]$hgnc_symbol
+
+All_Proteins_ENZYMES <- ENZYME_DF_Toptable[(!is.na(ENZYME_DF_Toptable$ENZYME)), ]$hgnc_symbol
+
+
+
+
+
+# Plotting LogFC in significant modules module 
+
+Significant_modules_NoME <- stringr::str_replace(Signifigant_modules, "^ME", "")
+
+Toptable_Modules_Sig <- Toptable_Modules[Toptable_Modules$Modules %in% Significant_modules_NoME, ]
+
+
+
+# n-modules total 
+Toptable_Modules$Modules %>% unique() %>% length()
+
+# n-sig modules
+Signifigant_modules %>% length()
+
+
+# Percent sig modules 
+(Signifigant_modules %>% length()) / (Toptable_Modules$Modules %>% unique() %>% length())
+
+
+
+# Get modules that significantly associate with DOX treatment 
+Signifigant_modules <-  trait_data[trait_data$PValue < 0.05, ]$ME
+
+
+# Get your genes/proteins and modules DF 
+Gene_mod_DF <- net$genes_and_modules 
+
+
+# Subset genes/proteins and modules DF by the significantly correlated modules to DOX 
+Sig_Gene_mod_DF <- Gene_mod_DF[Gene_mod_DF$Modules %in% Signifigant_modules, ]
+
+
+# Module data gets merged with toptable
+Toptable_Modules <- merge(toptable_summary, 
+                          Gene_mod_DF, by.x = "Protein", by.y = "Genes")
+
+Toptable_Modules %>% head()
+Toptable_Modules %>% dim()
+```
+
+
+# Combining diff abundant test with modules 
+```{r Riddge }
+# LogFC Ridge plot 
+ggplot(Toptable_Modules_Sig, aes(x = logFC, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.8) +
+  labs(title = "Dox Associated Module LogFC distribution from DE test",
+       x = "Log Fold Change",
+       y = "Modules") +
+  ggridges::theme_ridges() 
+
+
+
+# LogFC Ridge plot 
+ggplot(Toptable_Modules, aes(x = logFC, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.8) +
+  labs(title = "Dox Associated Module LogFC distribution from DE test",
+       x = "Log Fold Change",
+       y = "Modules") +
+  ggridges::theme_ridges() 
+
+
+
+# Pval Ridge plot 
+ggplot(Toptable_Modules_Sig, aes(x = P.Value, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.8) +
+  labs(title = "Module pval distribution from DE test",
+       x = "Pval",
+       y = "") +
+  ggridges::theme_ridges()+
+  scale_x_continuous(breaks = seq(0, 1, by = 0.05), limits = c(0, 1))
+
+
+# Pval Ridge plot 
+ggplot(Toptable_Modules, aes(x = P.Value, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.6) +
+  labs(title = "Module pval distribution from DE test",
+       x = "Pval",
+       y = "Modules") +
+  ggridges::theme_ridges()+
+  scale_x_continuous(breaks = seq(0, 1, by = 0.05), limits = c(0, 1))
+
+```
+
+```{r DE across modules}
+# Plotting LogFC between DE and non DE proteins 
+Toptable_Modules$DE_or_Not <- Toptable_Modules$P.Value < 0.05
+
+
+# Calculate percentage of DE genes for each module
+DE_Mod_result <- Toptable_Modules %>%
+  group_by(Modules) %>%
+  summarize(
+    total_genes = n(),
+    DE_genes = sum(P.Value < 0.05),
+    percent_DE = (DE_genes / total_genes) * 100
+  )
+
+print(DE_Mod_result)
+
+
+# Plot
+ggplot(DE_Mod_result, aes(x = Modules, y = percent_DE, fill = Modules)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Module",
+    y = "Percentage of DE genes",
+    title = "Percentage of DE genes in each module",
+    fill = "Module"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# Compute complementary percentage for non-DE genes
+DE_Mod_result$percent_nonDE <- 100 - DE_Mod_result$percent_DE
+
+# Reshape data to long format
+long_data <- DE_Mod_result %>% 
+  pivot_longer(cols = c(percent_DE, percent_nonDE), 
+               names_to = "type", 
+               values_to = "percentage")
+
+
+# Plot stacked bar chart
+ggplot(long_data, aes(x = Modules, y = percentage, fill = type)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Module",
+    y = "Percentage",
+    title = "Percentage of DE and non-DE genes in each module",
+    fill = "Type"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_y_continuous(breaks = rev(seq(0, 100, by = 10)))
+
+Significant_modules_NoME
+
+
+
+metatestDF <- phenoData$Cond %>% as.data.frame()
+
+
+```
+
+
+# GO enrichment acrross dox correlated modules 
+```{r GO enrichment}
+hubs <- get_hubs_gcn(WGCNA_DF, net)
+ontology_categories <- c("ALL")
+
+
+# Loop over each module and ontology category
+for (module in Significant_modules_NoME) {
+  # Extract hub genes for the current module
+  module_hubs <- hubs[hubs$Module == module, ]$Gene
+  
+  # All module proteins
+  module_proteins <- Toptable_Modules[(Toptable_Modules$Modules == module), ]$Protein
+  
+  # Get gene names for the proteins in the module
+  module_genes <- ENZYME_DF_Toptable[ENZYME_DF_Toptable$Protein %in% module_proteins, ]$hgnc_symbol
+  
+  # Define background genes
+  background_genes_mod <- ENZYME_DF_Toptable$hgnc_symbol
+  
+  for (ont in ontology_categories) {
+    # GO Enrichment
+    go_enrichment <- enrichGO(gene = module_genes,
+                              OrgDb = org.Hs.eg.db,
+                              keyType = "SYMBOL",
+                              universe = background_genes_mod,
+                              ont = ont,
+                              pvalueCutoff = 1,
+                              qvalueCutoff = 1)
+    
+    # Plotting the results
+    # Plotting the results
+    p <- barplot(go_enrichment, showCategory = 10) +
+      ggtitle(paste("Module:", module, "- Ontology:", ont))
+    
+    print(p)   
+    
+  }
+}
+```
+
+
+# Protein corrrelation plots within modules 
+```{r Protein corrrelation plots}
+# Remove edges based on optimal scale-free topology fit
+edges_filtered <- get_edge_list(net, module = c("darkgreen", "pink", "lightyellow", "royalblue"), filter = TRUE)
+
+## The correlation threshold that best fits the scale-free topology is 0.7
+dim(edges_filtered)
+## [1] 588   3
+
+#### Network for all ####
+# Remove edges based on minimum correlation
+edges_filtered <- get_edge_list(
+  net, module = c("darkgreen", "pink", "lightyellow", "royalblue"), 
+  filter = TRUE, method = "min_cor", rcutoff = 0.93,
+  check_SFT = TRUE
+)
+
+dim(edges_filtered)
+
+plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = "module", 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = "tophubs"
+)
+```
+
+
+#### Network darkgreen #### 
+```{r Network darkgreen}
+edges_filtered <- get_edge_list(
+  net, module = c("darkgreen" ), 
+  filter = TRUE, method = "min_cor", rcutoff = 0.9,
+  check_SFT = TRUE
+)
+
+dim(edges_filtered)
+
+plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = "module", 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = "tophubs"
+)
+```
+
+
+#### Network pink #### 
+```{r Network pink}
+edges_filtered <- get_edge_list(
+  net, module = c( "pink"), 
+  filter = TRUE, method = "min_cor", rcutoff = 0.8,
+  check_SFT = TRUE
+)
+
+dim(edges_filtered)
+
+plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = "module", 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = "tophubs"
+)
+```
+
+
+#### Network lightyellow #### 
+```{r Network lightyellow}
+edges_filtered <- get_edge_list(
+  net, module = c("lightyellow" ), 
+  filter = TRUE, method = "min_cor", rcutoff = 0.92,
+  check_SFT = TRUE
+)
+
+dim(edges_filtered)
+
+plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = "module", 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = "tophubs"
+)
+```
+
+
+#### Network royalblue #### 
+```{r Network royalblue}
+edges_filtered <- get_edge_list(
+  net, module = c("royalblue"), 
+  filter = TRUE, method = "min_cor", rcutoff = 0.94,
+  check_SFT = TRUE
+)
+
+dim(edges_filtered)
+
+plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = "module", 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = "tophubs"
+)
+```
+
