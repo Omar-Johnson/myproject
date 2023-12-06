@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+<meta name="date" content="2023-12-06" />
+
+<title>WPCNA_shallow_split</title>
+
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">myproject</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/Omar-Johnson/myproject">
+    <span class="fab fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">WPCNA_shallow_split</h1>
+<h4 class="date">2023-12-06</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2023-12-06
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>myproject/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.1). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20230911code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20230911)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20230911code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20230911)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree754a561028c9cae495ad24567303cf09a216e822targetblank754a561a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/Omar-Johnson/myproject/tree/754a561028c9cae495ad24567303cf09a216e822" target="_blank">754a561</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree754a561028c9cae495ad24567303cf09a216e822targetblank754a561a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/Omar-Johnson/myproject/tree/754a561028c9cae495ad24567303cf09a216e822" target="_blank">754a561</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    analysis/.DS_Store
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/WPCNA_shallow_split.Rmd</code>)
+and HTML (<code>docs/WPCNA_shallow_split.html</code>) files. If you’ve
+configured a remote Git repository (see <code>?wflow_git_remote</code>),
+click on the hyperlinks in the table below to view the files as they
+were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/754a561028c9cae495ad24567303cf09a216e822/analysis/WPCNA_shallow_split.Rmd" target="_blank">754a561</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-06
+</td>
+<td>
+update
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="load-libraries" class="section level1">
+<h1>Load Libraries</h1>
+</div>
+<div id="added-funtions" class="section level1">
+<h1>Added funtions</h1>
+<pre class="r"><code>remove_rows_with_nas &lt;- function(data_frame) {
+  data_frame[rowSums(is.na(data_frame)) &lt; 5, ]
+}</code></pre>
+</div>
+<div id="steps" class="section level1">
+<h1>Steps</h1>
+<pre class="r"><code>#* 1. Take Abundance values/counts 
+#* 2. Remove NA values from Abundance values 
+#* 3. Apply log2 transform to Abundance values 
+#* 4. Quantile normalize abundance values 
+#* 5. RUVs applied to account for technical variation 
+#* 6. Use Limma to model differential protein abundaance </code></pre>
+</div>
+<div id="read-in-data" class="section level1">
+<h1>Read in Data</h1>
+<pre class="r"><code># Load your data
+Protein_DF &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Abundance.csv&quot;, header = TRUE)
+
+# Include metadata about samples 
+Meta &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Meta.csv&quot;, header = TRUE)</code></pre>
+</div>
+<div id="wrangle-data-frame" class="section level1">
+<h1>Wrangle Data Frame</h1>
+<pre class="r"><code># Save the original 
+Full_DF &lt;- Protein_DF 
+
+
+# Subset the columns referring to abundance
+Protein_DF_Abundance &lt;- Protein_DF[,c(4, 5:ncol(Protein_DF))] 
+
+# Check for duplicated rows 
+# Identify duplicated values
+Protein_DF_Abundance$duplicated_name &lt;- duplicated(Protein_DF_Abundance$Accession)
+
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+# To see only rows with duplicated values, you can subset the dataframe like this:
+duplicated_rows &lt;- Protein_DF_Abundance[Protein_DF_Abundance$duplicated_name == TRUE, ]
+print(duplicated_rows)</code></pre>
+<pre><code>    Accession Abundance..F1..Sample..Dox..n.a Abundance..F3..Sample..Dox..n.a
+61     P04264                        3.87e+08                        1.45e+08
+276    P35908                              NA                              NA
+997    P04040                              NA                              NA
+    Abundance..F5..Sample..Dox..Dox Abundance..F7..Sample..Dox..Dox
+61                         2.58e+08                        7.07e+08
+276                              NA                              NA
+997                              NA                              NA
+    Abundance..F9..Sample..Dox..Dox Abundance..F2..Control..Veh..n.a
+61                         3.17e+08                         1.19e+10
+276                              NA                         5.31e+06
+997                              NA                               NA
+    Abundance..F4..Control..Veh..n.a Abundance..F6..Control..Veh..Veh
+61                          1.11e+09                         8.03e+08
+276                         1.14e+06                               NA
+997                               NA                               NA
+    Abundance..F8..Control..Veh..Veh Abundance..F10..Control..Veh..Veh
+61                          4.61e+08                          5.45e+08
+276                         5.00e+05                          4.90e+05
+997                               NA                                NA
+    duplicated_name
+61             TRUE
+276            TRUE
+997            TRUE</code></pre>
+<pre class="r"><code># We have 3 rows with duplicates, two of which have NA values. We will remove them now since we will go ahead 
+# and remove the duplicated rows later on anyways. 
+Protein_DF_Abundance &lt;- Protein_DF_Abundance[- c(61, 276, 997), ] 
+
+# Make rownames of the data frame accession IDs
+rownames(Protein_DF_Abundance) &lt;- Protein_DF_Abundance$Accession
+
+# Change colnames 
+colnames(Protein_DF_Abundance)</code></pre>
+<pre><code> [1] &quot;Accession&quot;                         &quot;Abundance..F1..Sample..Dox..n.a&quot;  
+ [3] &quot;Abundance..F3..Sample..Dox..n.a&quot;   &quot;Abundance..F5..Sample..Dox..Dox&quot;  
+ [5] &quot;Abundance..F7..Sample..Dox..Dox&quot;   &quot;Abundance..F9..Sample..Dox..Dox&quot;  
+ [7] &quot;Abundance..F2..Control..Veh..n.a&quot;  &quot;Abundance..F4..Control..Veh..n.a&quot; 
+ [9] &quot;Abundance..F6..Control..Veh..Veh&quot;  &quot;Abundance..F8..Control..Veh..Veh&quot; 
+[11] &quot;Abundance..F10..Control..Veh..Veh&quot; &quot;duplicated_name&quot;                  </code></pre>
+<pre class="r"><code>Protein_DF_Abundance &lt;- Protein_DF_Abundance[, -c(1, 12)]
+
+# Assuming column names of Protein_DF match with the rows in Meta
+rownames(Meta) &lt;- Meta$Samples
+
+colnames(Protein_DF_Abundance) &lt;- Meta$Samples</code></pre>
+</div>
+<div id="na-removal-and-imputing-with-knn" class="section level1">
+<h1>NA removal and imputing with knn</h1>
+<pre class="r"><code>Protein_DF_Abundance_imp &lt;- remove_rows_with_nas(Protein_DF_Abundance)
+Protein_DF_Abundance_imp %&gt;% dim()</code></pre>
+<pre><code>[1] 3945   10</code></pre>
+<pre class="r"><code>Protein_DF_Abundance_imp_2 &lt;- impute.knn(as.matrix(Protein_DF_Abundance_imp), k = 15, rowmax = 0.4)$data</code></pre>
+<pre><code>Cluster size 3945 broken into 3 3942 
+Done cluster 3 
+Cluster size 3942 broken into 3845 97 
+Cluster size 3845 broken into 3589 256 
+Cluster size 3589 broken into 648 2941 
+Done cluster 648 
+Cluster size 2941 broken into 2318 623 
+Cluster size 2318 broken into 1680 638 
+Cluster size 1680 broken into 1006 674 
+Done cluster 1006 
+Done cluster 674 
+Done cluster 1680 
+Done cluster 638 
+Done cluster 2318 
+Done cluster 623 
+Done cluster 2941 
+Done cluster 3589 
+Done cluster 256 
+Done cluster 3845 
+Done cluster 97 
+Done cluster 3942 </code></pre>
+<pre class="r"><code>Protein_DF_Abundance_imp_2 %&gt;% dim()</code></pre>
+<pre><code>[1] 3945   10</code></pre>
+</div>
+<div id="log2-transform" class="section level1">
+<h1>Log2 transform</h1>
+<pre class="r"><code>log2_norm_counts &lt;- log2(Protein_DF_Abundance_imp_2)</code></pre>
+</div>
+<div id="quantile-normalization" class="section level1">
+<h1>Quantile Normalization</h1>
+<pre class="r"><code>normalizedData &lt;- limma::normalizeBetweenArrays(log2_norm_counts, method = &quot;quantile&quot;)</code></pre>
+</div>
+<div id="prepare-data-object-for-ruvs" class="section level1">
+<h1>Prepare Data Object for RUVs</h1>
+<pre class="r"><code>#  counts need to be integer values and in a numeric matrix 
+counts &lt;- as.matrix(normalizedData) 
+
+# Create a DataFrame for the phenoData
+phenoData &lt;- DataFrame(Meta)
+
+# Now create the RangedSummarizedExperiment necessary for RUVs input 
+set &lt;- SummarizedExperiment(assays =  normalizedData, metadata =phenoData)</code></pre>
+</div>
+<div id="ruvs-matrix" class="section level1">
+<h1>RUVs Matrix</h1>
+<pre class="r"><code># Generate a background matrix where each set of replicates are in a row
+# and null spaces where there are replicate mismatches get the value -1. 
+# This will be used in the RUVs function, which is the typeII method to
+# remove unwanted variation in the RUVs package. This will be used for all 
+# RUVs permutations where the number of variation factors will be changed. 
+scIdx &lt;- matrix(-1, nrow = 6, ncol = 3)
+scIdx[1, 1:3] &lt;- c(which(colnames(counts) %in% c(&quot;S6&quot;, &quot;S8&quot;, &quot;S10&quot;))) # Control group- Technical reps Ind. 48-1
+scIdx[2, 1:3] &lt;- c(which(colnames(counts) %in% c(&quot;S5&quot;, &quot;S7&quot;, &quot;S9&quot;))) # Dox group- Technical reps Ind. 48-1
+scIdx[3, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S2&quot;))) # Control group- Bio reps Ind. 77-1
+scIdx[4, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S1&quot;))) # Dox group- 77-1
+scIdx[5, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S4&quot;))) # Control group- Bio reps Ind. 87-1
+scIdx[6, 1] &lt;- c(which(colnames(counts) %in% c(&quot;S3&quot;))) # Dox group- 87-1
+scIdx</code></pre>
+<pre><code>     [,1] [,2] [,3]
+[1,]    8    9   10
+[2,]    3    4    5
+[3,]    6   -1   -1
+[4,]    1   -1   -1
+[5,]    7   -1   -1
+[6,]    2   -1   -1</code></pre>
+</div>
+<div id="linear-modelling" class="section level1">
+<h1>Linear Modelling</h1>
+<pre class="r"><code># Apply RUVs function from RUVSeq and add to set object
+set &lt;- RUVSeq::RUVs(x = normalizedData, k = 1, scIdx = scIdx, isLog = TRUE)
+RUV_1 &lt;- set$W[,1]
+
+set$W</code></pre>
+<pre><code>            W_1
+S1   0.13282495
+S3  -0.02056889
+S5  -0.10573112
+S7   0.58331726
+S9  -0.60738564
+S2   0.12029655
+S4  -0.05722375
+S6  -0.31416365
+S8  -0.08892110
+S10  0.42282946</code></pre>
+<pre class="r"><code>phenoData$RUV_1 &lt;- RUV_1
+
+
+# Create Design Matrix 
+# phenoData$Cond &lt;- factor(phenoData$Cond , levels = c(&quot;Control&quot;, &quot;Dox&quot;))
+design &lt;- model.matrix(~0 + Cond + RUV_1, phenoData)
+design</code></pre>
+<pre><code>    CondControl CondDox       RUV_1
+S1            0       1  0.13282495
+S3            0       1 -0.02056889
+S5            0       1 -0.10573112
+S7            0       1  0.58331726
+S9            0       1 -0.60738564
+S2            1       0  0.12029655
+S4            1       0 -0.05722375
+S6            1       0 -0.31416365
+S8            1       0 -0.08892110
+S10           1       0  0.42282946
+attr(,&quot;assign&quot;)
+[1] 1 1 2
+attr(,&quot;contrasts&quot;)
+attr(,&quot;contrasts&quot;)$Cond
+[1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code># rename columns 
+colnames(design) &lt;- c(&#39;Control&#39;, &quot;Dox&quot;, &quot;RUV_1&quot;)
+
+
+# Fit model
+fit &lt;- lmFit(set$normalizedCounts, design)
+fit2 &lt;- eBayes(fit)
+
+
+# Make contrasts
+cm &lt;- makeContrasts(
+  DoxvNorm = Dox - Control,
+  levels = design)
+
+
+# Model with contrasts
+fit2 &lt;- contrasts.fit(fit, cm)
+fit2 &lt;- eBayes(fit2, robust = TRUE, trend = TRUE)</code></pre>
+<pre><code>Warning: 3 very small variances detected, have been offset away from zero</code></pre>
+<pre class="r"><code># Summarize
+results_summary &lt;- decideTests(fit2, adjust.method = &quot;none&quot;, p.value = 0.05)
+summary(results_summary)</code></pre>
+<pre><code>       DoxvNorm
+Down        338
+NotSig     3383
+Up          224</code></pre>
+<pre class="r"><code># Toptable summary organized to contain results for all tested proteins   
+toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(set$normalizedCounts )), p.value = 1, adjust.method = &quot;none&quot;)
+toptable_summary$Protein &lt;- rownames(toptable_summary)</code></pre>
+</div>
+<div id="wpcna--shallow-cuts" class="section level1">
+<h1>WPCNA- shallow cuts</h1>
+<pre class="r"><code># Create summarized experiment object 
+WGCNA_DF &lt;- SummarizedExperiment(assays = set$normalizedCounts)
+exp_filt &lt;- filter_by_variance(WGCNA_DF, n = 3940)</code></pre>
+</div>
+<div id="sft-power-threshold" class="section level1">
+<h1>SFT power threshold</h1>
+<pre class="r"><code># Determine the soft power threshold to get scale free shape
+sft &lt;- SFT_fit(exp_filt, net_type = &quot;signed&quot;, rsquared = 0.8,  cor_method = &quot;pearson&quot;)</code></pre>
+<pre><code>Warning: executing %dopar% sequentially: no parallel backend registered</code></pre>
+<pre><code>   Power SFT.R.sq  slope truncated.R.sq mean.k. median.k. max.k.
+1      3  0.07330  1.250          0.951   752.0     749.0    915
+2      4  0.02400  0.436          0.973   523.0     519.0    705
+3      5  0.00517  0.152          0.960   382.0     378.0    567
+4      6  0.00367 -0.105          0.944   290.0     285.0    472
+5      7  0.04410 -0.313          0.948   226.0     222.0    401
+6      8  0.14700 -0.525          0.955   181.0     176.0    349
+7      9  0.26500 -0.692          0.949   148.0     141.0    307
+8     10  0.36700 -0.804          0.944   122.0     116.0    274
+9     11  0.46500 -0.918          0.942   103.0      96.0    247
+10    12  0.55800 -1.010          0.961    87.2      80.5    224
+11    13  0.61300 -1.080          0.967    74.9      67.9    205
+12    14  0.66900 -1.150          0.970    64.9      57.9    188
+13    15  0.69800 -1.210          0.968    56.6      49.9    174
+14    16  0.72700 -1.260          0.968    49.8      43.0    161
+15    17  0.75500 -1.300          0.971    44.0      37.3    150
+16    18  0.77900 -1.350          0.972    39.2      32.7    140
+17    19  0.79600 -1.380          0.975    35.0      28.8    131
+18    20  0.81000 -1.410          0.978    31.5      25.5    123</code></pre>
+<pre class="r"><code>sft$power</code></pre>
+<pre><code>[1] 20</code></pre>
+<pre class="r"><code>power &lt;- sft$power
+sft$plot </code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/SFT%20power%20threshold-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>power</code></pre>
+<pre><code>[1] 20</code></pre>
+</div>
+<div id="modify-workflow-to-have-a-simpler-network"
+class="section level1">
+<h1>Modify workflow to have a simpler network</h1>
+<pre class="r"><code>exp2gcn2_EDIT &lt;- function (exp, net_type = &quot;signed&quot;, module_merging_threshold = 0.8, 
+          SFTpower = NULL, cor_method = &quot;spearman&quot;, verbose = FALSE) 
+{
+  params &lt;- list(net_type = net_type, module_merging_threshold = module_merging_threshold, 
+                 SFTpower = SFTpower, cor_method = cor_method)
+  norm.exp &lt;- BioNERO:::handleSE(exp)
+  if (is.null(SFTpower)) {
+    stop(&quot;Please, specify the SFT power.&quot;)
+  }
+  if (verbose) {
+    message(&quot;Calculating adjacency matrix...&quot;)
+  }
+  cor_matrix &lt;- BioNERO:::calculate_cor_adj(cor_method, norm.exp, SFTpower, 
+                                  net_type)$cor
+  adj_matrix &lt;- BioNERO:::calculate_cor_adj(cor_method, norm.exp, SFTpower, 
+                                  net_type)$adj
+  gene_ids &lt;- rownames(adj_matrix)
+  adj_matrix &lt;- matrix(adj_matrix, nrow = nrow(adj_matrix))
+  rownames(adj_matrix) &lt;- gene_ids
+  colnames(adj_matrix) &lt;- gene_ids
+  if (verbose) {
+    message(&quot;Calculating topological overlap matrix (TOM)...&quot;)
+  }
+  tomtype &lt;- BioNERO:::get_TOMtype(net_type)
+  TOM &lt;- WGCNA::TOMsimilarity(adj_matrix, TOMType = tomtype)
+  dissTOM &lt;- 1 - TOM
+  geneTree &lt;- hclust(as.dist(dissTOM), method = &quot;average&quot;)
+  if (verbose) {
+    message(&quot;Detecting coexpression modules...&quot;)
+  }
+  old.module_labels &lt;- dynamicTreeCut::cutreeDynamicTree(dendro = geneTree, maxTreeHeight =2 , 
+                                                         minModuleSize = 30, deepSplit = FALSE)
+  nmod &lt;- length(unique(old.module_labels))
+  palette &lt;- rev(WGCNA::standardColors(nmod))
+  old.module_colors &lt;- WGCNA::labels2colors(old.module_labels, 
+                                            colorSeq = palette)
+  if (verbose) {
+    message(&quot;Calculating module eigengenes (MEs)...&quot;)
+  }
+  old.MElist &lt;- WGCNA::moduleEigengenes(t(norm.exp), colors = old.module_colors, 
+                                        softPower = SFTpower)
+  old.MEs &lt;- old.MElist$eigengenes
+  MEDiss1 &lt;- 1 - cor(old.MEs)
+  old.METree &lt;- hclust(as.dist(MEDiss1), method = &quot;average&quot;)
+  MEDissThreshold &lt;- 1 - module_merging_threshold
+  if (verbose) {
+    message(&quot;Merging similar modules...&quot;)
+  }
+  if (cor_method == &quot;pearson&quot;) {
+    merge1 &lt;- WGCNA::mergeCloseModules(t(norm.exp), old.module_colors, 
+                                       cutHeight = MEDissThreshold, verbose = 0, colorSeq = palette)
+  }
+  else if (cor_method == &quot;spearman&quot;) {
+    merge1 &lt;- WGCNA::mergeCloseModules(t(norm.exp), old.module_colors, 
+                                       cutHeight = MEDissThreshold, verbose = 0, corOptions = list(use = &quot;p&quot;, 
+                                                                                                   method = &quot;spearman&quot;), colorSeq = palette)
+  }
+  else if (cor_method == &quot;biweight&quot;) {
+    merge1 &lt;- WGCNA::mergeCloseModules(t(norm.exp), old.module_colors, 
+                                       cutHeight = MEDissThreshold, verbose = 0, corFnc = bicor, 
+                                       colorSeq = palette)
+  }
+  else {
+    stop(&quot;Please, specify a correlation method. One of &#39;spearman&#39;, &#39;pearson&#39; or &#39;biweight&#39;.&quot;)
+  }
+  new.module_colors &lt;- merge1$colors
+  new.MEs &lt;- merge1$newMEs
+  new.METree &lt;- hclust(as.dist(1 - cor(new.MEs)), method = &quot;average&quot;)
+  genes_and_modules &lt;- as.data.frame(cbind(gene_ids, new.module_colors))
+  colnames(genes_and_modules) &lt;- c(&quot;Genes&quot;, &quot;Modules&quot;)
+  if (verbose) {
+    message(&quot;Calculating intramodular connectivity...&quot;)
+  }
+  kwithin &lt;- WGCNA::intramodularConnectivity(adj_matrix, new.module_colors)
+  result.list &lt;- list(adjacency_matrix = adj_matrix, MEs = new.MEs, 
+                      genes_and_modules = genes_and_modules, kIN = kwithin, 
+                      correlation_matrix = cor_matrix, params = params, dendro_plot_objects = list(tree = geneTree, 
+                                                                                                   unmerged = old.module_colors))
+  return(result.list)
+}</code></pre>
+</div>
+<div id="generate-network-with-max-merge-threshold"
+class="section level1">
+<h1>Generate network with max merge threshold</h1>
+<pre class="r"><code>net &lt;- exp2gcn2_EDIT(
+  exp_filt, net_type = &quot;signed&quot;, module_merging_threshold = 0.99, SFTpower = power, 
+  cor_method = &quot;pearson&quot;)</code></pre>
+<pre><code>..connectivity..
+..matrix multiplication (system BLAS)..
+..normalization..
+..done.</code></pre>
+<pre class="r"><code># Dendogram
+plot_dendro_and_colors(net )</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Generate%20network%20with%20max%20merge%20threshold-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>NULL</code></pre>
+<pre class="r"><code># Eigengene networks
+plot_eigengene_network(net)</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Generate%20network%20with%20max%20merge%20threshold-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>NULL</code></pre>
+<pre class="r"><code># Genes per module 
+plot_ngenes_per_module(net)</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Generate%20network%20with%20max%20merge%20threshold-3.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="generate-network-with-desired-merge-threshold"
+class="section level1">
+<h1>Generate network with desired merge threshold</h1>
+<pre class="r"><code>net &lt;- exp2gcn2_EDIT(
+  exp_filt, net_type = &quot;signed&quot;, module_merging_threshold = 0.9, SFTpower = power, 
+  cor_method = &quot;pearson&quot;)</code></pre>
+<pre><code>..connectivity..
+..matrix multiplication (system BLAS)..
+..normalization..
+..done.</code></pre>
+<pre class="r"><code># Dendogram
+plot_dendro_and_colors(net )</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Generate%20network%20with%20desired%20merge%20threshold-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>NULL</code></pre>
+<pre class="r"><code># Eigengene networks
+plot_eigengene_network(net)</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Generate%20network%20with%20desired%20merge%20threshold-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre><code>NULL</code></pre>
+<pre class="r"><code># Genes per module 
+plot_ngenes_per_module(net)</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Generate%20network%20with%20desired%20merge%20threshold-3.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="define-trat-and-get-eigen-proteins" class="section level1">
+<h1>Define trat and get eigen proteins</h1>
+<pre class="r"><code>WGCNA_DF$trait &lt;- c(1,1,1,1,1,0,0,0,0,0)
+names(WGCNA_DF$trait) &lt;- c(&quot;S1&quot;, &quot;S3&quot;, &quot;S5&quot;, &quot;S7&quot;, &quot;S9&quot;, &quot;S2&quot;, &quot;S4&quot;, &quot;S6&quot;, &quot;S8&quot;, &quot;S10&quot;)
+
+
+eigenmatrix &lt;- net$MEs %&gt;% as.matrix()
+eigenmatrix</code></pre>
+<pre><code>    MEdarkgreen   MEmagenta MEmidnightblue     MEbrown      MEpink      MEblack
+S1   0.65159378 -0.20435644     0.26787094 -0.16589039  0.04804404 -0.911781865
+S3  -0.05552406 -0.23245642    -0.14287980 -0.14026672  0.03883314  0.166287078
+S5  -0.16521190 -0.22387986    -0.31031040 -0.31853064  0.20745045 -0.004571441
+S7  -0.11311792 -0.12899581    -0.38391870 -0.05680063 -0.39136115  0.110185158
+S9  -0.13449604 -0.12170747    -0.47502334  0.17511870 -0.74100660  0.078529405
+S2   0.58208174  0.89401733     0.59962064 -0.11497745  0.07054057  0.125995621
+S4  -0.05112581  0.13194487     0.09523845 -0.53368124  0.27169777  0.314798892
+S6  -0.19685819 -0.01426648     0.08794916  0.16244845  0.35851898  0.054107693
+S8  -0.26748811 -0.06909272     0.24898062  0.48182355  0.19929159  0.069038531
+S10 -0.24985349 -0.03120700     0.01247244  0.51075638 -0.06200880 -0.002589072
+      MEorange    MEpurple   MEdarkred MElightgreen       MEcyan      MEblue
+S1  -0.3264003 -0.65562203 -0.09639917  -0.29455702  0.324792306 -0.34507396
+S3  -0.3427802 -0.28282685  0.31794865   0.32171042 -0.543563803 -0.05215722
+S5  -0.4010782 -0.09069133 -0.69896314  -0.29494978  0.190615241  0.34328802
+S7  -0.2586694 -0.14012096 -0.30604274  -0.38411052  0.129001568  0.56981941
+S9  -0.2046736 -0.05193114 -0.09097174  -0.38751559  0.081307964  0.40129743
+S2   0.1899934 -0.08401709 -0.05918915  -0.03109601  0.345150396  0.00304214
+S4   0.2318716  0.22151555  0.39442296   0.58823834 -0.643124553 -0.29201037
+S6   0.3169480  0.27567338  0.01474133   0.16858162  0.075438987 -0.15653188
+S8   0.4056762  0.38119884  0.22822096   0.14236638  0.030617232 -0.07212420
+S10  0.3891125  0.42682162  0.29623205   0.17133215  0.009764664 -0.39954937
+    MEdarkorange    MEgrey60       MEtan     MEgreen  MEroyalblue    MEyellow
+S1    0.25288359 -0.67025280 -0.38701558 -0.06889396 -0.210052608 -0.08414385
+S3   -0.08975960  0.03433316  0.15290326  0.52432391  0.373794767  0.06921655
+S5    0.48020556  0.26238953  0.40577086  0.25521637  0.169852253  0.16661256
+S7    0.35805647  0.21632841  0.30724324  0.14263592  0.108626669  0.23614626
+S9    0.25339803  0.20805383  0.33486344  0.15683684  0.144084413  0.20588999
+S2   -0.05433978 -0.55822139 -0.65232985 -0.54497199 -0.815758011  0.05077949
+S4   -0.60144634  0.02923108 -0.14065231  0.32318605  0.292101134  0.05822498
+S6   -0.08272992  0.13685456  0.01975525 -0.29597611 -0.061916095  0.24935965
+S8   -0.26761163  0.19531741 -0.08782786 -0.24436313 -0.008348686 -0.88885690
+S10  -0.24865637  0.14596620  0.04728956 -0.24799392  0.007616164 -0.06322873
+    MEdarkturquoise         MEred      MEgrey
+S1        0.2885965  0.3672217994  0.16871812
+S3        0.5091589  0.5486741467 -0.14569082
+S5       -0.2259614 -0.2160902434  0.04707539
+S7       -0.1763314  0.0006911332 -0.39779216
+S9       -0.1789757 -0.0909762431  0.26225238
+S2        0.1953679 -0.2523685483  0.13494064
+S4        0.4850288  0.4355294468  0.08241180
+S6       -0.2712807 -0.0928587330 -0.69778136
+S8       -0.3298522 -0.3835135297  0.09944954
+S10      -0.2957506 -0.3163092287  0.44641646</code></pre>
+</div>
+<div id="trait-module-correlation-test" class="section level1">
+<h1>Trait-module correlation test</h1>
+<pre class="r"><code>correlationResults &lt;- cor(eigenmatrix, WGCNA_DF$trait, method=&quot;pearson&quot;)
+
+pvalues &lt;- sapply(1:ncol(eigenmatrix), function(column) cor.test(eigenmatrix[,column], WGCNA_DF$trait)$p.value )
+
+WGCNA_DF$trait &lt;- as.matrix(WGCNA_DF$trait)
+
+Modeigen &lt;- as.matrix(net$MEs)
+
+
+# Trait data frame
+trait_data &lt;- data.frame(
+  ME = correlationResults %&gt;% rownames(),
+  Value = correlationResults[,1],
+  PValue = pvalues
+)
+trait_data$neglogP &lt;- -log(trait_data$PValue)
+trait_data</code></pre>
+<pre><code>                             ME       Value       PValue     neglogP
+MEdarkgreen         MEdarkgreen  0.11589360 7.498605e-01  0.28786813
+MEmagenta             MEmagenta -0.57641744 8.112232e-02  2.51179720
+MEmidnightblue   MEmidnightblue -0.66044884 3.764998e-02  3.27942280
+MEbrown                 MEbrown -0.32025630 3.669780e-01  1.00245337
+MEpink                   MEpink -0.53002311 1.150575e-01  2.16232365
+MEblack                 MEblack -0.35502997 3.140819e-01  1.15810144
+MEorange               MEorange -0.96993490 3.447253e-06 12.57793290
+MEpurple               MEpurple -0.77234983 8.834946e-03  4.72904027
+MEdarkred             MEdarkred -0.55303691 9.728371e-02  2.33012369
+MElightgreen       MElightgreen -0.65738850 3.886273e-02  3.24771963
+MEcyan                   MEcyan  0.11520385 7.513097e-01  0.28593736
+MEblue                   MEblue  0.58007157 7.876488e-02  2.54128803
+MEdarkorange       MEdarkorange  0.79359511 6.138051e-03  5.09324807
+MEgrey60               MEgrey60  0.03216172 9.297190e-01  0.07287292
+MEtan                     MEtan  0.51467031 1.279706e-01  2.05595469
+MEgreen                 MEgreen  0.63885541 4.677247e-02  3.06246039
+MEroyalblue         MEroyalblue  0.37081215 2.914826e-01  1.23277487
+MEyellow               MEyellow  0.37550245 2.849395e-01  1.25547832
+MEdarkturquoise MEdarkturquoise  0.13691837 7.060430e-01  0.34807918
+MEred                     MEred  0.38549467 2.712672e-01  1.30465080
+MEgrey                   MEgrey -0.04138605 9.096229e-01  0.09472513</code></pre>
+<pre class="r"><code># Plot correlation across modules
+ggplot(trait_data, aes(x = ME, y = neglogP, color = Value)) + 
+  geom_segment(aes(xend = ME, yend = 0), linetype = &quot;solid&quot;) +
+  geom_point(size = 10) + 
+  scale_color_gradient(
+    low = &quot;red&quot;, 
+    high = &quot;blue&quot;, 
+    name = &quot;corr&quot;,
+    limits = c(-1, 1),
+    breaks = seq(-1, 1, by = 0.5)
+  ) +
+  labs(x = &quot;Module&quot;, y = &quot;-log(P-value)&quot;, title = &quot;Module correlation with DOX treatment&quot;) + 
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  geom_hline(yintercept = 2.995732, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  geom_text(aes(x = 0, y = 3.5, label = &quot;P-Val Threshold&quot;), hjust = -0.1, vjust = 1.5)</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Trait-module%20correlation%20test-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="general-wrangling" class="section level1">
+<h1>General wrangling</h1>
+<pre class="r"><code># Get modules that significantly associate with DOX treatment 
+Signifigant_modules &lt;-  trait_data[trait_data$PValue &lt; 0.05, ]$ME
+
+
+# Get your genes/proteins and modules DF 
+Gene_mod_DF &lt;- net$genes_and_modules 
+
+
+
+# Module data gets merged with toptable
+toptable_summary %&gt;% head()</code></pre>
+<pre><code>            logFC  AveExpr          t      P.Value    adj.P.Val        B
+Q15327 -3.5055946 23.99098 -16.289503 1.777999e-08 1.777999e-08 8.884100
+O76021 -2.1028790 24.26381 -13.454530 1.095254e-07 1.095254e-07 7.635253
+Q969Q1 -4.2153434 20.85221 -10.231848 1.392972e-06 1.392972e-06 5.627834
+Q92841 -0.7697085 27.58423  -9.272629 3.270805e-06 3.270805e-06 4.896537
+P67809 -1.0814100 26.09188  -9.233739 3.445861e-06 3.445861e-06 4.850899
+Q9BQG0 -2.2075925 23.65134  -8.771761 5.566774e-06 5.566774e-06 4.428121
+       Protein
+Q15327  Q15327
+O76021  O76021
+Q969Q1  Q969Q1
+Q92841  Q92841
+P67809  P67809
+Q9BQG0  Q9BQG0</code></pre>
+<pre class="r"><code>Toptable_Modules &lt;- merge(toptable_summary, 
+                          Gene_mod_DF, by.x = &quot;Protein&quot;, by.y = &quot;Genes&quot;)
+
+
+
+
+
+# Get the corresponding Gene name IDs
+mart &lt;- useMart(&quot;ensembl&quot;, dataset = &quot;hsapiens_gene_ensembl&quot;)
+
+
+results_Pro_names &lt;- getBM(filters = &quot;uniprotswissprot&quot;, 
+                           attributes = c(&quot;uniprotswissprot&quot;, &quot;hgnc_symbol&quot;), 
+                           values = toptable_summary$Protein, 
+                           mart = mart)
+
+
+merged_results_Pro_names_AND_Toptable_for_ENZYME &lt;- merge(toptable_summary, results_Pro_names, by.x = &quot;Protein&quot;, by.y = &quot;uniprotswissprot&quot;)
+ENZYME_DF_Toptable &lt;- merged_results_Pro_names_AND_Toptable_for_ENZYME
+
+DE_Enzymes &lt;- ENZYME_DF_Toptable[(ENZYME_DF_Toptable$P.Value &lt; 0.05) &amp; (!is.na(ENZYME_DF_Toptable$ENZYME)), ]$hgnc_symbol
+
+All_Proteins_ENZYMES &lt;- ENZYME_DF_Toptable[(!is.na(ENZYME_DF_Toptable$ENZYME)), ]$hgnc_symbol
+
+
+
+
+
+# Plotting LogFC in significant modules module 
+
+Significant_modules_NoME &lt;- stringr::str_replace(Signifigant_modules, &quot;^ME&quot;, &quot;&quot;)
+
+Toptable_Modules_Sig &lt;- Toptable_Modules[Toptable_Modules$Modules %in% Significant_modules_NoME, ]
+
+
+
+# n-modules total 
+Toptable_Modules$Modules %&gt;% unique() %&gt;% length()</code></pre>
+<pre><code>[1] 21</code></pre>
+<pre class="r"><code># n-sig modules
+Signifigant_modules %&gt;% length()</code></pre>
+<pre><code>[1] 6</code></pre>
+<pre class="r"><code># Percent sig modules 
+(Signifigant_modules %&gt;% length()) / (Toptable_Modules$Modules %&gt;% unique() %&gt;% length())</code></pre>
+<pre><code>[1] 0.2857143</code></pre>
+<pre class="r"><code># Get modules that significantly associate with DOX treatment 
+Signifigant_modules &lt;-  trait_data[trait_data$PValue &lt; 0.05, ]$ME
+
+
+# Get your genes/proteins and modules DF 
+Gene_mod_DF &lt;- net$genes_and_modules 
+
+
+# Subset genes/proteins and modules DF by the significantly correlated modules to DOX 
+Sig_Gene_mod_DF &lt;- Gene_mod_DF[Gene_mod_DF$Modules %in% Signifigant_modules, ]
+
+
+# Module data gets merged with toptable
+Toptable_Modules &lt;- merge(toptable_summary, 
+                          Gene_mod_DF, by.x = &quot;Protein&quot;, by.y = &quot;Genes&quot;)
+
+Toptable_Modules %&gt;% head()</code></pre>
+<pre><code>     Protein      logFC  AveExpr          t    P.Value  adj.P.Val         B
+1 A0A0B4J2D5  0.1815912 28.45881  2.0310360 0.06981578 0.06981578 -4.595336
+2     A0FGR8  0.2127319 23.26718  0.7515382 0.46981243 0.46981243 -6.143049
+3     A0PJW6 -0.4214067 20.36569 -0.7289958 0.48288849 0.48288849 -6.159997
+4     A1A4S6  1.2349459 19.20008  1.2409342 0.24322212 0.24322212 -5.670940
+5     A1L0T0 -0.1913085 24.34010 -1.6066808 0.13934764 0.13934764 -5.210254
+6     A1L443  0.4673859 19.35919  1.2798350 0.22977164 0.22977164 -5.625772
+     Modules
+1 darkorange
+2  royalblue
+3 darkorange
+4       grey
+5     purple
+6        red</code></pre>
+<pre class="r"><code>Toptable_Modules %&gt;% dim()</code></pre>
+<pre><code>[1] 3940    8</code></pre>
+</div>
+<div id="combining-diff-abundant-test-with-modules"
+class="section level1">
+<h1>Combining diff abundant test with modules</h1>
+<pre class="r"><code># LogFC Ridge plot 
+ggplot(Toptable_Modules_Sig, aes(x = logFC, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.8) +
+  labs(title = &quot;Dox Associated Module LogFC distribution from DE test&quot;,
+       x = &quot;Log Fold Change&quot;,
+       y = &quot;Modules&quot;) +
+  ggridges::theme_ridges() </code></pre>
+<pre><code>Picking joint bandwidth of 0.0894</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Riddge-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># LogFC Ridge plot 
+ggplot(Toptable_Modules, aes(x = logFC, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.8) +
+  labs(title = &quot;Dox Associated Module LogFC distribution from DE test&quot;,
+       x = &quot;Log Fold Change&quot;,
+       y = &quot;Modules&quot;) +
+  ggridges::theme_ridges() </code></pre>
+<pre><code>Picking joint bandwidth of 0.0862</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Riddge-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Pval Ridge plot 
+ggplot(Toptable_Modules_Sig, aes(x = P.Value, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.8) +
+  labs(title = &quot;Module pval distribution from DE test&quot;,
+       x = &quot;Pval&quot;,
+       y = &quot;&quot;) +
+  ggridges::theme_ridges()+
+  scale_x_continuous(breaks = seq(0, 1, by = 0.05), limits = c(0, 1))</code></pre>
+<pre><code>Picking joint bandwidth of 0.0516</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Riddge-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Pval Ridge plot 
+ggplot(Toptable_Modules, aes(x = P.Value, y = Modules, fill = Modules)) +
+  ggridges::geom_density_ridges(alpha = 0.6) +
+  labs(title = &quot;Module pval distribution from DE test&quot;,
+       x = &quot;Pval&quot;,
+       y = &quot;Modules&quot;) +
+  ggridges::theme_ridges()+
+  scale_x_continuous(breaks = seq(0, 1, by = 0.05), limits = c(0, 1))</code></pre>
+<pre><code>Picking joint bandwidth of 0.0815</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Riddge-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Plotting LogFC between DE and non DE proteins 
+Toptable_Modules$DE_or_Not &lt;- Toptable_Modules$P.Value &lt; 0.05
+
+
+# Calculate percentage of DE genes for each module
+DE_Mod_result &lt;- Toptable_Modules %&gt;%
+  group_by(Modules) %&gt;%
+  summarize(
+    total_genes = n(),
+    DE_genes = sum(P.Value &lt; 0.05),
+    percent_DE = (DE_genes / total_genes) * 100
+  )
+
+print(DE_Mod_result)</code></pre>
+<pre><code># A tibble: 21 × 4
+   Modules       total_genes DE_genes percent_DE
+   &lt;chr&gt;               &lt;int&gt;    &lt;int&gt;      &lt;dbl&gt;
+ 1 black                  59        0      0    
+ 2 blue                   32        4     12.5  
+ 3 brown                  42        1      2.38 
+ 4 cyan                  669        1      0.149
+ 5 darkgreen             218        2      0.917
+ 6 darkorange            416       88     21.2  
+ 7 darkred               216       29     13.4  
+ 8 darkturquoise         251        2      0.797
+ 9 green                 592      114     19.3  
+10 grey                  197        1      0.508
+# ℹ 11 more rows</code></pre>
+<pre class="r"><code># Plot
+ggplot(DE_Mod_result, aes(x = Modules, y = percent_DE, fill = Modules)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  labs(
+    x = &quot;Module&quot;,
+    y = &quot;Percentage of DE genes&quot;,
+    title = &quot;Percentage of DE genes in each module&quot;,
+    fill = &quot;Module&quot;
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/DE%20across%20modules-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Compute complementary percentage for non-DE genes
+DE_Mod_result$percent_nonDE &lt;- 100 - DE_Mod_result$percent_DE
+
+# Reshape data to long format
+long_data &lt;- DE_Mod_result %&gt;% 
+  pivot_longer(cols = c(percent_DE, percent_nonDE), 
+               names_to = &quot;type&quot;, 
+               values_to = &quot;percentage&quot;)
+
+
+# Plot stacked bar chart
+ggplot(long_data, aes(x = Modules, y = percentage, fill = type)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  labs(
+    x = &quot;Module&quot;,
+    y = &quot;Percentage&quot;,
+    title = &quot;Percentage of DE and non-DE genes in each module&quot;,
+    fill = &quot;Type&quot;
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_y_continuous(breaks = rev(seq(0, 100, by = 10)))</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/DE%20across%20modules-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Significant_modules_NoME</code></pre>
+<pre><code>[1] &quot;midnightblue&quot; &quot;orange&quot;       &quot;purple&quot;       &quot;lightgreen&quot;   &quot;darkorange&quot;  
+[6] &quot;green&quot;       </code></pre>
+<pre class="r"><code>metatestDF &lt;- phenoData$Cond %&gt;% as.data.frame()</code></pre>
+</div>
+<div id="go-enrichment-acrross-dox-correlated-modules"
+class="section level1">
+<h1>GO enrichment acrross dox correlated modules</h1>
+<pre class="r"><code>hubs &lt;- get_hubs_gcn(WGCNA_DF, net)</code></pre>
+<pre><code>Warning in WGCNA::signedKME(t(exp), MEs, outputColumnName = &quot;&quot;): Some genes are
+constant. Hint: consider removing constant columns from datExpr.</code></pre>
+<pre class="r"><code>ontology_categories &lt;- c(&quot;ALL&quot;)
+
+
+# Loop over each module and ontology category
+for (module in Significant_modules_NoME) {
+  # Extract hub genes for the current module
+  module_hubs &lt;- hubs[hubs$Module == module, ]$Gene
+  
+  # All module proteins
+  module_proteins &lt;- Toptable_Modules[(Toptable_Modules$Modules == module), ]$Protein
+  
+  # Get gene names for the proteins in the module
+  module_genes &lt;- ENZYME_DF_Toptable[ENZYME_DF_Toptable$Protein %in% module_proteins, ]$hgnc_symbol
+  
+  # Define background genes
+  background_genes_mod &lt;- ENZYME_DF_Toptable$hgnc_symbol
+  
+  for (ont in ontology_categories) {
+    # GO Enrichment
+    go_enrichment &lt;- enrichGO(gene = module_genes,
+                              OrgDb = org.Hs.eg.db,
+                              keyType = &quot;SYMBOL&quot;,
+                              universe = background_genes_mod,
+                              ont = ont,
+                              pvalueCutoff = 1,
+                              qvalueCutoff = 1)
+    
+    # Plotting the results
+    # Plotting the results
+    p &lt;- barplot(go_enrichment, showCategory = 10) +
+      ggtitle(paste(&quot;Module:&quot;, module, &quot;- Ontology:&quot;, ont))
+    
+    print(p)   
+    
+  }
+}</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/GO%20enrichment-1.png" width="672" style="display: block; margin: auto;" /><img src="figure/WPCNA_shallow_split.Rmd/GO%20enrichment-2.png" width="672" style="display: block; margin: auto;" /><img src="figure/WPCNA_shallow_split.Rmd/GO%20enrichment-3.png" width="672" style="display: block; margin: auto;" /><img src="figure/WPCNA_shallow_split.Rmd/GO%20enrichment-4.png" width="672" style="display: block; margin: auto;" /><img src="figure/WPCNA_shallow_split.Rmd/GO%20enrichment-5.png" width="672" style="display: block; margin: auto;" /><img src="figure/WPCNA_shallow_split.Rmd/GO%20enrichment-6.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="protein-corrrelation-plots-within-modules"
+class="section level1">
+<h1>Protein corrrelation plots within modules</h1>
+<pre class="r"><code># Remove edges based on optimal scale-free topology fit
+edges_filtered &lt;- get_edge_list(net, module = c(&quot;midnightblue&quot;, &quot;orange&quot;,&quot;purple&quot;,&quot;lightgreen&quot;, &quot;darkorange&quot;, &quot;green&quot; ), filter = TRUE)</code></pre>
+<pre><code>The correlation threshold that best fits the scale-free topology is 0.9</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Protein%20corrrelation%20plots-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>## The correlation threshold that best fits the scale-free topology is 0.7
+dim(edges_filtered)</code></pre>
+<pre><code>[1] 6182    3</code></pre>
+<pre class="r"><code>## [1] 588   3
+
+#### Network for all ####
+# Remove edges based on minimum correlation
+edges_filtered &lt;- get_edge_list(
+  net, module = c(&quot;midnightblue&quot;, &quot;orange&quot;,&quot;purple&quot;,&quot;lightgreen&quot;, &quot;darkorange&quot;, &quot;green&quot; ), 
+  filter = TRUE, method = &quot;min_cor&quot;, rcutoff = 0.95,
+  check_SFT = TRUE
+)</code></pre>
+<pre><code>Your graph fits the scale-free topology. P-value:0.99999300498058</code></pre>
+<pre class="r"><code>dim(edges_filtered)</code></pre>
+<pre><code>[1] 939   3</code></pre>
+<pre class="r"><code>plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = &quot;module&quot;, 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = &quot;tophubs&quot;
+)</code></pre>
+<pre><code>Warning: ggrepel: 15 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Protein%20corrrelation%20plots-2.png" width="672" style="display: block; margin: auto;" /></p>
+<div id="network-midnight-blue" class="section level4">
+<h4>Network midnight blue</h4>
+<pre class="r"><code>edges_filtered &lt;- get_edge_list(
+  net, module = c(&quot;midnightblue&quot; ), 
+  filter = TRUE, method = &quot;min_cor&quot;, rcutoff = 0.8,
+  check_SFT = TRUE
+)</code></pre>
+<pre><code>Your graph fits the scale-free topology. P-value:0.546434617958895</code></pre>
+<pre class="r"><code>dim(edges_filtered)</code></pre>
+<pre><code>[1] 649   3</code></pre>
+<pre class="r"><code>plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = &quot;module&quot;, 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = &quot;tophubs&quot;
+)</code></pre>
+<pre><code>Warning: ggrepel: 9 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Network%20midnight%20blue-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="network-orange" class="section level4">
+<h4>Network orange</h4>
+<pre class="r"><code>edges_filtered &lt;- get_edge_list(
+  net, module = c( &quot;orange&quot;), 
+  filter = TRUE, method = &quot;min_cor&quot;, rcutoff = 0.95,
+  check_SFT = TRUE
+)</code></pre>
+<pre><code>Your graph fits the scale-free topology. P-value:0.999999978459522</code></pre>
+<pre class="r"><code>dim(edges_filtered)</code></pre>
+<pre><code>[1] 219   3</code></pre>
+<pre class="r"><code>plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = &quot;module&quot;, 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = &quot;tophubs&quot;
+)</code></pre>
+<pre><code>Warning: ggrepel: 19 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Network%20orange-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="network-purple" class="section level4">
+<h4>Network purple</h4>
+<pre class="r"><code>edges_filtered &lt;- get_edge_list(
+  net, module = c(&quot;purple&quot; ), 
+  filter = TRUE, method = &quot;min_cor&quot;, rcutoff = 0.9,
+  check_SFT = TRUE
+)</code></pre>
+<pre><code>Your graph fits the scale-free topology. P-value:0.999931521348167</code></pre>
+<pre class="r"><code>dim(edges_filtered)</code></pre>
+<pre><code>[1] 558   3</code></pre>
+<pre class="r"><code>plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = &quot;module&quot;, 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = &quot;tophubs&quot;
+)</code></pre>
+<pre><code>Warning: ggrepel: 4 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Network%20purple-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="network-lightgreen" class="section level4">
+<h4>Network lightgreen</h4>
+<pre class="r"><code>edges_filtered &lt;- get_edge_list(
+  net, module = c(&quot;lightgreen&quot;), 
+  filter = TRUE, method = &quot;min_cor&quot;, rcutoff = 0.9,
+  check_SFT = TRUE
+)</code></pre>
+<pre><code>Your graph fits the scale-free topology. P-value:0.997958678451293</code></pre>
+<pre class="r"><code>dim(edges_filtered)</code></pre>
+<pre><code>[1] 341   3</code></pre>
+<pre class="r"><code>plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = &quot;module&quot;, 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = &quot;tophubs&quot;
+)</code></pre>
+<pre><code>Warning: ggrepel: 6 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Network%20lightgreen-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="network-darkorange" class="section level4">
+<h4>Network darkorange</h4>
+<pre class="r"><code>edges_filtered &lt;- get_edge_list(
+  net, module = c(&quot;darkorange&quot;), 
+  filter = TRUE, method = &quot;min_cor&quot;, rcutoff = 0.9,
+  check_SFT = TRUE
+)</code></pre>
+<pre><code>Your graph fits the scale-free topology. P-value:0.94757660975866</code></pre>
+<pre class="r"><code>dim(edges_filtered)</code></pre>
+<pre><code>[1] 1187    3</code></pre>
+<pre class="r"><code>plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = &quot;module&quot;, 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = &quot;tophubs&quot;
+)</code></pre>
+<pre><code>Warning: ggrepel: 25 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Network%20darkorange-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="network-green" class="section level4">
+<h4>Network green</h4>
+<pre class="r"><code>edges_filtered &lt;- get_edge_list(
+  net, module = c( &quot;green&quot; ), 
+  filter = TRUE, method = &quot;min_cor&quot;, rcutoff = 0.95,
+  check_SFT = TRUE
+)</code></pre>
+<pre><code>Your graph fits the scale-free topology. P-value:0.98515696832765</code></pre>
+<pre class="r"><code>dim(edges_filtered)</code></pre>
+<pre><code>[1] 309   3</code></pre>
+<pre class="r"><code>plot_gcn(
+  edgelist_gcn = edges_filtered, 
+  net = net, 
+  color_by = &quot;module&quot;, 
+  hubs = hubs,
+  top_n_hubs = 30,
+  show_labels = &quot;tophubs&quot;
+)</code></pre>
+<pre><code>Warning: ggrepel: 26 unlabeled data points (too many overlaps). Consider
+increasing max.overlaps</code></pre>
+<p><img src="figure/WPCNA_shallow_split.Rmd/Network%20green-1.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.2.0 (2022-04-22)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur/Monterey 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] grid      stats4    stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] impute_1.70.0                          
+ [2] WGCNA_1.72-1                           
+ [3] fastcluster_1.2.3                      
+ [4] dynamicTreeCut_1.63-1                  
+ [5] BioNERO_1.4.2                          
+ [6] reshape2_1.4.4                         
+ [7] ggridges_0.5.4                         
+ [8] biomaRt_2.52.0                         
+ [9] ggvenn_0.1.10                          
+[10] UpSetR_1.4.0                           
+[11] DOSE_3.22.1                            
+[12] variancePartition_1.26.0               
+[13] clusterProfiler_4.4.4                  
+[14] pheatmap_1.0.12                        
+[15] qvalue_2.28.0                          
+[16] Homo.sapiens_1.3.1                     
+[17] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2
+[18] org.Hs.eg.db_3.15.0                    
+[19] GO.db_3.15.0                           
+[20] OrganismDbi_1.38.1                     
+[21] GenomicFeatures_1.48.4                 
+[22] AnnotationDbi_1.58.0                   
+[23] cluster_2.1.4                          
+[24] ggfortify_0.4.16                       
+[25] lubridate_1.9.2                        
+[26] forcats_1.0.0                          
+[27] stringr_1.5.0                          
+[28] dplyr_1.1.2                            
+[29] purrr_1.0.2                            
+[30] readr_2.1.4                            
+[31] tidyr_1.3.0                            
+[32] tibble_3.2.1                           
+[33] ggplot2_3.4.3                          
+[34] tidyverse_2.0.0                        
+[35] RColorBrewer_1.1-3                     
+[36] RUVSeq_1.30.0                          
+[37] edgeR_3.38.4                           
+[38] limma_3.52.4                           
+[39] EDASeq_2.30.0                          
+[40] ShortRead_1.54.0                       
+[41] GenomicAlignments_1.32.1               
+[42] SummarizedExperiment_1.26.1            
+[43] MatrixGenerics_1.8.1                   
+[44] matrixStats_1.0.0                      
+[45] Rsamtools_2.12.0                       
+[46] GenomicRanges_1.48.0                   
+[47] Biostrings_2.64.1                      
+[48] GenomeInfoDb_1.32.4                    
+[49] XVector_0.36.0                         
+[50] IRanges_2.30.1                         
+[51] S4Vectors_0.34.0                       
+[52] BiocParallel_1.30.4                    
+[53] Biobase_2.56.0                         
+[54] BiocGenerics_0.42.0                    
+[55] workflowr_1.7.1                        
+
+loaded via a namespace (and not attached):
+  [1] rappdirs_0.3.3         rtracklayer_1.56.1     minet_3.54.0          
+  [4] R.methodsS3_1.8.2      coda_0.19-4            bit64_4.0.5           
+  [7] knitr_1.43             aroma.light_3.26.0     DelayedArray_0.22.0   
+ [10] R.utils_2.12.2         rpart_4.1.19           data.table_1.14.8     
+ [13] hwriter_1.3.2.1        KEGGREST_1.36.3        RCurl_1.98-1.12       
+ [16] doParallel_1.0.17      generics_0.1.3         preprocessCore_1.58.0 
+ [19] callr_3.7.3            RhpcBLASctl_0.23-42    RSQLite_2.3.1         
+ [22] shadowtext_0.1.2       bit_4.0.5              tzdb_0.4.0            
+ [25] enrichplot_1.16.2      xml2_1.3.5             httpuv_1.6.11         
+ [28] viridis_0.6.4          xfun_0.40              hms_1.1.3             
+ [31] jquerylib_0.1.4        evaluate_0.21          promises_1.2.1        
+ [34] fansi_1.0.4            restfulr_0.0.15        progress_1.2.2        
+ [37] caTools_1.18.2         dbplyr_2.3.3           htmlwidgets_1.6.2     
+ [40] igraph_1.5.1           DBI_1.1.3              ggnewscale_0.4.9      
+ [43] backports_1.4.1        annotate_1.74.0        aod_1.3.2             
+ [46] deldir_1.0-9           vctrs_0.6.3            abind_1.4-5           
+ [49] cachem_1.0.8           withr_2.5.0            ggforce_0.4.1         
+ [52] checkmate_2.2.0        treeio_1.20.2          prettyunits_1.1.1     
+ [55] ape_5.7-1              lazyeval_0.2.2         crayon_1.5.2          
+ [58] genefilter_1.78.0      labeling_0.4.2         pkgconfig_2.0.3       
+ [61] tweenr_2.0.2           nlme_3.1-163           nnet_7.3-19           
+ [64] rlang_1.1.1            lifecycle_1.0.3        downloader_0.4        
+ [67] filelock_1.0.2         BiocFileCache_2.4.0    rprojroot_2.0.3       
+ [70] polyclip_1.10-4        graph_1.74.0           Matrix_1.5-4.1        
+ [73] aplot_0.2.0            NetRep_1.2.7           boot_1.3-28.1         
+ [76] base64enc_0.1-3        GlobalOptions_0.1.2    whisker_0.4.1         
+ [79] processx_3.8.2         png_0.1-8              viridisLite_0.4.2     
+ [82] rjson_0.2.21           bitops_1.0-7           getPass_0.2-2         
+ [85] R.oo_1.25.0            ggnetwork_0.5.12       KernSmooth_2.23-22    
+ [88] blob_1.2.4             shape_1.4.6            jpeg_0.1-10           
+ [91] gridGraphics_0.5-1     scales_1.2.1           memoise_2.0.1         
+ [94] magrittr_2.0.3         plyr_1.8.8             gplots_3.1.3          
+ [97] zlibbioc_1.42.0        compiler_4.2.0         scatterpie_0.2.1      
+[100] BiocIO_1.6.0           clue_0.3-64            intergraph_2.0-3      
+[103] lme4_1.1-34            cli_3.6.1              patchwork_1.1.3       
+[106] ps_1.7.5               htmlTable_2.4.1        Formula_1.2-5         
+[109] mgcv_1.9-0             MASS_7.3-60            tidyselect_1.2.0      
+[112] stringi_1.7.12         highr_0.10             yaml_2.3.7            
+[115] GOSemSim_2.22.0        locfit_1.5-9.8         latticeExtra_0.6-30   
+[118] ggrepel_0.9.3          sass_0.4.7             fastmatch_1.1-4       
+[121] tools_4.2.0            timechange_0.2.0       parallel_4.2.0        
+[124] circlize_0.4.15        rstudioapi_0.15.0      foreign_0.8-84        
+[127] foreach_1.5.2          git2r_0.32.0           gridExtra_2.3         
+[130] farver_2.1.1           ggraph_2.1.0           digest_0.6.33         
+[133] BiocManager_1.30.22    networkD3_0.4          Rcpp_1.0.11           
+[136] broom_1.0.5            later_1.3.1            httr_1.4.7            
+[139] ComplexHeatmap_2.12.1  GENIE3_1.18.0          Rdpack_2.5            
+[142] colorspace_2.1-0       XML_3.99-0.14          fs_1.6.3              
+[145] splines_4.2.0          statmod_1.5.0          yulab.utils_0.0.8     
+[148] RBGL_1.72.0            tidytree_0.4.5         graphlayouts_1.0.0    
+[151] ggplotify_0.1.2        xtable_1.8-4           jsonlite_1.8.7        
+[154] nloptr_2.0.3           ggtree_3.4.4           tidygraph_1.2.3       
+[157] ggfun_0.1.2            R6_2.5.1               Hmisc_5.1-0           
+[160] pillar_1.9.0           htmltools_0.5.6        glue_1.6.2            
+[163] fastmap_1.1.1          minqa_1.2.5            codetools_0.2-19      
+[166] fgsea_1.22.0           utf8_1.2.3             sva_3.44.0            
+[169] lattice_0.21-8         bslib_0.5.1            network_1.18.1        
+[172] pbkrtest_0.5.2         curl_5.0.2             gtools_3.9.4          
+[175] interp_1.1-4           survival_3.5-7         statnet.common_4.9.0  
+[178] rmarkdown_2.24         munsell_0.5.0          GetoptLong_1.0.5      
+[181] DO.db_2.9              GenomeInfoDbData_1.2.8 iterators_1.0.14      
+[184] gtable_0.3.4           rbibutils_2.2.15      </code></pre>
+</div>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
