@@ -113,32 +113,34 @@ log2_norm_counts %>% rowMeans() %>% hist(breaks = 100)
 
 # Quantile Normalization 
 ```{r Wrangle Data Frame 4}
-normalizedData <- limma::normalizeBetweenArrays(log2_norm_counts, method = "quantile")
+normalizedData <- limma::normalizeBetweenArrays(log2_norm_counts[, c(1,2,4,6,7,9)], method = "quantile")
 normalizedData %>% rowMeans() %>% hist(breaks = 100)
 ```
 
 
 
-# Dupcor on 10 samples 
+# Linear model - RUVs 
 ```{r upcor on 10 samples}
 #  counts need to be integer values and in a numeric matrix 
 counts <- as.matrix(normalizedData) 
-
+counts %>% dim()
 # Create a DataFrame for the phenoData
 phenoData <- DataFrame(Meta)
+phenoData_sub <- phenoData[c(1,2,4,6,7,9), ]
+
 
 # Create Design Matrix 
 # phenoData$Cond <- factor(phenoData$Cond , levels = c("Control", "Dox"))
-design <- model.matrix(~ 0 + Cond , phenoData)
-
+design <- model.matrix(~ 0 + Cond , phenoData_sub)
+design
 
 # rename columns 
 colnames(design) <- c('Control', "Dox")
 
 
 # Fit model
-dupcor <- duplicateCorrelation(normalizedData , design, block = phenoData$Ind)
-fit <- lmFit(object = normalizedData, design = design, block = phenoData$Ind, correlation = dupcor$consensus)
+dupcor <- duplicateCorrelation(counts , design, block = phenoData_sub$Ind)
+fit <- lmFit(object = counts, design = design, block = phenoData_sub$Ind, correlation = dupcor$consensus)
 fit2 <- eBayes(fit)
 
 
@@ -159,6 +161,9 @@ summary(results_summary)
 
 
 
+
+
+
 # Toptable summary organized to contain results for all tested proteins   
 toptable_summary <- topTable(fit2, coef = "DoxvNorm",number = (nrow(normalizedData)), p.value = 1, adjust.method = "none")
 toptable_summary$Protein <- rownames(toptable_summary)
@@ -169,7 +174,7 @@ toptable_summary$P.Value %>% hist(breaks = 100)
 # PCA of log2-quantile normalized-RUVs values:
 prcomp_res <- prcomp(t(normalizedData %>% as.matrix()), center = TRUE)
 
-ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData), colour = "Cond", shape = "Ind", size =4)+
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = "Cond", shape = "Ind", size =4)+
   theme_bw()
 
 
@@ -209,7 +214,7 @@ toptable_summary$P.Value %>% hist(breaks = 100)
 prcomp_res <- prcomp(t(normalizedData %>% as.matrix()), center = TRUE)
 
 
-ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData), colour = "Cond", shape = "Ind", size =4)+
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = "Cond", shape = "Ind", size =4)+
   theme_bw()
 
 
@@ -234,7 +239,7 @@ ggplot(toptable_summary)+
 
 
 
-# MW suggested workflow  
+# Linear model + RUVs 
 ```{r MW suggested workflow }
 # 1. Get non log abundance values 
 Protein_DF_Abundance %>% head()
@@ -256,8 +261,6 @@ set_all <- newSeqExpressionSet(as.matrix(Protein_DF_Abundance),phenoData = data.
 
 # 3. Get RUV weights using all 10 samples
 set_all_RUV <- RUVSeq::RUVs(set_all, genes_all, k=1, differences_all, isLog = FALSE)
-
-
 
 
 # 4. Subset counts by the 6 columns of interest, Metadata by 6 rows of interest, RUV weights vector to the 6 values of interest
@@ -376,13 +379,11 @@ colnames(design) <- c('Control', "Dox", "RUV_1")
 
 # Get model counts 
 Model_counts <- counts_RUV_log2_sub_quantnorm
-Model_counts <- DGEList(na.omit(Model_counts))
-Model_counts$samples <- phenoData_RUVs
-Model_counts$counts %>% dim()
+
 
 # Fit model
-dupcor <- duplicateCorrelation(Model_counts$counts, design, block = phenoData_RUVs$Ind)
-fit <- lmFit(object = Model_counts$counts, design = design, block = phenoData_RUVs$Ind, correlation = dupcor$consensus)
+dupcor <- duplicateCorrelation(as.matrix(Model_counts), design, block = phenoData_RUVs$Ind)
+fit <- lmFit(object = as.matrix(Model_counts), design = design, block = phenoData_RUVs$Ind, correlation = dupcor$consensus)
 fit2 <- eBayes(fit)
 
 
@@ -403,7 +404,7 @@ summary(results_summary)
 
 
 # Toptable summary organized to contain results for all tested proteins   
-toptable_summary <- topTable(fit2, coef = "DoxvNorm",number = (nrow(Model_counts$counts)), p.value = 1, adjust.method = "none")
+toptable_summary <- topTable(fit2, coef = "DoxvNorm",number = (nrow(Model_counts)), p.value = 1, adjust.method = "none")
 toptable_summary$Protein <- rownames(toptable_summary)
 toptable_summary$P.Value %>% hist(breaks = 100)
 
@@ -411,9 +412,11 @@ toptable_summary$P.Value %>% hist(breaks = 100)
 
 
 # PCA of log2-quantile normalized-RUVs values:
-Model_counts_PCA <- na.omit(Model_counts$counts)
-sum(is.na(Model_counts))
-prcomp_res <- prcomp(t(Model_counts_PCA), scale. = TRUE, center = TRUE)
+Model_counts_PCA <- na.omit(Model_counts)
+sum(is.na(Model_counts_PCA))
+
+Model_counts_PCA %>% dim()
+prcomp_res <- prcomp(t(as.matrix(Model_counts_PCA)))
 ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_RUVs), colour = "Cond", shape = "Ind", size =4)+
   theme_bw()
 
