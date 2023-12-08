@@ -519,15 +519,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree849930ccab38f9734cd18fbf9be31e25a37e6f9btargetblank849930ca">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree2350e41ea2c909844b9ee0bc9ca7d4789be9b388targetblank2350e41a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/Omar-Johnson/myproject/tree/849930ccab38f9734cd18fbf9be31e25a37e6f9b" target="_blank">849930c</a>
+<a href="https://github.com/Omar-Johnson/myproject/tree/2350e41ea2c909844b9ee0bc9ca7d4789be9b388" target="_blank">2350e41</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree849930ccab38f9734cd18fbf9be31e25a37e6f9btargetblank849930ca"
+id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree2350e41ea2c909844b9ee0bc9ca7d4789be9b388targetblank2350e41a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -537,7 +537,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/Omar-Johnson/myproject/tree/849930ccab38f9734cd18fbf9be31e25a37e6f9b" target="_blank">849930c</a>.
+<a href="https://github.com/Omar-Johnson/myproject/tree/2350e41ea2c909844b9ee0bc9ca7d4789be9b388" target="_blank">2350e41</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -606,6 +606,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2350e41ea2c909844b9ee0bc9ca7d4789be9b388/analysis/Diffabtrial.Rmd" target="_blank">2350e41</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+<td>
+Updaate
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Omar-Johnson/myproject/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/Diffabtrial.html" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -725,33 +759,121 @@ Protein_DF_Abundance %&gt;% dim()</code></pre>
 <pre class="r"><code>log2_norm_counts &lt;- log2(Protein_DF_Abundance)
 log2_norm_counts %&gt;% rowMeans() %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-1">
+Past versions of "Wrangle Data Frame 3-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/Wrangle Data Frame 3-1.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="quantile-normalization" class="section level1">
 <h1>Quantile Normalization</h1>
-<pre class="r"><code>normalizedData &lt;- limma::normalizeBetweenArrays(log2_norm_counts, method = &quot;quantile&quot;)
+<pre class="r"><code>normalizedData &lt;- limma::normalizeBetweenArrays(log2_norm_counts[, c(1,2,4,6,7,9)], method = &quot;quantile&quot;)
 normalizedData %&gt;% rowMeans() %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-4-1">
+Past versions of "Wrangle Data Frame 4-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/Wrangle Data Frame 4-1.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="dupcor-on-10-samples" class="section level1">
-<h1>Dupcor on 10 samples</h1>
+</div>
+</div>
+<div id="linear-model---ruvs" class="section level1">
+<h1>Linear model - RUVs</h1>
 <pre class="r"><code>#  counts need to be integer values and in a numeric matrix 
 counts &lt;- as.matrix(normalizedData) 
-
-# Create a DataFrame for the phenoData
+counts %&gt;% dim()</code></pre>
+<pre><code>[1] 3384    6</code></pre>
+<pre class="r"><code># Create a DataFrame for the phenoData
 phenoData &lt;- DataFrame(Meta)
+phenoData_sub &lt;- phenoData[c(1,2,4,6,7,9), ]
+
 
 # Create Design Matrix 
 # phenoData$Cond &lt;- factor(phenoData$Cond , levels = c(&quot;Control&quot;, &quot;Dox&quot;))
-design &lt;- model.matrix(~ 0 + Cond , phenoData)
-
-
-# rename columns 
+design &lt;- model.matrix(~ 0 + Cond , phenoData_sub)
+design</code></pre>
+<pre><code>   CondControl CondDox
+S1           0       1
+S3           0       1
+S7           0       1
+S2           1       0
+S4           1       0
+S8           1       0
+attr(,&quot;assign&quot;)
+[1] 1 1
+attr(,&quot;contrasts&quot;)
+attr(,&quot;contrasts&quot;)$Cond
+[1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code># rename columns 
 colnames(design) &lt;- c(&#39;Control&#39;, &quot;Dox&quot;)
 
 
 # Fit model
-dupcor &lt;- duplicateCorrelation(normalizedData , design, block = phenoData$Ind)
-fit &lt;- lmFit(object = normalizedData, design = design, block = phenoData$Ind, correlation = dupcor$consensus)
+dupcor &lt;- duplicateCorrelation(counts , design, block = phenoData_sub$Ind)
+fit &lt;- lmFit(object = counts, design = design, block = phenoData_sub$Ind, correlation = dupcor$consensus)
 fit2 &lt;- eBayes(fit)
 
 
@@ -770,20 +892,94 @@ fit2 &lt;- eBayes(fit2 )
 results_summary &lt;- decideTests(fit2, adjust.method = &quot;none&quot;, p.value = 0.05)
 summary(results_summary)</code></pre>
 <pre><code>       DoxvNorm
-Down        431
-NotSig     2501
-Up          452</code></pre>
+Down        325
+NotSig     2788
+Up          271</code></pre>
 <pre class="r"><code># Toptable summary organized to contain results for all tested proteins   
 toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(normalizedData)), p.value = 1, adjust.method = &quot;none&quot;)
 toptable_summary$Protein &lt;- rownames(toptable_summary)
 toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-1">
+Past versions of "upcor on 10 samples-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-10-samples-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-1.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
 prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
 
-ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-2">
+Past versions of "upcor on 10 samples-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-10-samples-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-2.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Volcano plots 
 # 1. Create a column to threshold P-values 
 toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
@@ -800,6 +996,43 @@ ggplot(toptable_summary)+
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-3">
+Past versions of "upcor on 10 samples-3.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-10-samples-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-3.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Other fits 
 fit3 &lt;- eBayes(fit2, robust = TRUE, trend = TRUE)</code></pre>
 <pre><code>Warning: 3 very small variances detected, have been offset away from zero</code></pre>
@@ -807,21 +1040,95 @@ fit3 &lt;- eBayes(fit2, robust = TRUE, trend = TRUE)</code></pre>
 results_summary &lt;- decideTests(fit3, adjust.method = &quot;none&quot;, p.value = 0.05)
 summary(results_summary)</code></pre>
 <pre><code>       DoxvNorm
-Down        426
-NotSig     2504
-Up          454</code></pre>
+Down        335
+NotSig     2778
+Up          271</code></pre>
 <pre class="r"><code># Toptable summary organized to contain results for all tested proteins   
 toptable_summary &lt;- topTable(fit3, coef = &quot;DoxvNorm&quot;,number = (nrow(normalizedData)), p.value = 1, adjust.method = &quot;none&quot;)
 toptable_summary$Protein &lt;- rownames(toptable_summary)
 toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-4">
+Past versions of "upcor on 10 samples-4.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-10-samples-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-4.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
 prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
 
 
-ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-5">
+Past versions of "upcor on 10 samples-5.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-10-samples-5" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-5.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Volcano plots 
 # 1. Create a column to threshold P-values 
 toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
@@ -839,9 +1146,46 @@ ggplot(toptable_summary)+
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-6">
+Past versions of "upcor on 10 samples-6.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-10-samples-6" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-6.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
 </div>
-<div id="mw-suggested-workflow" class="section level1">
-<h1>MW suggested workflow</h1>
+</div>
+</div>
+<div id="linear-model-ruvs" class="section level1">
+<h1>Linear model + RUVs</h1>
 <pre class="r"><code># 1. Get non log abundance values 
 Protein_DF_Abundance %&gt;% head()</code></pre>
 <pre><code>             S1       S3       S5       S7       S9       S2       S4       S6
@@ -883,8 +1227,6 @@ set_all &lt;- newSeqExpressionSet(as.matrix(Protein_DF_Abundance),phenoData = da
 
 # 3. Get RUV weights using all 10 samples
 set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=1, differences_all, isLog = FALSE)
-
-
 
 
 # 4. Subset counts by the 6 columns of interest, Metadata by 6 rows of interest, RUV weights vector to the 6 values of interest
@@ -945,24 +1287,394 @@ P60709 1.81e+09 1.56e+09</code></pre>
 <pre><code>[1] 3384   10</code></pre>
 <pre class="r"><code>counts_RUV_nolog[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-1">
+Past versions of "MW suggested workflow-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-1.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_nolog[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-2">
+Past versions of "MW suggested workflow-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-2.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_nolog[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-3">
+Past versions of "MW suggested workflow-3.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-3.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_nolog[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-4">
+Past versions of "MW suggested workflow-4.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-4.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_nolog[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-5">
+Past versions of "MW suggested workflow-5.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-5" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-5.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_nolog[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-6">
+Past versions of "MW suggested workflow-6.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-6" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-6.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_nolog[,7] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-7.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-7">
+Past versions of "MW suggested workflow-7.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-7" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-7.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_nolog[,8] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-8.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-8">
+Past versions of "MW suggested workflow-8.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-8" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-8.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_nolog[,9] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-9.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-9">
+Past versions of "MW suggested workflow-9.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-9" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-9.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_nolog[,10] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-10.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-10">
+Past versions of "MW suggested workflow-10.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-10" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-10.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_normalized &lt;- assayData(set_all_RUV)$normalizedCounts
 counts_RUV_normalized %&gt;% head()</code></pre>
 <pre><code>                S1          S3          S5          S7          S9          S2
@@ -983,24 +1695,394 @@ P60709   293126904   833223906   795358069   759285096</code></pre>
 <pre><code>[1] 3384   10</code></pre>
 <pre class="r"><code>counts_RUV_normalized[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-11.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-11">
+Past versions of "MW suggested workflow-11.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-11" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-11.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_normalized[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-12.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-12">
+Past versions of "MW suggested workflow-12.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-12" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-12.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_normalized[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-13.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-13">
+Past versions of "MW suggested workflow-13.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-13" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-13.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_normalized[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-14.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-14">
+Past versions of "MW suggested workflow-14.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-14" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-14.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_normalized[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-15.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-15">
+Past versions of "MW suggested workflow-15.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-15" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-15.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_normalized[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-16.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-16">
+Past versions of "MW suggested workflow-16.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-16" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-16.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_normalized[,7] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-17.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-17">
+Past versions of "MW suggested workflow-17.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-17" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-17.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_normalized[,8] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-18.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-18">
+Past versions of "MW suggested workflow-18.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-18" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-18.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_normalized[,9] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-19.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-19">
+Past versions of "MW suggested workflow-19.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-19" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-19.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_normalized[,10] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-20.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-20">
+Past versions of "MW suggested workflow-20.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-20" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-20.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2 &lt;- assayData(set_all_RUV)$normalizedCounts %&gt;% log2()
 counts_RUV_log2 %&gt;% head()</code></pre>
 <pre><code>             S1       S3       S5       S7       S9       S2       S4       S6
@@ -1021,24 +2103,394 @@ P60709 29.56703 29.50007</code></pre>
 <pre><code>[1] 3384   10</code></pre>
 <pre class="r"><code>counts_RUV_log2[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-21.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-21">
+Past versions of "MW suggested workflow-21.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-21" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-21.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-22.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-22">
+Past versions of "MW suggested workflow-22.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-22" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-22.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-23.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-23">
+Past versions of "MW suggested workflow-23.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-23" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-23.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-24.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-24">
+Past versions of "MW suggested workflow-24.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-24" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-24.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-25.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-25">
+Past versions of "MW suggested workflow-25.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-25" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-25.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-26.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-26">
+Past versions of "MW suggested workflow-26.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-26" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-26.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2[,7] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-27.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-27">
+Past versions of "MW suggested workflow-27.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-27" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-27.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2[,8] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-28.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-28">
+Past versions of "MW suggested workflow-28.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-28" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-28.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2[,9] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-29.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-29">
+Past versions of "MW suggested workflow-29.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-29" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-29.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2[,10] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-30.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-30">
+Past versions of "MW suggested workflow-30.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-30" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-30.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2_sub &lt;- counts_RUV_log2[,c(1,2,4,6,7,9)]
 counts_RUV_log2_sub %&gt;% head()</code></pre>
 <pre><code>             S1       S3       S7       S2       S4       S8
@@ -1052,16 +2504,238 @@ P60709 30.79994 28.51039 29.57393 30.84780 28.12695 29.56703</code></pre>
 <pre><code>[1] 3384    6</code></pre>
 <pre class="r"><code>counts_RUV_log2_sub[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-31.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-31">
+Past versions of "MW suggested workflow-31.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-31" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-31.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2_sub[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-32.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-32">
+Past versions of "MW suggested workflow-32.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-32" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-32.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2_sub[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-33.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-33">
+Past versions of "MW suggested workflow-33.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-33" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-33.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2_sub[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-34.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-34">
+Past versions of "MW suggested workflow-34.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-34" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-34.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2_sub[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-35.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-35">
+Past versions of "MW suggested workflow-35.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-35" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-35.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2_sub[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-36.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-36">
+Past versions of "MW suggested workflow-36.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-36" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-36.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2_sub_quantnorm &lt;- limma::normalizeBetweenArrays(counts_RUV_log2_sub, method = &quot;quantile&quot;)
 counts_RUV_log2_sub_quantnorm %&gt;% head()</code></pre>
 <pre><code>             S1       S3       S7       S2       S4       S8
@@ -1075,12 +2749,160 @@ P60709 30.80305 28.66952 29.75892 30.63208 28.24612 29.53613</code></pre>
 <pre><code>[1] 3384    6</code></pre>
 <pre class="r"><code>counts_RUV_log2_sub_quantnorm[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-37.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-37">
+Past versions of "MW suggested workflow-37.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-37" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-37.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2_sub_quantnorm[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-38.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-38">
+Past versions of "MW suggested workflow-38.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-38" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-38.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2_sub_quantnorm[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-39.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-39">
+Past versions of "MW suggested workflow-39.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-39" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-39.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2_sub_quantnorm[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-40.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-40">
+Past versions of "MW suggested workflow-40.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-40" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-40.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUV_log2_sub_quantnorm[,5] %&gt;% hist(breaks = 100)
 counts_RUV_log2_sub_quantnorm[,6] %&gt;% hist(breaks = 100)
 
@@ -1109,13 +2931,11 @@ colnames(design) &lt;- c(&#39;Control&#39;, &quot;Dox&quot;, &quot;RUV_1&quot;)
 
 # Get model counts 
 Model_counts &lt;- counts_RUV_log2_sub_quantnorm
-Model_counts &lt;- DGEList(na.omit(Model_counts))
-Model_counts$samples &lt;- phenoData_RUVs
-Model_counts$counts %&gt;% dim()</code></pre>
-<pre><code>[1] 3382    6</code></pre>
-<pre class="r"><code># Fit model
-dupcor &lt;- duplicateCorrelation(Model_counts$counts, design, block = phenoData_RUVs$Ind)
-fit &lt;- lmFit(object = Model_counts$counts, design = design, block = phenoData_RUVs$Ind, correlation = dupcor$consensus)
+
+
+# Fit model
+dupcor &lt;- duplicateCorrelation(as.matrix(Model_counts), design, block = phenoData_RUVs$Ind)
+fit &lt;- lmFit(object = as.matrix(Model_counts), design = design, block = phenoData_RUVs$Ind, correlation = dupcor$consensus)
 fit2 &lt;- eBayes(fit)
 
 
@@ -1138,18 +2958,94 @@ Down        338
 NotSig     2784
 Up          260</code></pre>
 <pre class="r"><code># Toptable summary organized to contain results for all tested proteins   
-toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(Model_counts$counts)), p.value = 1, adjust.method = &quot;none&quot;)
+toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
 toptable_summary$Protein &lt;- rownames(toptable_summary)
 toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-41.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-41">
+Past versions of "MW suggested workflow-41.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-41" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-41.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
-Model_counts_PCA &lt;- na.omit(Model_counts$counts)
-sum(is.na(Model_counts))</code></pre>
+Model_counts_PCA &lt;- na.omit(Model_counts)
+sum(is.na(Model_counts_PCA))</code></pre>
 <pre><code>[1] 0</code></pre>
-<pre class="r"><code>prcomp_res &lt;- prcomp(t(Model_counts_PCA), scale. = TRUE, center = TRUE)
+<pre class="r"><code>Model_counts_PCA %&gt;% dim()</code></pre>
+<pre><code>[1] 3382    6</code></pre>
+<pre class="r"><code>prcomp_res &lt;- prcomp(t(as.matrix(Model_counts_PCA)))
 ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_RUVs), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-42.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-42">
+Past versions of "MW suggested workflow-42.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-42" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-42.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Volcano plots 
 # 1. Create a column to threshold P-values 
 toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
@@ -1166,7 +3062,45 @@ ggplot(toptable_summary)+
         plot.title = element_text(size = rel(1.5), hjust = 0.5),
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
+<pre><code>Warning: Removed 2 rows containing missing values (`geom_point()`).</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-43.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-43">
+Past versions of "MW suggested workflow-43.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-43" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-43.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
