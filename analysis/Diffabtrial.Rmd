@@ -1,0 +1,439 @@
+---
+title: "Diff_abundance_231207"
+output: html_document
+date: "2023-12-08"
+---
+
+# Load Libraries 
+```{r Libraries, include=FALSE}
+
+library(EDASeq)
+library(RUVSeq)
+library(RColorBrewer)
+library(edgeR)
+library(limma)
+library(Biobase)
+library(SummarizedExperiment)
+library(tidyverse) 
+library(ggfortify)
+library(cluster)
+library(edgeR)
+library(limma)
+library(Homo.sapiens)
+library(BiocParallel)
+library(qvalue)
+library(pheatmap)
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(RColorBrewer)
+library(variancePartition)
+library(DOSE)
+library(UpSetR)
+library(ggvenn)
+library(biomaRt)
+library(ggridges)
+library(reshape2)
+library(BioNERO)
+library(WGCNA)
+library(impute)
+```
+
+
+# Read in Data 
+```{r Read in Data 1}
+
+# Load your data
+Protein_DF <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Abundance.csv", header = TRUE)
+
+# Include metadata about samples 
+Meta <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Meta.csv", header = TRUE)
+```
+
+
+# Wrangle Data Frame 
+```{r Wrangle Data Frame 1}
+# Save the original 
+Full_DF <- Protein_DF 
+
+
+# Subset the columns referring to abundance
+Protein_DF_Abundance <- Protein_DF[,c(4, 5:ncol(Protein_DF))] 
+
+# Check for duplicated rows 
+# Identify duplicated values
+Protein_DF_Abundance$duplicated_name <- duplicated(Protein_DF_Abundance$Accession)
+
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+# To see only rows with duplicated values, you can subset the dataframe like this:
+duplicated_rows <- Protein_DF_Abundance[Protein_DF_Abundance$duplicated_name == TRUE, ]
+print(duplicated_rows)
+
+# We have 3 rows with duplicates, two of which have NA values. We will remove them now since we will go ahead 
+# and remove the duplicated rows later on anyways. 
+Protein_DF_Abundance <- Protein_DF_Abundance[- c(61, 276, 997), ] 
+
+# Make rownames of the data frame accession IDs
+rownames(Protein_DF_Abundance) <- Protein_DF_Abundance$Accession
+
+# Change colnames 
+colnames(Protein_DF_Abundance)
+Protein_DF_Abundance <- Protein_DF_Abundance[, -c(1, 12)]
+
+# Assuming column names of Protein_DF match with the rows in Meta
+rownames(Meta) <- Meta$Samples
+
+colnames(Protein_DF_Abundance) <- Meta$Samples
+```
+
+
+# Remove NA
+```{r Wrangle Data Frame 2}
+#1.  Find rows with any NA values
+rows_with_na <- apply(Protein_DF_Abundance, 1, function(x) any(is.na(x))) %>% which()
+ 
+
+rows_with_na <- as.numeric(rows_with_na)
+
+
+# 2. Remove rows with NA values 
+Protein_DF_Abundance <- Protein_DF_Abundance[-rows_with_na, ]
+
+# 3. Sanity check 
+Protein_DF_Abundance %>% dim()
+```
+
+
+# Log2 transform 
+```{r Wrangle Data Frame 3}
+log2_norm_counts <- log2(Protein_DF_Abundance)
+log2_norm_counts %>% rowMeans() %>% hist(breaks = 100)
+```
+
+
+# Quantile Normalization 
+```{r Wrangle Data Frame 4}
+normalizedData <- limma::normalizeBetweenArrays(log2_norm_counts, method = "quantile")
+normalizedData %>% rowMeans() %>% hist(breaks = 100)
+```
+
+
+
+# Dupcor on 10 samples 
+```{r upcor on 10 samples}
+#  counts need to be integer values and in a numeric matrix 
+counts <- as.matrix(normalizedData) 
+
+# Create a DataFrame for the phenoData
+phenoData <- DataFrame(Meta)
+
+# Create Design Matrix 
+# phenoData$Cond <- factor(phenoData$Cond , levels = c("Control", "Dox"))
+design <- model.matrix(~ 0 + Cond , phenoData)
+
+
+# rename columns 
+colnames(design) <- c('Control', "Dox")
+
+
+# Fit model
+dupcor <- duplicateCorrelation(normalizedData , design, block = phenoData$Ind)
+fit <- lmFit(object = normalizedData, design = design, block = phenoData$Ind, correlation = dupcor$consensus)
+fit2 <- eBayes(fit)
+
+
+# Make contrasts
+cm <- makeContrasts(
+  DoxvNorm = Dox - Control,
+  levels = design)
+
+
+# Model with contrasts
+fit2 <- contrasts.fit(fit, cm)
+fit2 <- eBayes(fit2 )
+
+
+# Summarize
+results_summary <- decideTests(fit2, adjust.method = "none", p.value = 0.05)
+summary(results_summary)
+
+
+
+# Toptable summary organized to contain results for all tested proteins   
+toptable_summary <- topTable(fit2, coef = "DoxvNorm",number = (nrow(normalizedData)), p.value = 1, adjust.method = "none")
+toptable_summary$Protein <- rownames(toptable_summary)
+toptable_summary$P.Value %>% hist(breaks = 100)
+
+
+
+# PCA of log2-quantile normalized-RUVs values:
+prcomp_res <- prcomp(t(normalizedData %>% as.matrix()), center = TRUE)
+
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData), colour = "Cond", shape = "Ind", size =4)+
+  theme_bw()
+
+
+# Volcano plots 
+# 1. Create a column to threshold P-values 
+toptable_summary <- toptable_summary %>%  mutate(threshold_P = P.Value < 0.05)
+
+# 2. Plot 
+ggplot(toptable_summary)+
+  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+  xlab("log2FC")+
+  ylab("-log10 nominal p-value")+
+  ylim(0, 10)+
+  xlim(-7, 7)+
+  theme(legend.position = "none", 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()
+
+
+# Other fits 
+fit3 <- eBayes(fit2, robust = TRUE, trend = TRUE)
+
+
+# Summarize
+results_summary <- decideTests(fit3, adjust.method = "none", p.value = 0.05)
+summary(results_summary)
+
+
+# Toptable summary organized to contain results for all tested proteins   
+toptable_summary <- topTable(fit3, coef = "DoxvNorm",number = (nrow(normalizedData)), p.value = 1, adjust.method = "none")
+toptable_summary$Protein <- rownames(toptable_summary)
+toptable_summary$P.Value %>% hist(breaks = 100)
+
+
+# PCA of log2-quantile normalized-RUVs values:
+prcomp_res <- prcomp(t(normalizedData %>% as.matrix()), center = TRUE)
+
+
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData), colour = "Cond", shape = "Ind", size =4)+
+  theme_bw()
+
+
+# Volcano plots 
+# 1. Create a column to threshold P-values 
+toptable_summary <- toptable_summary %>%  mutate(threshold_P = P.Value < 0.05)
+
+
+# 2. Plot 
+ggplot(toptable_summary)+
+  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+  xlab("log2FC")+
+  ylab("-log10 nominal p-value")+
+  ylim(0, 10)+
+  xlim(-7, 7)+
+  theme(legend.position = "none", 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()
+```
+
+
+
+
+# MW suggested workflow  
+```{r MW suggested workflow }
+# 1. Get non log abundance values 
+Protein_DF_Abundance %>% head()
+
+
+
+
+# 2. Generate RUVs related objects (differences_all and set_all)
+Meta
+genes_all <- rownames(Protein_DF_Abundance)
+x_all <- c(1,2,3,3,3,4,5,6,6,6)
+differences_all <- makeGroups(x_all)
+
+
+set_all <- newSeqExpressionSet(as.matrix(Protein_DF_Abundance),phenoData = data.frame(x_all, row.names=colnames(Protein_DF_Abundance)))
+
+
+
+
+# 3. Get RUV weights using all 10 samples
+set_all_RUV <- RUVSeq::RUVs(set_all, genes_all, k=1, differences_all, isLog = FALSE)
+
+
+
+
+# 4. Subset counts by the 6 columns of interest, Metadata by 6 rows of interest, RUV weights vector to the 6 values of interest
+#  counts need to be integer values and in a numeric matrix 
+counts_RUVs <- as.matrix(Protein_DF_Abundance) 
+
+# Create a DataFrame for the phenoData
+phenoData_RUVs <- DataFrame(Meta)
+phenoData_RUVs <- phenoData_RUVs[c(1,2,4,6,7,9), ]
+
+counts_RUVs <- counts_RUVs[,c(1,2,4,6,7,9)]
+
+counts_RUVs %>% dim()
+phenoData_RUVs %>% dim()
+
+
+RUV_1 <- set_all_RUV$W_1
+phenoData_RUVs$RUV_1 <- RUV_1[c(1,2,4,6,7,9)]
+
+
+# View changes 
+phenoData_RUVs %>% head()
+counts_RUVs %>% head()
+
+
+
+
+# 5. Take the info from 4 and assign it to a new object
+counts_RUV_nolog <- assayData(set_all_RUV)$counts
+counts_RUV_nolog %>% head()
+counts_RUV_nolog %>% dim()
+counts_RUV_nolog[,1] %>% hist(breaks = 100)
+counts_RUV_nolog[,2] %>% hist(breaks = 100)
+counts_RUV_nolog[,3] %>% hist(breaks = 100)
+counts_RUV_nolog[,4] %>% hist(breaks = 100)
+counts_RUV_nolog[,5] %>% hist(breaks = 100)
+counts_RUV_nolog[,6] %>% hist(breaks = 100)
+counts_RUV_nolog[,7] %>% hist(breaks = 100)
+counts_RUV_nolog[,8] %>% hist(breaks = 100)
+counts_RUV_nolog[,9] %>% hist(breaks = 100)
+counts_RUV_nolog[,10] %>% hist(breaks = 100)
+
+
+
+
+
+counts_RUV_normalized <- assayData(set_all_RUV)$normalizedCounts
+counts_RUV_normalized %>% head()
+counts_RUV_normalized %>% dim()
+counts_RUV_normalized[,1] %>% hist(breaks = 100)
+counts_RUV_normalized[,2] %>% hist(breaks = 100)
+counts_RUV_normalized[,3] %>% hist(breaks = 100)
+counts_RUV_normalized[,4] %>% hist(breaks = 100)
+counts_RUV_normalized[,5] %>% hist(breaks = 100)
+counts_RUV_normalized[,6] %>% hist(breaks = 100)
+counts_RUV_normalized[,7] %>% hist(breaks = 100)
+counts_RUV_normalized[,8] %>% hist(breaks = 100)
+counts_RUV_normalized[,9] %>% hist(breaks = 100)
+counts_RUV_normalized[,10] %>% hist(breaks = 100)
+
+
+
+
+
+
+counts_RUV_log2 <- assayData(set_all_RUV)$normalizedCounts %>% log2()
+counts_RUV_log2 %>% head()
+counts_RUV_log2 %>% dim()
+counts_RUV_log2[,1] %>% hist(breaks = 100)
+counts_RUV_log2[,2] %>% hist(breaks = 100)
+counts_RUV_log2[,3] %>% hist(breaks = 100)
+counts_RUV_log2[,4] %>% hist(breaks = 100)
+counts_RUV_log2[,5] %>% hist(breaks = 100)
+counts_RUV_log2[,6] %>% hist(breaks = 100)
+counts_RUV_log2[,7] %>% hist(breaks = 100)
+counts_RUV_log2[,8] %>% hist(breaks = 100)
+counts_RUV_log2[,9] %>% hist(breaks = 100)
+counts_RUV_log2[,10] %>% hist(breaks = 100)
+
+
+counts_RUV_log2_sub <- counts_RUV_log2[,c(1,2,4,6,7,9)]
+counts_RUV_log2_sub %>% head()
+counts_RUV_log2_sub %>% dim()
+counts_RUV_log2_sub[,1] %>% hist(breaks = 100)
+counts_RUV_log2_sub[,2] %>% hist(breaks = 100)
+counts_RUV_log2_sub[,3] %>% hist(breaks = 100)
+counts_RUV_log2_sub[,4] %>% hist(breaks = 100)
+counts_RUV_log2_sub[,5] %>% hist(breaks = 100)
+counts_RUV_log2_sub[,6] %>% hist(breaks = 100)
+
+
+
+
+counts_RUV_log2_sub_quantnorm <- limma::normalizeBetweenArrays(counts_RUV_log2_sub, method = "quantile")
+counts_RUV_log2_sub_quantnorm %>% head()
+counts_RUV_log2_sub_quantnorm %>% dim()
+counts_RUV_log2_sub_quantnorm[,1] %>% hist(breaks = 100)
+counts_RUV_log2_sub_quantnorm[,2] %>% hist(breaks = 100)
+counts_RUV_log2_sub_quantnorm[,3] %>% hist(breaks = 100)
+counts_RUV_log2_sub_quantnorm[,4] %>% hist(breaks = 100)
+counts_RUV_log2_sub_quantnorm[,5] %>% hist(breaks = 100)
+counts_RUV_log2_sub_quantnorm[,6] %>% hist(breaks = 100)
+
+
+
+
+# Create Design Matrix 
+# phenoData$Cond <- factor(phenoData$Cond , levels = c("Control", "Dox"))
+design <- model.matrix(~ 0 + Cond + RUV_1, data = phenoData_RUVs)
+design
+
+
+# rename columns 
+colnames(design) <- c('Control', "Dox", "RUV_1")
+
+
+# Get model counts 
+Model_counts <- counts_RUV_log2_sub_quantnorm
+Model_counts <- DGEList(na.omit(Model_counts))
+Model_counts$samples <- phenoData_RUVs
+Model_counts$counts %>% dim()
+
+# Fit model
+dupcor <- duplicateCorrelation(Model_counts$counts, design, block = phenoData_RUVs$Ind)
+fit <- lmFit(object = Model_counts$counts, design = design, block = phenoData_RUVs$Ind, correlation = dupcor$consensus)
+fit2 <- eBayes(fit)
+
+
+# Make contrasts
+cm <- makeContrasts(
+  DoxvNorm = Dox - Control,
+  levels = design)
+
+
+# Model with contrasts
+fit2 <- contrasts.fit(fit, cm)
+fit2 <- eBayes(fit2)
+
+
+# Summarize
+results_summary <- decideTests(fit2, adjust.method = "none", p.value = 0.05)
+summary(results_summary)
+
+
+# Toptable summary organized to contain results for all tested proteins   
+toptable_summary <- topTable(fit2, coef = "DoxvNorm",number = (nrow(Model_counts$counts)), p.value = 1, adjust.method = "none")
+toptable_summary$Protein <- rownames(toptable_summary)
+toptable_summary$P.Value %>% hist(breaks = 100)
+
+
+
+
+# PCA of log2-quantile normalized-RUVs values:
+Model_counts_PCA <- na.omit(Model_counts$counts)
+sum(is.na(Model_counts))
+prcomp_res <- prcomp(t(Model_counts_PCA), scale. = TRUE, center = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_RUVs), colour = "Cond", shape = "Ind", size =4)+
+  theme_bw()
+
+
+
+
+# Volcano plots 
+# 1. Create a column to threshold P-values 
+toptable_summary <- toptable_summary %>%  mutate(threshold_P = P.Value < 0.05)
+
+
+# 2. Plot 
+ggplot(toptable_summary)+
+  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+  xlab("log2FC")+
+  ylab("-log10 nominal p-value")+
+  ylim(0, 6)+
+  xlim(-7, 7)+
+  theme(legend.position = "none", 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()
+```

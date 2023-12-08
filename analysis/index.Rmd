@@ -13,6 +13,8 @@ editor_options:
 
 [2. With imputation](https://omar-johnson.github.io/myproject/Differentially_abundant_proteins_impute.html)
 
+[3. All NA removed RUVs and other workflows 231208](https://omar-johnson.github.io/myproject/Diffabtrial.html)
+
 # WPCNA
 [1. Imputed values + Simple tree](https://omar-johnson.github.io/myproject/WPCNA_shallow_split.html)
 
@@ -20,3 +22,8 @@ editor_options:
 
 # Enrichment of things 
 [1. DE proteins (imputed) in GO + Reactome ](https://omar-johnson.github.io/myproject/GO_Reactome_enrich_Imputed_proteins.html)
+
+
+
+
+
