@@ -388,7 +388,7 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2023-12-08
+<strong>Last updated:</strong> 2023-12-11
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -519,15 +519,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree2350e41ea2c909844b9ee0bc9ca7d4789be9b388targetblank2350e41a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree9c712bb0930aaf30c6fa913a576c20f034678ed5targetblank9c712bba">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/Omar-Johnson/myproject/tree/2350e41ea2c909844b9ee0bc9ca7d4789be9b388" target="_blank">2350e41</a>
+<a href="https://github.com/Omar-Johnson/myproject/tree/9c712bb0930aaf30c6fa913a576c20f034678ed5" target="_blank">9c712bb</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree2350e41ea2c909844b9ee0bc9ca7d4789be9b388targetblank2350e41a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree9c712bb0930aaf30c6fa913a576c20f034678ed5targetblank9c712bba"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -537,7 +537,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/Omar-Johnson/myproject/tree/2350e41ea2c909844b9ee0bc9ca7d4789be9b388" target="_blank">2350e41</a>.
+<a href="https://github.com/Omar-Johnson/myproject/tree/9c712bb0930aaf30c6fa913a576c20f034678ed5" target="_blank">9c712bb</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -611,6 +611,40 @@ Message
 Rmd
 </td>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/9c712bb0930aaf30c6fa913a576c20f034678ed5/analysis/Diffabtrial.Rmd" target="_blank">9c712bb</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-11
+</td>
+<td>
+update
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Omar-Johnson/myproject/21e1467bb628298c69ede835e05097eb61e65a17/docs/Diffabtrial.html" target="_blank">21e1467</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+<td>
+Build site.
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/2350e41ea2c909844b9ee0bc9ca7d4789be9b388/analysis/Diffabtrial.Rmd" target="_blank">2350e41</a>
 </td>
 <td>
@@ -666,6 +700,33 @@ update
 </div>
 <div id="load-libraries" class="section level1">
 <h1>Load Libraries</h1>
+</div>
+<div id="added-funtions" class="section level1">
+<h1>Added funtions</h1>
+<pre class="r"><code># 1
+remove_rows_with_nas &lt;- function(data_frame) {
+  data_frame[rowSums(is.na(data_frame)) &lt; 5, ]
+}
+# 2
+remove_rows_with_nas_var &lt;- function(data_frame, NA_remove) {
+  data_frame[rowSums(is.na(data_frame)) &lt; NA_remove, ]
+}
+# 3
+plot_nrow_vs_naremove &lt;- function(data_frame) {
+  results &lt;- data.frame(NA_remove = integer(), Rows_Remaining = integer())
+
+  for (i in 1:ncol(data_frame)) {
+    filtered_df &lt;- remove_rows_with_nas_var(data_frame, NA_remove = i)
+    results &lt;- rbind(results, data.frame(NA_remove = i, Rows_Remaining = nrow(filtered_df)))
+  }
+
+  ggplot(results, aes(x = NA_remove, y = Rows_Remaining)) +
+    geom_point() +
+    geom_line() +
+    xlab(&quot;Na tolerance threshold&quot;) +
+    ylab(&quot;Number of proteins remaining&quot;) +
+    theme_minimal()
+}</code></pre>
 </div>
 <div id="read-in-data" class="section level1">
 <h1>Read in Data</h1>
@@ -758,87 +819,13 @@ Protein_DF_Abundance %&gt;% dim()</code></pre>
 <h1>Log2 transform</h1>
 <pre class="r"><code>log2_norm_counts &lt;- log2(Protein_DF_Abundance)
 log2_norm_counts %&gt;% rowMeans() %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-1">
-Past versions of "Wrangle Data Frame 3-1.png"
-</button>
-</p>
-<div id="fig-no-spaces-Wrangle-Data-Frame-3-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/Wrangle Data Frame 3-1.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%2090-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="quantile-normalization" class="section level1">
 <h1>Quantile Normalization</h1>
 <pre class="r"><code>normalizedData &lt;- limma::normalizeBetweenArrays(log2_norm_counts[, c(1,2,4,6,7,9)], method = &quot;quantile&quot;)
 normalizedData %&gt;% rowMeans() %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-4-1">
-Past versions of "Wrangle Data Frame 4-1.png"
-</button>
-</p>
-<div id="fig-no-spaces-Wrangle-Data-Frame-4-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/Wrangle Data Frame 4-1.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%2055-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="linear-model---ruvs" class="section level1">
 <h1>Linear model - RUVs</h1>
@@ -899,87 +886,13 @@ Up          271</code></pre>
 toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(normalizedData)), p.value = 1, adjust.method = &quot;none&quot;)
 toptable_summary$Protein &lt;- rownames(toptable_summary)
 toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-1">
-Past versions of "upcor on 10 samples-1.png"
-</button>
-</p>
-<div id="fig-no-spaces-upcor-on-10-samples-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-1.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%202-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
 prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
 
 ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-2">
-Past versions of "upcor on 10 samples-2.png"
-</button>
-</p>
-<div id="fig-no-spaces-upcor-on-10-samples-2" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-2.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%202-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># Volcano plots 
 # 1. Create a column to threshold P-values 
 toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
@@ -995,44 +908,7 @@ ggplot(toptable_summary)+
         plot.title = element_text(size = rel(1.5), hjust = 0.5),
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-3.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-3">
-Past versions of "upcor on 10 samples-3.png"
-</button>
-</p>
-<div id="fig-no-spaces-upcor-on-10-samples-3" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-3.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%202-3.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># Other fits 
 fit3 &lt;- eBayes(fit2, robust = TRUE, trend = TRUE)</code></pre>
 <pre><code>Warning: 3 very small variances detected, have been offset away from zero</code></pre>
@@ -1047,88 +923,14 @@ Up          271</code></pre>
 toptable_summary &lt;- topTable(fit3, coef = &quot;DoxvNorm&quot;,number = (nrow(normalizedData)), p.value = 1, adjust.method = &quot;none&quot;)
 toptable_summary$Protein &lt;- rownames(toptable_summary)
 toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-4.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-4">
-Past versions of "upcor on 10 samples-4.png"
-</button>
-</p>
-<div id="fig-no-spaces-upcor-on-10-samples-4" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-4.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%202-4.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
 prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
 
 
 ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-5.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-5">
-Past versions of "upcor on 10 samples-5.png"
-</button>
-</p>
-<div id="fig-no-spaces-upcor-on-10-samples-5" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-5.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%202-5.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># Volcano plots 
 # 1. Create a column to threshold P-values 
 toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
@@ -1145,44 +947,7 @@ ggplot(toptable_summary)+
         plot.title = element_text(size = rel(1.5), hjust = 0.5),
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/upcor%20on%2010%20samples-6.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-10-samples-6">
-Past versions of "upcor on 10 samples-6.png"
-</button>
-</p>
-<div id="fig-no-spaces-upcor-on-10-samples-6" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/upcor on 10 samples-6.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%202-6.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="linear-model-ruvs" class="section level1">
 <h1>Linear model + RUVs</h1>
@@ -1202,6 +967,8 @@ Q8WZ42 2.46e+10 2.21e+10
 P68032 2.98e+10 2.91e+10
 P68133 3.36e+07 4.05e+07
 P60709 1.81e+09 1.56e+09</code></pre>
+<pre class="r"><code>Protein_DF_Abundance %&gt;% dim()</code></pre>
+<pre><code>[1] 3384   10</code></pre>
 <pre class="r"><code># 2. Generate RUVs related objects (differences_all and set_all)
 Meta</code></pre>
 <pre><code>    Samples  Ind  Rep    Cond     Cond_Ind
@@ -1225,7 +992,137 @@ set_all &lt;- newSeqExpressionSet(as.matrix(Protein_DF_Abundance),phenoData = da
 
 
 
-# 3. Get RUV weights using all 10 samples
+# 3. Get RUV weights using all 10 samples and view for different values of &quot;k&quot;
+# K =1 
+set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=1, differences_all, isLog = FALSE)
+prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-1">
+Past versions of "MW suggested workflow-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-1.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code># K =2 
+set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=2, differences_all, isLog = FALSE)
+prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-2">
+Past versions of "MW suggested workflow-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-2.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code># K =3 
+set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=3, differences_all, isLog = FALSE)
+prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-3">
+Past versions of "MW suggested workflow-3.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-3.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code># Proceed with K =1 
 set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=1, differences_all, isLog = FALSE)
 
 
@@ -1286,123 +1183,6 @@ P60709 1.81e+09 1.56e+09</code></pre>
 <pre class="r"><code>counts_RUV_nolog %&gt;% dim()</code></pre>
 <pre><code>[1] 3384   10</code></pre>
 <pre class="r"><code>counts_RUV_nolog[,1] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-1.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-1">
-Past versions of "MW suggested workflow-1.png"
-</button>
-</p>
-<div id="fig-no-spaces-MW-suggested-workflow-1" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-1.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<pre class="r"><code>counts_RUV_nolog[,2] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-2.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-2">
-Past versions of "MW suggested workflow-2.png"
-</button>
-</p>
-<div id="fig-no-spaces-MW-suggested-workflow-2" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-2.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<pre class="r"><code>counts_RUV_nolog[,3] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-3.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-3">
-Past versions of "MW suggested workflow-3.png"
-</button>
-</p>
-<div id="fig-no-spaces-MW-suggested-workflow-3" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-3.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-<pre class="r"><code>counts_RUV_nolog[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-4.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-4">
@@ -1441,7 +1221,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_nolog[,5] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_nolog[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-5.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-5">
@@ -1480,7 +1260,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_nolog[,6] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_nolog[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-6.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-6">
@@ -1519,7 +1299,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_nolog[,7] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_nolog[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-7.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-7">
@@ -1558,7 +1338,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_nolog[,8] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_nolog[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-8.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-8">
@@ -1597,7 +1377,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_nolog[,9] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_nolog[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-9.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-9">
@@ -1636,7 +1416,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_nolog[,10] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_nolog[,7] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-10.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-10">
@@ -1675,25 +1455,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_normalized &lt;- assayData(set_all_RUV)$normalizedCounts
-counts_RUV_normalized %&gt;% head()</code></pre>
-<pre><code>                S1          S3          S5          S7          S9          S2
-P12883 45337542962 63685880830 45126164890 59565663253 54642064882 37385080434
-P13533  3565077374  5462082782 19930829758 13736619415 10737042018  5357042250
-Q8WZ42 13032583533 19461130062 20440011127 23462448749 21785328324 12093907902
-P68032 23106295847 23812947580 21350141224 21734611833 20526180407 20851124975
-P68133    11291597    37622973    24533766    34382003    38804593    10760131
-P60709  1869420388   382369912   898668323   799173901   688427329  1932473604
-                S4          S6          S8         S10
-P12883 63709478113 59654834496 48179881020 45822356691
-P13533  4333436814  9676674167 14373819178 10807981320
-Q8WZ42 21055129503 23490366118 22955184919 20800523884
-P68032 17172867696 20006427755 16891959606 17701326282
-P68133    22299598    34255093    21381900    27262452
-P60709   293126904   833223906   795358069   759285096</code></pre>
-<pre class="r"><code>counts_RUV_normalized %&gt;% dim()</code></pre>
-<pre><code>[1] 3384   10</code></pre>
-<pre class="r"><code>counts_RUV_normalized[,1] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_nolog[,8] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-11.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-11">
@@ -1732,7 +1494,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_normalized[,2] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_nolog[,9] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-12.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-12">
@@ -1771,7 +1533,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_normalized[,3] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_nolog[,10] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-13.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-13">
@@ -1810,7 +1572,25 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_normalized[,4] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_normalized &lt;- assayData(set_all_RUV)$normalizedCounts
+counts_RUV_normalized %&gt;% head()</code></pre>
+<pre><code>                S1          S3          S5          S7          S9          S2
+P12883 45337542962 63685880830 45126164890 59565663253 54642064882 37385080434
+P13533  3565077374  5462082782 19930829758 13736619415 10737042018  5357042250
+Q8WZ42 13032583533 19461130062 20440011127 23462448749 21785328324 12093907902
+P68032 23106295847 23812947580 21350141224 21734611833 20526180407 20851124975
+P68133    11291597    37622973    24533766    34382003    38804593    10760131
+P60709  1869420388   382369912   898668323   799173901   688427329  1932473604
+                S4          S6          S8         S10
+P12883 63709478113 59654834496 48179881020 45822356691
+P13533  4333436814  9676674167 14373819178 10807981320
+Q8WZ42 21055129503 23490366118 22955184919 20800523884
+P68032 17172867696 20006427755 16891959606 17701326282
+P68133    22299598    34255093    21381900    27262452
+P60709   293126904   833223906   795358069   759285096</code></pre>
+<pre class="r"><code>counts_RUV_normalized %&gt;% dim()</code></pre>
+<pre><code>[1] 3384   10</code></pre>
+<pre class="r"><code>counts_RUV_normalized[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-14.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-14">
@@ -1849,7 +1629,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_normalized[,5] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_normalized[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-15.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-15">
@@ -1888,7 +1668,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_normalized[,6] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_normalized[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-16.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-16">
@@ -1927,7 +1707,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_normalized[,7] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_normalized[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-17.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-17">
@@ -1966,7 +1746,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_normalized[,8] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_normalized[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-18.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-18">
@@ -2005,7 +1785,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_normalized[,9] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_normalized[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-19.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-19">
@@ -2044,7 +1824,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_normalized[,10] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_normalized[,7] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-20.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-20">
@@ -2083,25 +1863,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2 &lt;- assayData(set_all_RUV)$normalizedCounts %&gt;% log2()
-counts_RUV_log2 %&gt;% head()</code></pre>
-<pre><code>             S1       S3       S5       S7       S9       S2       S4       S6
-P12883 35.39999 35.89025 35.39325 35.79376 35.66929 35.12174 35.89079 35.79592
-P13533 31.73129 32.34680 34.21428 33.67731 33.32188 32.31879 32.01286 33.17186
-Q8WZ42 33.60140 34.17988 34.25068 34.44963 34.34264 33.49356 34.29345 34.45135
-P68032 34.42757 34.47103 34.31353 34.33928 34.25675 34.27941 33.99941 34.21974
-P68133 23.42875 25.16511 24.54827 25.03515 25.20972 23.35919 24.41051 25.02982
-P60709 30.79994 28.51039 29.74321 29.57393 29.35873 30.84780 28.12695 29.63413
-             S8      S10
-P12883 35.48771 35.41533
-P13533 33.74272 33.33138
-Q8WZ42 34.41810 34.27590
-P68032 33.97562 34.04314
-P68133 24.34989 24.70041
-P60709 29.56703 29.50007</code></pre>
-<pre class="r"><code>counts_RUV_log2 %&gt;% dim()</code></pre>
-<pre><code>[1] 3384   10</code></pre>
-<pre class="r"><code>counts_RUV_log2[,1] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_normalized[,8] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-21.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-21">
@@ -2140,7 +1902,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2[,2] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_normalized[,9] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-22.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-22">
@@ -2179,7 +1941,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2[,3] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_normalized[,10] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-23.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-23">
@@ -2218,7 +1980,25 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2[,4] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2 &lt;- assayData(set_all_RUV)$normalizedCounts %&gt;% log2()
+counts_RUV_log2 %&gt;% head()</code></pre>
+<pre><code>             S1       S3       S5       S7       S9       S2       S4       S6
+P12883 35.39999 35.89025 35.39325 35.79376 35.66929 35.12174 35.89079 35.79592
+P13533 31.73129 32.34680 34.21428 33.67731 33.32188 32.31879 32.01286 33.17186
+Q8WZ42 33.60140 34.17988 34.25068 34.44963 34.34264 33.49356 34.29345 34.45135
+P68032 34.42757 34.47103 34.31353 34.33928 34.25675 34.27941 33.99941 34.21974
+P68133 23.42875 25.16511 24.54827 25.03515 25.20972 23.35919 24.41051 25.02982
+P60709 30.79994 28.51039 29.74321 29.57393 29.35873 30.84780 28.12695 29.63413
+             S8      S10
+P12883 35.48771 35.41533
+P13533 33.74272 33.33138
+Q8WZ42 34.41810 34.27590
+P68032 33.97562 34.04314
+P68133 24.34989 24.70041
+P60709 29.56703 29.50007</code></pre>
+<pre class="r"><code>counts_RUV_log2 %&gt;% dim()</code></pre>
+<pre><code>[1] 3384   10</code></pre>
+<pre class="r"><code>counts_RUV_log2[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-24.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-24">
@@ -2257,7 +2037,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2[,5] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-25.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-25">
@@ -2296,7 +2076,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2[,6] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-26.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-26">
@@ -2335,7 +2115,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2[,7] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-27.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-27">
@@ -2374,7 +2154,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2[,8] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-28.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-28">
@@ -2413,7 +2193,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2[,9] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-29.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-29">
@@ -2452,7 +2232,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2[,10] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2[,7] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-30.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-30">
@@ -2491,18 +2271,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2_sub &lt;- counts_RUV_log2[,c(1,2,4,6,7,9)]
-counts_RUV_log2_sub %&gt;% head()</code></pre>
-<pre><code>             S1       S3       S7       S2       S4       S8
-P12883 35.39999 35.89025 35.79376 35.12174 35.89079 35.48771
-P13533 31.73129 32.34680 33.67731 32.31879 32.01286 33.74272
-Q8WZ42 33.60140 34.17988 34.44963 33.49356 34.29345 34.41810
-P68032 34.42757 34.47103 34.33928 34.27941 33.99941 33.97562
-P68133 23.42875 25.16511 25.03515 23.35919 24.41051 24.34989
-P60709 30.79994 28.51039 29.57393 30.84780 28.12695 29.56703</code></pre>
-<pre class="r"><code>counts_RUV_log2_sub %&gt;% dim()</code></pre>
-<pre><code>[1] 3384    6</code></pre>
-<pre class="r"><code>counts_RUV_log2_sub[,1] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2[,8] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-31.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-31">
@@ -2541,7 +2310,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2_sub[,2] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2[,9] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-32.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-32">
@@ -2580,7 +2349,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2_sub[,3] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2[,10] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-33.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-33">
@@ -2619,7 +2388,18 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2_sub[,4] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub &lt;- counts_RUV_log2[,c(1,2,4,6,7,9)]
+counts_RUV_log2_sub %&gt;% head()</code></pre>
+<pre><code>             S1       S3       S7       S2       S4       S8
+P12883 35.39999 35.89025 35.79376 35.12174 35.89079 35.48771
+P13533 31.73129 32.34680 33.67731 32.31879 32.01286 33.74272
+Q8WZ42 33.60140 34.17988 34.44963 33.49356 34.29345 34.41810
+P68032 34.42757 34.47103 34.33928 34.27941 33.99941 33.97562
+P68133 23.42875 25.16511 25.03515 23.35919 24.41051 24.34989
+P60709 30.79994 28.51039 29.57393 30.84780 28.12695 29.56703</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub %&gt;% dim()</code></pre>
+<pre><code>[1] 3384    6</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-34.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-34">
@@ -2658,7 +2438,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2_sub[,5] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-35.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-35">
@@ -2697,7 +2477,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2_sub[,6] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-36.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-36">
@@ -2736,18 +2516,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm &lt;- limma::normalizeBetweenArrays(counts_RUV_log2_sub, method = &quot;quantile&quot;)
-counts_RUV_log2_sub_quantnorm %&gt;% head()</code></pre>
-<pre><code>             S1       S3       S7       S2       S4       S8
-P12883 35.19711 35.99097 35.99097 35.19711 35.19711 35.99097
-P13533 31.76669 32.49737 33.42168 32.07787 32.07787 33.42168
-Q8WZ42 33.96387 34.80375 34.38638 33.42168 33.96387 34.80375
-P68032 34.38638 35.19711 33.96387 33.96387 33.71671 33.96387
-P68133 23.41004 25.33452 25.06394 23.26259 24.51328 24.13988
-P60709 30.80305 28.66952 29.75892 30.63208 28.24612 29.53613</code></pre>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm %&gt;% dim()</code></pre>
-<pre><code>[1] 3384    6</code></pre>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,1] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-37.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-37">
@@ -2786,7 +2555,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,2] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-38.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-38">
@@ -2825,7 +2594,7 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,3] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-39.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-39">
@@ -2864,7 +2633,18 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,4] %&gt;% hist(breaks = 100)</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm &lt;- limma::normalizeBetweenArrays(counts_RUV_log2_sub, method = &quot;quantile&quot;)
+counts_RUV_log2_sub_quantnorm %&gt;% head()</code></pre>
+<pre><code>             S1       S3       S7       S2       S4       S8
+P12883 35.19711 35.99097 35.99097 35.19711 35.19711 35.99097
+P13533 31.76669 32.49737 33.42168 32.07787 32.07787 33.42168
+Q8WZ42 33.96387 34.80375 34.38638 33.42168 33.96387 34.80375
+P68032 34.38638 35.19711 33.96387 33.96387 33.71671 33.96387
+P68133 23.41004 25.33452 25.06394 23.26259 24.51328 24.13988
+P60709 30.80305 28.66952 29.75892 30.63208 28.24612 29.53613</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm %&gt;% dim()</code></pre>
+<pre><code>[1] 3384    6</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-40.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
 <button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-40">
@@ -2891,6 +2671,145 @@ Date
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-40.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-41.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-41">
+Past versions of "MW suggested workflow-41.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-41" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-41.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-42.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-42">
+Past versions of "MW suggested workflow-42.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-42" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/21e1467bb628298c69ede835e05097eb61e65a17/docs/figure/Diffabtrial.Rmd/MW suggested workflow-42.png" target="_blank">21e1467</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-42.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-43.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-43">
+Past versions of "MW suggested workflow-43.png"
+</button>
+</p>
+<div id="fig-no-spaces-MW-suggested-workflow-43" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/21e1467bb628298c69ede835e05097eb61e65a17/docs/figure/Diffabtrial.Rmd/MW suggested workflow-43.png" target="_blank">21e1467</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-43.png" target="_blank">bf63ae4</a>
 </td>
 <td>
 Omar-Johnson
@@ -2961,44 +2880,7 @@ Up          260</code></pre>
 toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
 toptable_summary$Protein &lt;- rownames(toptable_summary)
 toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-41.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-41">
-Past versions of "MW suggested workflow-41.png"
-</button>
-</p>
-<div id="fig-no-spaces-MW-suggested-workflow-41" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-41.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-44.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
 Model_counts_PCA &lt;- na.omit(Model_counts)
 sum(is.na(Model_counts_PCA))</code></pre>
@@ -3008,44 +2890,7 @@ sum(is.na(Model_counts_PCA))</code></pre>
 <pre class="r"><code>prcomp_res &lt;- prcomp(t(as.matrix(Model_counts_PCA)))
 ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_RUVs), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-42.png" width="672" style="display: block; margin: auto;" /></p>
-<p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-42">
-Past versions of "MW suggested workflow-42.png"
-</button>
-</p>
-<div id="fig-no-spaces-MW-suggested-workflow-42" class="collapse">
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-42.png" target="_blank">bf63ae4</a>
-</td>
-<td>
-Omar-Johnson
-</td>
-<td>
-2023-12-08
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-45.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code># Volcano plots 
 # 1. Create a column to threshold P-values 
 toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
@@ -3063,13 +2908,224 @@ ggplot(toptable_summary)+
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
 <pre><code>Warning: Removed 2 rows containing missing values (`geom_point()`).</code></pre>
-<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-43.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow-46.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="wrangle-data-frame-for-imputed-data" class="section level1">
+<h1>Wrangle Data Frame for imputed data</h1>
+<pre class="r"><code># Save the original 
+Full_DF &lt;- Protein_DF 
+
+
+# Subset the columns referring to abundance
+Protein_DF_Abundance &lt;- Protein_DF[,c(4, 5:ncol(Protein_DF))] 
+
+# Check for duplicated rows 
+# Identify duplicated values
+Protein_DF_Abundance$duplicated_name &lt;- duplicated(Protein_DF_Abundance$Accession)
+
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+# To see only rows with duplicated values, you can subset the dataframe like this:
+duplicated_rows &lt;- Protein_DF_Abundance[Protein_DF_Abundance$duplicated_name == TRUE, ]
+print(duplicated_rows)</code></pre>
+<pre><code>    Accession Abundance..F1..Sample..Dox..n.a Abundance..F3..Sample..Dox..n.a
+61     P04264                        3.87e+08                        1.45e+08
+276    P35908                              NA                              NA
+997    P04040                              NA                              NA
+    Abundance..F5..Sample..Dox..Dox Abundance..F7..Sample..Dox..Dox
+61                         2.58e+08                        7.07e+08
+276                              NA                              NA
+997                              NA                              NA
+    Abundance..F9..Sample..Dox..Dox Abundance..F2..Control..Veh..n.a
+61                         3.17e+08                         1.19e+10
+276                              NA                         5.31e+06
+997                              NA                               NA
+    Abundance..F4..Control..Veh..n.a Abundance..F6..Control..Veh..Veh
+61                          1.11e+09                         8.03e+08
+276                         1.14e+06                               NA
+997                               NA                               NA
+    Abundance..F8..Control..Veh..Veh Abundance..F10..Control..Veh..Veh
+61                          4.61e+08                          5.45e+08
+276                         5.00e+05                          4.90e+05
+997                               NA                                NA
+    duplicated_name
+61             TRUE
+276            TRUE
+997            TRUE</code></pre>
+<pre class="r"><code># We have 3 rows with duplicates, two of which have NA values. We will remove them now since we will go ahead 
+# and remove the duplicated rows later on anyways. 
+Protein_DF_Abundance &lt;- Protein_DF_Abundance[- c(61, 276, 997), ] 
+
+# Make rownames of the data frame accession IDs
+rownames(Protein_DF_Abundance) &lt;- Protein_DF_Abundance$Accession
+
+# Change colnames 
+colnames(Protein_DF_Abundance)</code></pre>
+<pre><code> [1] &quot;Accession&quot;                         &quot;Abundance..F1..Sample..Dox..n.a&quot;  
+ [3] &quot;Abundance..F3..Sample..Dox..n.a&quot;   &quot;Abundance..F5..Sample..Dox..Dox&quot;  
+ [5] &quot;Abundance..F7..Sample..Dox..Dox&quot;   &quot;Abundance..F9..Sample..Dox..Dox&quot;  
+ [7] &quot;Abundance..F2..Control..Veh..n.a&quot;  &quot;Abundance..F4..Control..Veh..n.a&quot; 
+ [9] &quot;Abundance..F6..Control..Veh..Veh&quot;  &quot;Abundance..F8..Control..Veh..Veh&quot; 
+[11] &quot;Abundance..F10..Control..Veh..Veh&quot; &quot;duplicated_name&quot;                  </code></pre>
+<pre class="r"><code>Protein_DF_Abundance &lt;- Protein_DF_Abundance[, -c(1, 12)]
+
+# Assuming column names of Protein_DF match with the rows in Meta
+rownames(Meta) &lt;- Meta$Samples
+
+colnames(Protein_DF_Abundance) &lt;- Meta$Samples</code></pre>
+</div>
+<div id="viewing-how-na-threshold-vs-remaining-proteins"
+class="section level1">
+<h1>Viewing how NA threshold vs remaining proteins</h1>
+<pre class="r"><code># View how NA thresholds affect the amount of proteins remaining to model
+# All proteins 
+Protein_DF_Abundance %&gt;% nrow()</code></pre>
+<pre><code>[1] 4501</code></pre>
+<pre class="r"><code># Removing proteins with 1 or more NA
+remove_rows_with_nas_var(data_frame = Protein_DF_Abundance , NA_remove = 1 ) %&gt;% nrow()</code></pre>
+<pre><code>[1] 3384</code></pre>
+<pre class="r"><code># Removing proteins with 2 or more NA
+remove_rows_with_nas_var(data_frame = Protein_DF_Abundance , NA_remove = 2 ) %&gt;% nrow()</code></pre>
+<pre><code>[1] 3618</code></pre>
+<pre class="r"><code># Removing proteins with 3 or more NA
+remove_rows_with_nas_var(data_frame = Protein_DF_Abundance , NA_remove = 3 ) %&gt;% nrow()</code></pre>
+<pre><code>[1] 3766</code></pre>
+<pre class="r"><code># Removing proteins with 4 or more NA
+remove_rows_with_nas_var(data_frame = Protein_DF_Abundance , NA_remove = 4 ) %&gt;% nrow()</code></pre>
+<pre><code>[1] 3857</code></pre>
+<pre class="r"><code># Removing proteins with 5 or more NA
+remove_rows_with_nas_var(data_frame = Protein_DF_Abundance , NA_remove = 5 ) %&gt;% nrow()</code></pre>
+<pre><code>[1] 3945</code></pre>
+<pre class="r"><code># Removing proteins with 6 or more NA
+remove_rows_with_nas_var(data_frame = Protein_DF_Abundance , NA_remove = 6 ) %&gt;% nrow()</code></pre>
+<pre><code>[1] 4001</code></pre>
+<pre class="r"><code># Removing proteins with 7 or more NA
+remove_rows_with_nas_var(data_frame = Protein_DF_Abundance , NA_remove = 7 ) %&gt;% nrow()</code></pre>
+<pre><code>[1] 4050</code></pre>
+<pre class="r"><code># Removing proteins with 8 or more NA
+remove_rows_with_nas_var(data_frame = Protein_DF_Abundance , NA_remove = 8 ) %&gt;% nrow()</code></pre>
+<pre><code>[1] 4088</code></pre>
+<pre class="r"><code># View in graph 
+plot_nrow_vs_naremove(Protein_DF_Abundance)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/viewing%20NA%20and%20imp-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="na-removal-and-imputing-with-knn" class="section level1">
+<h1>NA removal and imputing with knn</h1>
+<pre class="r"><code># View original abundances 
+Protein_DF_Abundance %&gt;% head()</code></pre>
+<pre><code>             S1       S3       S5       S7       S9       S2       S4       S6
+P12883 5.25e+10 7.41e+10 5.28e+10 6.82e+10 6.43e+10 4.33e+10 7.41e+10 7.00e+10
+P13533 1.00e+09 1.47e+09 5.11e+09 4.25e+09 2.62e+09 1.50e+09 1.17e+09 2.42e+09
+Q8WZ42 1.39e+10 2.08e+10 2.19e+10 2.49e+10 2.34e+10 1.29e+10 2.25e+10 2.52e+10
+P68032 3.92e+10 4.11e+10 3.76e+10 3.54e+10 3.69e+10 3.54e+10 2.96e+10 3.56e+10
+P68133 1.72e+07 5.81e+07 3.85e+07 5.07e+07 6.19e+07 1.64e+07 3.44e+07 5.42e+07
+P60709 4.02e+09 8.43e+08 2.04e+09 1.62e+09 1.61e+09 4.16e+09 6.45e+08 1.92e+09
+             S8      S10
+P12883 5.64e+10 5.26e+10
+P13533 3.67e+09 3.27e+09
+Q8WZ42 2.46e+10 2.21e+10
+P68032 2.98e+10 2.91e+10
+P68133 3.36e+07 4.05e+07
+P60709 1.81e+09 1.56e+09</code></pre>
+<pre class="r"><code>Protein_DF_Abundance[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-6.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance[,7] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-7.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance[,8] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-8.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance[,9] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-9.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance[,10] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-10.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># View abundances after removing proteins with 5 or more (50%) NA 
+Protein_DF_Abundance_imp &lt;- remove_rows_with_nas(Protein_DF_Abundance)
+Protein_DF_Abundance_imp %&gt;% dim()</code></pre>
+<pre><code>[1] 3945   10</code></pre>
+<pre class="r"><code>Protein_DF_Abundance_imp[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-11.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-12.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-13.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-14.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-15.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-16.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp[,7] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-17.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp[,8] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-18.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp[,9] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-19.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp[,10] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-20.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp_2 &lt;- impute.knn(as.matrix(Protein_DF_Abundance_imp), k = 10, rowmax = 0.4)$data</code></pre>
+<pre><code>Cluster size 3945 broken into 3 3942 
+Done cluster 3 
+Cluster size 3942 broken into 3845 97 
+Cluster size 3845 broken into 3589 256 
+Cluster size 3589 broken into 648 2941 
+Done cluster 648 
+Cluster size 2941 broken into 2318 623 
+Cluster size 2318 broken into 1680 638 
+Cluster size 1680 broken into 1006 674 
+Done cluster 1006 
+Done cluster 674 
+Done cluster 1680 
+Done cluster 638 
+Done cluster 2318 
+Done cluster 623 
+Done cluster 2941 
+Done cluster 3589 
+Done cluster 256 
+Done cluster 3845 
+Done cluster 97 
+Done cluster 3942 </code></pre>
+<pre class="r"><code>Protein_DF_Abundance_imp_2 %&gt;% dim()</code></pre>
+<pre><code>[1] 3945   10</code></pre>
+<pre class="r"><code>Protein_DF_Abundance_imp_2[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-21.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp_2[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-22.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp_2[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-23.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp_2[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-24.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp_2[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-25.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp_2[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-26.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp_2[,7] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-27.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp_2[,8] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-28.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp_2[,9] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-29.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Protein_DF_Abundance_imp_2[,10] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/knn%20impute%20NA-30.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="log2-transform-for-imputed-data" class="section level1">
+<h1>Log2 transform for imputed data</h1>
+<pre class="r"><code>log2_norm_counts &lt;- log2(Protein_DF_Abundance_imp_2)
+log2_norm_counts %&gt;% rowMeans() %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>
-<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-MW-suggested-workflow-43">
-Past versions of "MW suggested workflow-43.png"
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-1">
+Past versions of "Wrangle Data Frame 3-1.png"
 </button>
 </p>
-<div id="fig-no-spaces-MW-suggested-workflow-43" class="collapse">
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-1" class="collapse">
 <div class="table-responsive">
 <table class="table table-condensed table-hover">
 <thead>
@@ -3088,7 +3144,7 @@ Date
 <tbody>
 <tr>
 <td>
-<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/MW suggested workflow-43.png" target="_blank">bf63ae4</a>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/Wrangle Data Frame 3-1.png" target="_blank">bf63ae4</a>
 </td>
 <td>
 Omar-Johnson
@@ -3101,6 +3157,618 @@ Omar-Johnson
 </table>
 </div>
 </div>
+<pre class="r"><code>log2_norm_counts[,1] %&gt;% hist(breaks = 100) </code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>log2_norm_counts[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>log2_norm_counts[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>log2_norm_counts[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>log2_norm_counts[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-6.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>log2_norm_counts[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-7.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>log2_norm_counts[,7] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-8.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>log2_norm_counts[,8] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-9.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>log2_norm_counts[,9] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-10.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>log2_norm_counts[,10] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-11.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="quantile-normalization-for-imputed-data"
+class="section level1">
+<h1>Quantile Normalization for imputed data</h1>
+<pre class="r"><code>normalizedData &lt;- limma::normalizeBetweenArrays(log2_norm_counts[, c(1,2,4,6,7,9)], method = &quot;quantile&quot;)
+normalizedData %&gt;% rowMeans() %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-4-1">
+Past versions of "Wrangle Data Frame 4-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/21e1467bb628298c69ede835e05097eb61e65a17/docs/figure/Diffabtrial.Rmd/Wrangle Data Frame 4-1.png" target="_blank">21e1467</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/bf63ae40c7f06a012b36b5e63822bdb1f1463990/docs/figure/Diffabtrial.Rmd/Wrangle Data Frame 4-1.png" target="_blank">bf63ae4</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-08
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>normalizedData[,1] %&gt;% hist(breaks = 100) </code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>normalizedData[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>normalizedData[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>normalizedData[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>normalizedData[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-6.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>normalizedData[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-7.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="view-distribution-of-imputed-na-values-for-all-samples"
+class="section level1">
+<h1>View distribution of imputed NA values for all samples</h1>
+<pre class="r"><code>na_positions &lt;- is.na(Protein_DF_Abundance_imp)
+
+imputed_dataframe &lt;- normalizedData
+
+imputed_values &lt;- imputed_dataframe[na_positions]
+
+hist(imputed_values, main = &quot;Histogram of Imputed Values&quot;, xlab = &quot;Value&quot;)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Imputed%20value%20distribution-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Histogram of original data (with NA values removed)
+hist(log2(Protein_DF_Abundance_imp) %&gt;% rowMeans(), xlim = range(log2(Protein_DF_Abundance_imp) %&gt;% rowMeans(), na.rm = TRUE), main = &quot;Histogram with Imputed &amp; Non-imputed Values&quot;, xlab = &quot;Value&quot;)
+
+# Histogram of imputed values
+hist(imputed_values, add = TRUE, col = rgb(1, 0, 0, 0.5))</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/Imputed%20value%20distribution-2.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="linear-model---ruvs-imputation" class="section level1">
+<h1>Linear model - RUVs + Imputation</h1>
+<pre class="r"><code>#  counts need to be integer values and in a numeric matrix 
+counts &lt;- as.matrix(normalizedData) 
+counts %&gt;% dim()</code></pre>
+<pre><code>[1] 3945    6</code></pre>
+<pre class="r"><code># Create a DataFrame for the phenoData
+phenoData &lt;- DataFrame(Meta)
+phenoData_sub &lt;- phenoData[c(1,2,4,6,7,9), ]
+
+
+# Create Design Matrix 
+# phenoData$Cond &lt;- factor(phenoData$Cond , levels = c(&quot;Control&quot;, &quot;Dox&quot;))
+design &lt;- model.matrix(~ 0 + Cond , phenoData_sub)
+design</code></pre>
+<pre><code>   CondControl CondDox
+S1           0       1
+S3           0       1
+S7           0       1
+S2           1       0
+S4           1       0
+S8           1       0
+attr(,&quot;assign&quot;)
+[1] 1 1
+attr(,&quot;contrasts&quot;)
+attr(,&quot;contrasts&quot;)$Cond
+[1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code># rename columns 
+colnames(design) &lt;- c(&#39;Control&#39;, &quot;Dox&quot;)
+
+
+# Fit model
+dupcor &lt;- duplicateCorrelation(counts , design, block = phenoData_sub$Ind)
+fit &lt;- lmFit(object = counts, design = design, block = phenoData_sub$Ind, correlation = dupcor$consensus)
+fit2 &lt;- eBayes(fit)
+
+
+# Make contrasts
+cm &lt;- makeContrasts(
+  DoxvNorm = Dox - Control,
+  levels = design)
+
+
+# Model with contrasts
+fit2 &lt;- contrasts.fit(fit, cm)
+fit2 &lt;- eBayes(fit2 )
+
+
+# Summarize
+results_summary &lt;- decideTests(fit2, adjust.method = &quot;none&quot;, p.value = 0.05)
+summary(results_summary)</code></pre>
+<pre><code>       DoxvNorm
+Down        351
+NotSig     3306
+Up          288</code></pre>
+<pre class="r"><code># Toptable summary organized to contain results for all tested proteins   
+toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(normalizedData)), p.value = 1, adjust.method = &quot;none&quot;)
+toptable_summary$Protein &lt;- rownames(toptable_summary)
+toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%2022-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
+prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
+
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%2022-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Volcano plots 
+# 1. Create a column to threshold P-values 
+toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
+
+# 2. Plot 
+ggplot(toptable_summary)+
+  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+  xlab(&quot;log2FC&quot;)+
+  ylab(&quot;-log10 nominal p-value&quot;)+
+  ylim(0, 10)+
+  xlim(-7, 7)+
+  theme(legend.position = &quot;none&quot;, 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%2022-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Other fits 
+fit3 &lt;- eBayes(fit2, robust = TRUE, trend = TRUE)</code></pre>
+<pre><code>Warning: 3 very small variances detected, have been offset away from zero</code></pre>
+<pre class="r"><code># Summarize
+results_summary &lt;- decideTests(fit3, adjust.method = &quot;none&quot;, p.value = 0.05)
+summary(results_summary)</code></pre>
+<pre><code>       DoxvNorm
+Down        361
+NotSig     3294
+Up          290</code></pre>
+<pre class="r"><code># Toptable summary organized to contain results for all tested proteins   
+toptable_summary &lt;- topTable(fit3, coef = &quot;DoxvNorm&quot;,number = (nrow(normalizedData)), p.value = 1, adjust.method = &quot;none&quot;)
+toptable_summary$Protein &lt;- rownames(toptable_summary)
+toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%2022-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
+prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
+
+
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%2022-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Volcano plots 
+# 1. Create a column to threshold P-values 
+toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
+
+
+# 2. Plot 
+ggplot(toptable_summary)+
+  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+  xlab(&quot;log2FC&quot;)+
+  ylab(&quot;-log10 nominal p-value&quot;)+
+  ylim(0, 10)+
+  xlim(-7, 7)+
+  theme(legend.position = &quot;none&quot;, 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/upcor%20on%206%20samples%2022-6.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="linear-model-ruvs-imputation" class="section level1">
+<h1>Linear model + RUVs + Imputation</h1>
+<pre class="r"><code># 1. Get non log abundance values 
+Protein_DF_Abundance_imp_2 %&gt;% head()</code></pre>
+<pre><code>             S1       S3       S5       S7       S9       S2       S4       S6
+P12883 5.25e+10 7.41e+10 5.28e+10 6.82e+10 6.43e+10 4.33e+10 7.41e+10 7.00e+10
+P13533 1.00e+09 1.47e+09 5.11e+09 4.25e+09 2.62e+09 1.50e+09 1.17e+09 2.42e+09
+Q8WZ42 1.39e+10 2.08e+10 2.19e+10 2.49e+10 2.34e+10 1.29e+10 2.25e+10 2.52e+10
+P68032 3.92e+10 4.11e+10 3.76e+10 3.54e+10 3.69e+10 3.54e+10 2.96e+10 3.56e+10
+P68133 1.72e+07 5.81e+07 3.85e+07 5.07e+07 6.19e+07 1.64e+07 3.44e+07 5.42e+07
+P60709 4.02e+09 8.43e+08 2.04e+09 1.62e+09 1.61e+09 4.16e+09 6.45e+08 1.92e+09
+             S8      S10
+P12883 5.64e+10 5.26e+10
+P13533 3.67e+09 3.27e+09
+Q8WZ42 2.46e+10 2.21e+10
+P68032 2.98e+10 2.91e+10
+P68133 3.36e+07 4.05e+07
+P60709 1.81e+09 1.56e+09</code></pre>
+<pre class="r"><code># 2. Generate RUVs related objects (differences_all and set_all)
+Meta</code></pre>
+<pre><code>    Samples  Ind  Rep    Cond     Cond_Ind
+S1       S1 B_77  Bio     Dox     B_77_Dox
+S3       S3 C_87  Bio     Dox     C_87_Dox
+S5       S5 A_48 Tech     Dox     A_48_Dox
+S7       S7 A_48 Tech     Dox     A_48_Dox
+S9       S9 A_48 Tech     Dox     A_48_Dox
+S2       S2 B_77  Bio Control B_77_Control
+S4       S4 C_87  Bio Control C_87_Control
+S6       S6 A_48 Tech Control A_48_Control
+S8       S8 A_48 Tech Control A_48_Control
+S10     S10 A_48 Tech Control A_48_Control</code></pre>
+<pre class="r"><code>genes_all &lt;- rownames(Protein_DF_Abundance_imp_2)
+x_all &lt;- c(1,2,3,3,3,4,5,6,6,6)
+differences_all &lt;- makeGroups(x_all)
+
+
+set_all &lt;- newSeqExpressionSet(as.matrix(round(Protein_DF_Abundance_imp_2)),phenoData = data.frame(x_all, row.names=colnames(Protein_DF_Abundance_imp_2)))
+
+
+
+
+# 3. Get RUV weights using all 10 samples
+# K=1
+set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=1, differences_all, isLog = FALSE)
+prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># K =2 
+set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=2, differences_all, isLog = FALSE)
+prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># K =3 
+set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=3, differences_all, isLog = FALSE)
+prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Proceed with K=1
+set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=1, differences_all, isLog = FALSE)
+
+
+
+# 4. Subset counts by the 6 columns of interest, Metadata by 6 rows of interest, RUV weights vector to the 6 values of interest
+#  counts need to be integer values and in a numeric matrix 
+counts_RUVs &lt;- as.matrix(round(Protein_DF_Abundance_imp_2)) 
+counts_RUVs %&gt;% dim()</code></pre>
+<pre><code>[1] 3945   10</code></pre>
+<pre class="r"><code># Create a DataFrame for the phenoData
+phenoData_RUVs &lt;- DataFrame(Meta)
+phenoData_RUVs &lt;- phenoData_RUVs[c(1,2,4,6,7,9), ]
+
+counts_RUVs &lt;- counts_RUVs[,c(1,2,4,6,7,9)]
+
+counts_RUVs %&gt;% dim()</code></pre>
+<pre><code>[1] 3945    6</code></pre>
+<pre class="r"><code>phenoData_RUVs %&gt;% dim()</code></pre>
+<pre><code>[1] 6 5</code></pre>
+<pre class="r"><code>RUV_1 &lt;- set_all_RUV$W_1
+phenoData_RUVs$RUV_1 &lt;- RUV_1[c(1,2,4,6,7,9)]
+
+
+# View changes 
+phenoData_RUVs %&gt;% head()</code></pre>
+<pre><code>DataFrame with 6 rows and 6 columns
+       Samples         Ind         Rep        Cond     Cond_Ind     RUV_1
+   &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;  &lt;character&gt; &lt;numeric&gt;
+S1          S1        B_77         Bio         Dox     B_77_Dox  -4.07170
+S3          S3        C_87         Bio         Dox     C_87_Dox  -4.17831
+S7          S7        A_48        Tech         Dox     A_48_Dox  -3.60690
+S2          S2        B_77         Bio     Control B_77_Control  -4.10500
+S4          S4        C_87         Bio     Control C_87_Control  -4.22652
+S8          S8        A_48        Tech     Control A_48_Control  -4.32287</code></pre>
+<pre class="r"><code>counts_RUVs %&gt;% head()</code></pre>
+<pre><code>             S1       S3       S7       S2       S4       S8
+P12883 5.25e+10 7.41e+10 6.82e+10 4.33e+10 7.41e+10 5.64e+10
+P13533 1.00e+09 1.47e+09 4.25e+09 1.50e+09 1.17e+09 3.67e+09
+Q8WZ42 1.39e+10 2.08e+10 2.49e+10 1.29e+10 2.25e+10 2.46e+10
+P68032 3.92e+10 4.11e+10 3.54e+10 3.54e+10 2.96e+10 2.98e+10
+P68133 1.72e+07 5.81e+07 5.07e+07 1.64e+07 3.44e+07 3.36e+07
+P60709 4.02e+09 8.43e+08 1.62e+09 4.16e+09 6.45e+08 1.81e+09</code></pre>
+<pre class="r"><code>prcomp_res &lt;- prcomp(t(as.matrix(counts_RUVs)))
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_RUVs), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># 5. Take the info from 4 and assign it to a new object
+# Counts going into RUVs 
+counts_RUV_nolog &lt;- assayData(set_all_RUV)$counts 
+counts_RUV_nolog %&gt;% head()</code></pre>
+<pre><code>             S1       S3       S5       S7       S9       S2       S4       S6
+P12883 5.25e+10 7.41e+10 5.28e+10 6.82e+10 6.43e+10 4.33e+10 7.41e+10 7.00e+10
+P13533 1.00e+09 1.47e+09 5.11e+09 4.25e+09 2.62e+09 1.50e+09 1.17e+09 2.42e+09
+Q8WZ42 1.39e+10 2.08e+10 2.19e+10 2.49e+10 2.34e+10 1.29e+10 2.25e+10 2.52e+10
+P68032 3.92e+10 4.11e+10 3.76e+10 3.54e+10 3.69e+10 3.54e+10 2.96e+10 3.56e+10
+P68133 1.72e+07 5.81e+07 3.85e+07 5.07e+07 6.19e+07 1.64e+07 3.44e+07 5.42e+07
+P60709 4.02e+09 8.43e+08 2.04e+09 1.62e+09 1.61e+09 4.16e+09 6.45e+08 1.92e+09
+             S8      S10
+P12883 5.64e+10 5.26e+10
+P13533 3.67e+09 3.27e+09
+Q8WZ42 2.46e+10 2.21e+10
+P68032 2.98e+10 2.91e+10
+P68133 3.36e+07 4.05e+07
+P60709 1.81e+09 1.56e+09</code></pre>
+<pre class="r"><code>counts_RUV_nolog %&gt;% dim()</code></pre>
+<pre><code>[1] 3945   10</code></pre>
+<pre class="r"><code>counts_RUV_nolog[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_nolog[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-6.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_nolog[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-7.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_nolog[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-8.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_nolog[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-9.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_nolog[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-10.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_nolog[,7] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-11.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_nolog[,8] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-12.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_nolog[,9] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-13.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_nolog[,10] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-14.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Counts normalized 
+counts_RUV_normalized &lt;- assayData(set_all_RUV)$normalizedCounts
+counts_RUV_normalized %&gt;% head()</code></pre>
+<pre><code>                S1          S3          S5          S7          S9          S2
+P12883 43484133369 61072709619 43124249397 57716094638 51835199004 35808845428
+P13533  3098073331  4691021243 17219673354 11572323233  9548972672  4690277101
+Q8WZ42 13090540769 19557973802 20532865724 23611124367 21848144163 12142816540
+P68032 25582508299 26524426329 23771948814 24255931187 22649154050 23022093321
+P68133    10421688    34744700    22474637    32527929    34900795     9896333
+P60709  2355051251   486991592  1148520267  1008785449   873438418  2426435670
+                S4          S6          S8         S10
+P12883 60936611592 56730368747 46174589151 44380406876
+P13533  3783996110  8543674801 12191318760  9066161869
+Q8WZ42 21141437503 23568548752 23081847032 20935984577
+P68032 19006464643 22115343783 18942638206 19803741108
+P68133    20450056    30993449    19739079    25776738
+P60709   370257567  1057415422  1025954432   963161484</code></pre>
+<pre class="r"><code>counts_RUV_normalized %&gt;% dim()</code></pre>
+<pre><code>[1] 3945   10</code></pre>
+<pre class="r"><code>counts_RUV_normalized[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-15.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_normalized[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-16.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_normalized[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-17.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_normalized[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-18.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_normalized[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-19.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_normalized[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-20.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_normalized[,7] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-21.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_normalized[,8] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-22.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_normalized[,9] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-23.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_normalized[,10] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-24.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Counts normalized from RUVs and log2 transformed
+counts_RUV_log2 &lt;- assayData(set_all_RUV)$normalizedCounts %&gt;% log2()
+counts_RUV_log2 %&gt;% head()</code></pre>
+<pre><code>             S1       S3       S5       S7       S9       S2       S4       S6
+P12883 35.33977 35.82981 35.32778 35.74825 35.59321 35.05960 35.82659 35.72340
+P13533 31.52872 32.12725 34.00334 33.42996 33.15270 32.12703 31.81726 32.99221
+Q8WZ42 33.60781 34.18704 34.25722 34.45875 34.34679 33.49938 34.29935 34.45614
+P68032 34.57444 34.62660 34.46854 34.49762 34.39874 34.42230 34.14577 34.36433
+P68133 23.31309 25.05029 24.42179 24.95518 25.05676 23.23846 24.28560 24.88546
+P60709 31.13311 28.85932 30.09713 29.90997 29.70213 31.17619 28.46395 29.97790
+             S8      S10
+P12883 35.42638 35.36920
+P13533 33.50514 33.07784
+Q8WZ42 34.42604 34.28527
+P68032 34.14092 34.20505
+P68133 24.23455 24.61957
+P60709 29.93432 29.84320</code></pre>
+<pre class="r"><code>counts_RUV_log2 %&gt;% dim()</code></pre>
+<pre><code>[1] 3945   10</code></pre>
+<pre class="r"><code>counts_RUV_log2[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-25.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-26.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-27.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-28.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-29.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-30.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2[,7] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-31.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2[,8] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-32.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2[,9] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-33.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2[,10] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-34.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Counts normalized from RUVs and log2 transformed looking at the subsetted samples for linear modelling 
+counts_RUV_log2_sub &lt;- counts_RUV_log2[,c(1,2,4,6,7,9)]
+counts_RUV_log2_sub %&gt;% head()</code></pre>
+<pre><code>             S1       S3       S7       S2       S4       S8
+P12883 35.33977 35.82981 35.74825 35.05960 35.82659 35.42638
+P13533 31.52872 32.12725 33.42996 32.12703 31.81726 33.50514
+Q8WZ42 33.60781 34.18704 34.45875 33.49938 34.29935 34.42604
+P68032 34.57444 34.62660 34.49762 34.42230 34.14577 34.14092
+P68133 23.31309 25.05029 24.95518 23.23846 24.28560 24.23455
+P60709 31.13311 28.85932 29.90997 31.17619 28.46395 29.93432</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub %&gt;% dim()</code></pre>
+<pre><code>[1] 3945    6</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-35.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-36.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-37.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-38.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-39.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-40.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Quantile normalization on the samples being used for linear modelling 
+counts_RUV_log2_sub_quantnorm &lt;- limma::normalizeBetweenArrays(counts_RUV_log2_sub, method = &quot;quantile&quot;)
+counts_RUV_log2_sub_quantnorm %&gt;% head()</code></pre>
+<pre><code>             S1       S3       S7       S2       S4       S8
+P12883 35.84180 36.58743 35.84180 33.99809 35.84180 35.84180
+P13533 31.37544 32.54912 33.99809 31.75418 31.95768 33.70275
+Q8WZ42 33.99809 33.99809 34.90989 32.54912 34.17057 35.25579
+P68032 34.60130 35.25579 35.25579 33.70275 33.99809 34.90989
+P68133 23.26187 25.24530 25.00356 23.11609 24.42436 24.02700
+P60709 30.85191 29.00041 30.07695 30.85191 28.63353 29.87278</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm %&gt;% dim()</code></pre>
+<pre><code>[1] 3945    6</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-41.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-42.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,3] %&gt;% hist(breaks = 100)
+counts_RUV_log2_sub_quantnorm[,4] %&gt;% hist(breaks = 100)
+counts_RUV_log2_sub_quantnorm[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-43.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-44.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Create Design Matrix 
+# phenoData$Cond &lt;- factor(phenoData$Cond , levels = c(&quot;Control&quot;, &quot;Dox&quot;))
+design &lt;- model.matrix(~ 0 + Cond + RUV_1, data = phenoData_RUVs)
+design</code></pre>
+<pre><code>   CondControl CondDox     RUV_1
+S1           0       1 -4.071703
+S3           0       1 -4.178314
+S7           0       1 -3.606902
+S2           1       0 -4.104997
+S4           1       0 -4.226525
+S8           1       0 -4.322866
+attr(,&quot;assign&quot;)
+[1] 1 1 2
+attr(,&quot;contrasts&quot;)
+attr(,&quot;contrasts&quot;)$Cond
+[1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code># rename columns 
+colnames(design) &lt;- c(&#39;Control&#39;, &quot;Dox&quot;, &quot;RUV_1&quot;)
+
+
+# Get model counts 
+Model_counts &lt;- counts_RUV_log2_sub_quantnorm
+
+
+# Fit model
+dupcor &lt;- duplicateCorrelation(as.matrix(Model_counts), design, block = phenoData_RUVs$Ind)
+fit &lt;- lmFit(object = as.matrix(Model_counts), design = design, block = phenoData_RUVs$Ind, correlation = dupcor$consensus)</code></pre>
+<pre><code>Warning: Partial NA coefficients for 1 probe(s)</code></pre>
+<pre class="r"><code>fit2 &lt;- eBayes(fit)
+
+
+# Make contrasts
+cm &lt;- makeContrasts(
+  DoxvNorm = Dox - Control,
+  levels = design)
+
+
+# Model with contrasts
+fit2 &lt;- contrasts.fit(fit, cm)
+fit2 &lt;- eBayes(fit2)
+
+
+# Summarize
+results_summary &lt;- decideTests(fit2, adjust.method = &quot;none&quot;, p.value = 0.05)
+summary(results_summary)</code></pre>
+<pre><code>       DoxvNorm
+Down        352
+NotSig     3329
+Up          262</code></pre>
+<pre class="r"><code># Toptable summary organized to contain results for all tested proteins   
+toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
+toptable_summary$Protein &lt;- rownames(toptable_summary)
+toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-45.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Volcano plots 
+# 1. Create a column to threshold P-values 
+toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
+
+
+# 2. Plot 
+ggplot(toptable_summary)+
+  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+  xlab(&quot;log2FC&quot;)+
+  ylab(&quot;-log10 nominal p-value&quot;)+
+  ylim(0, 6)+
+  xlim(-7, 7)+
+  theme(legend.position = &quot;none&quot;, 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()</code></pre>
+<pre><code>Warning: Removed 2 rows containing missing values (`geom_point()`).</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-46.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Other fits 
+fit3 &lt;- eBayes(fit2, robust = TRUE) # Trend = TRUE does not work 
+
+
+# Summarize
+results_summary &lt;- decideTests(fit3, adjust.method = &quot;none&quot;, p.value = 0.05)
+summary(results_summary)</code></pre>
+<pre><code>       DoxvNorm
+Down        346
+NotSig     3343
+Up          254</code></pre>
+<pre class="r"><code># Toptable summary organized to contain results for all tested proteins   
+toptable_summary &lt;- topTable(fit3, coef = &quot;DoxvNorm&quot;,number = (nrow(normalizedData)), p.value = 1, adjust.method = &quot;none&quot;)
+toptable_summary$Protein &lt;- rownames(toptable_summary)
+toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-47.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
+prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
+
+
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-48.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Volcano plots 
+# 1. Create a column to threshold P-values 
+toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
+
+
+# 2. Plot 
+ggplot(toptable_summary)+
+  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+  xlab(&quot;log2FC&quot;)+
+  ylab(&quot;-log10 nominal p-value&quot;)+
+  ylim(0, 6)+
+  xlim(-7, 7)+
+  theme(legend.position = &quot;none&quot;, 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()</code></pre>
+<pre><code>Warning: Removed 2 rows containing missing values (`geom_point()`).</code></pre>
+<p><img src="figure/Diffabtrial.Rmd/MW%20suggested%20workflow%2022-49.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
