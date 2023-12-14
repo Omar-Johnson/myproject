@@ -15,6 +15,9 @@ editor_options:
 
 [3. All NA removed RUVs and other workflows 231211](https://omar-johnson.github.io/myproject/Diffabtrial.html)
 
+[4. Data independent acquired abundance 231213](https://omar-johnson.github.io/myproject/Data_ind_Diffabtrial.html)
+
+
 # WPCNA
 [1. Imputed values + Simple tree](https://omar-johnson.github.io/myproject/WPCNA_shallow_split.html)
 
