@@ -519,15 +519,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree2c1648060c8ef0674909f51c1604cb5c535ee359targetblank2c16480a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreefd2f3e14b23d5e43e671319258845d74f8c7253atargetblankfd2f3e1a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/Omar-Johnson/myproject/tree/2c1648060c8ef0674909f51c1604cb5c535ee359" target="_blank">2c16480</a>
+<a href="https://github.com/Omar-Johnson/myproject/tree/fd2f3e14b23d5e43e671319258845d74f8c7253a" target="_blank">fd2f3e1</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree2c1648060c8ef0674909f51c1604cb5c535ee359targetblank2c16480a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreefd2f3e14b23d5e43e671319258845d74f8c7253atargetblankfd2f3e1a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -537,7 +537,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/Omar-Johnson/myproject/tree/2c1648060c8ef0674909f51c1604cb5c535ee359" target="_blank">2c16480</a>.
+<a href="https://github.com/Omar-Johnson/myproject/tree/fd2f3e14b23d5e43e671319258845d74f8c7253a" target="_blank">fd2f3e1</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -559,7 +559,7 @@ Untracked files:
     Untracked:  analysis/Random_bed.R
 
 Unstaged changes:
-    Modified:   Data_ind_Diffabtrial.Rmd
+    Deleted:    Data_ind_Diffabtrial.Rmd
     Modified:   analysis/Differentially_abundant_proteins_impute.Rmd
     Modified:   analysis/Differentially_abunddant_proteins.Rmd
 
@@ -607,6 +607,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/fd2f3e14b23d5e43e671319258845d74f8c7253a/analysis/Data_ind_Diffabtrial.Rmd" target="_blank">fd2f3e1</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+<td>
+wflow_publish("analysis/Data_ind_Diffabtrial.Rmd")
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Omar-Johnson/myproject/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/Data_ind_Diffabtrial.html" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -3785,6 +3819,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/Imputed value distribution-1.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Imputed value distribution-1.png" target="_blank">5f32731</a>
 </td>
 <td>
@@ -3826,6 +3871,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/Imputed value distribution-2.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Imputed value distribution-2.png" target="_blank">5f32731</a>
@@ -4191,27 +4247,29 @@ Omar-Johnson
 </div>
 <div id="linear-model-ruvg-imputation" class="section level1">
 <h1>Linear model + RUVg + Imputation</h1>
-<pre class="r"><code># Assuming &#39;x&#39; is your proteomic data matrix
-# Convert to DGEList object (commonly used in edgeR and useful for data manipulation)
+<pre class="r"><code># Convert to DGEList object 
 dge &lt;- DGEList(counts = as.matrix(Protein_DF_Abundance_imp_2))
 
-# Compute variability (e.g., coefficient of variation)
+# Calculate variability 
 cv &lt;- rowSds(dge$counts, useNames = TRUE)/rowMeans(dge$counts)
 
-# Identify the 2.5% lowest variable proteins
+# Identify the 10% least variable proteins
 num_controls &lt;- ceiling(0.1 * nrow(dge$counts))
 control_proteins &lt;- names(sort(cv, decreasing = FALSE))[1:num_controls]
 
 
-# Convert to a DESeqDataSet (required for RUVSeq)
+# Round abundance values (applies more specifically to the imputed values) so that the abundance matrix iss valid input into newSeqExpressionSet
 dge$counts &lt;- round(dge$counts)
 dge$counts %&gt;% dim()</code></pre>
 <pre><code>[1] 4182   10</code></pre>
-<pre class="r"><code>dds&lt;- newSeqExpressionSet(counts = dge$counts, phenoData =Meta )
+<pre class="r"><code># Generate newSeqExpressionSet object
+dds&lt;- newSeqExpressionSet(counts = dge$counts, phenoData =Meta )
 
 
 # Apply RUVg normalization
-set_ruv &lt;- RUVg(dds, control_proteins, k = 1)  # Adjust &#39;k&#39; as necessary
+set_ruv &lt;- RUVg(dds, control_proteins, k = 1)  
+
+# View the normalized counts from RUVg
 normCounts(set_ruv) %&gt;% head()</code></pre>
 <pre><code>                 S1       S3       S5       S7       S9       S2       S4
 A0A0B4J2A2  1170994  1177013  1594300  1671732  1807304  1162508  1412564
@@ -4227,11 +4285,48 @@ A0A494C071   379025   460238   348243
 A0AVT1       129863    84523    96901
 A0FGR8      1080205  1119978  1059410
 A0JLT2       159940   126144   210538</code></pre>
-<pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
+<pre class="r"><code># PCA of RUVg normalized abundance values:
 prcomp_res &lt;- prcomp(t(normCounts(set_ruv) %&gt;% as.matrix()), center = TRUE, scale. = TRUE)
 ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-1">
+Past versions of "RUVg model-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-1.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUVg_log2 &lt;- normCounts(set_ruv) %&gt;% log2()
 counts_RUVg_log2 %&gt;% head()</code></pre>
 <pre><code>                 S1       S3       S5       S7       S9       S2       S4
@@ -4250,31 +4345,437 @@ A0FGR8     20.04287 20.09504 20.01483
 A0JLT2     17.28717 16.94471 17.68372</code></pre>
 <pre class="r"><code>counts_RUVg_log2 %&gt;% dim()</code></pre>
 <pre><code>[1] 4182   10</code></pre>
-<pre class="r"><code>counts_RUVg_log2[,1] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-2.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2[,2] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-3.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2[,3] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-4.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2[,4] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-5.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2[,5] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-6.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2[,6] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-7.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2[,7] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-8.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2[,8] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-9.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2[,9] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-10.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2[,10] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-11.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
-prcomp_res &lt;- prcomp(t(counts_RUVg_log2 %&gt;% as.matrix()), center = TRUE, scale. = TRUE)
+<pre class="r"><code>prcomp_res &lt;- prcomp(t(counts_RUVg_log2 %&gt;% as.matrix()), center = TRUE, scale. = TRUE)
 ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-2">
+Past versions of "RUVg model-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-2.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-3">
+Past versions of "RUVg model-3.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-3.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-4">
+Past versions of "RUVg model-4.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-4.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-5">
+Past versions of "RUVg model-5.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-5" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-5.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-6">
+Past versions of "RUVg model-6.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-6" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-6.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-7.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-7">
+Past versions of "RUVg model-7.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-7" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-7.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-8.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-8">
+Past versions of "RUVg model-8.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-8" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-8.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2[,7] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-9.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-9">
+Past versions of "RUVg model-9.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-9" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-9.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2[,8] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-10.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-10">
+Past versions of "RUVg model-10.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-10" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-10.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2[,9] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-11.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-11">
+Past versions of "RUVg model-11.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-11" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-11.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2[,10] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-12.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-12">
+Past versions of "RUVg model-12.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-12" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-12.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUVg_log2_sub &lt;- counts_RUVg_log2[,c(1,2,4,6,7,9)]
 counts_RUVg_log2_sub %&gt;% head()</code></pre>
 <pre><code>                 S1       S3       S7       S2       S4       S8
@@ -4286,24 +4787,284 @@ A0FGR8     20.24541 20.09069 19.98951 20.09924 20.08803 20.09504
 A0JLT2     17.70950 17.49919 17.14030 17.74988 17.67587 16.94471</code></pre>
 <pre class="r"><code>counts_RUVg_log2_sub %&gt;% dim()</code></pre>
 <pre><code>[1] 4182    6</code></pre>
-<pre class="r"><code>counts_RUVg_log2_sub[,1] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-13.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2_sub[,2] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-14.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2_sub[,3] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-15.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2_sub[,4] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-16.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2_sub[,5] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-17.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2_sub[,6] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-18.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
-prcomp_res &lt;- prcomp(t(counts_RUVg_log2_sub %&gt;% as.matrix()), center = TRUE, scale. = TRUE)
+<pre class="r"><code>prcomp_res &lt;- prcomp(t(counts_RUVg_log2_sub %&gt;% as.matrix()), center = TRUE, scale. = TRUE)
 ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-13.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-13">
+Past versions of "RUVg model-13.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-13" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-13.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2_sub[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-14.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-14">
+Past versions of "RUVg model-14.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-14" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-14.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2_sub[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-15.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-15">
+Past versions of "RUVg model-15.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-15" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-15.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2_sub[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-16.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-16">
+Past versions of "RUVg model-16.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-16" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-16.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2_sub[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-17.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-17">
+Past versions of "RUVg model-17.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-17" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-17.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2_sub[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-18.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-18">
+Past versions of "RUVg model-18.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-18" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-18.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>counts_RUVg_log2_sub[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-19.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUVg_log2_sub_quantnorm &lt;- limma::normalizeBetweenArrays(counts_RUVg_log2_sub, method = &quot;quantile&quot;)
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-19">
+Past versions of "RUVg model-19.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-19" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-19.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code># Quantile normalization after RUVg normalized abundances have been 
+# subset to 6 samples and log2 transformed
+counts_RUVg_log2_sub_quantnorm &lt;- limma::normalizeBetweenArrays(counts_RUVg_log2_sub, method = &quot;quantile&quot;)
 counts_RUVg_log2_sub_quantnorm %&gt;% head()</code></pre>
 <pre><code>                 S1       S3       S7       S2       S4       S8
 A0A0B4J2A2 20.13888 20.23864 20.67329 20.16485 20.42308 20.31020
@@ -4314,21 +5075,100 @@ A0FGR8     20.22776 20.16953 20.01610 20.10131 20.08928 20.00796
 A0JLT2     17.70234 17.63727 17.19631 17.68290 17.57631 16.89455</code></pre>
 <pre class="r"><code>counts_RUVg_log2_sub_quantnorm %&gt;% dim()</code></pre>
 <pre><code>[1] 4182    6</code></pre>
+<pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
+prcomp_res &lt;- prcomp(t(counts_RUVg_log2_sub_quantnorm %&gt;% as.matrix()), center = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-20.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-20">
+Past versions of "RUVg model-20.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-20" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-20.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUVg_log2_sub_quantnorm[,1] %&gt;% hist(breaks = 100)
 counts_RUVg_log2_sub_quantnorm[,2] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-20.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-21.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-21">
+Past versions of "RUVg model-21.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-21" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-21.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>counts_RUVg_log2_sub_quantnorm[,3] %&gt;% hist(breaks = 100)
 counts_RUVg_log2_sub_quantnorm[,4] %&gt;% hist(breaks = 100)
 counts_RUVg_log2_sub_quantnorm[,5] %&gt;% hist(breaks = 100)
 counts_RUVg_log2_sub_quantnorm[,6] %&gt;% hist(breaks = 100)
 
 
-# PCA of log2-quantile normalized-RUVs values:
-prcomp_res &lt;- prcomp(t(counts_RUVg_log2_sub_quantnorm %&gt;% as.matrix()), center = TRUE)
-ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
-  theme_bw()</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-21.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># Create a DataFrame for the phenoData
+
+
+
+
+
+# Create a DataFrame for the phenoData
 phenoData_RUVg &lt;- DataFrame(Meta)
 phenoData_RUVg &lt;- Meta[c(1,2,4,6,7,9), ]
 
@@ -4411,6 +5251,43 @@ toptable_summary_DoxvNorm$Protein &lt;- rownames(toptable_summary_DoxvNorm)
 toptable_summary_DoxvNorm$P.Value %&gt;% hist(breaks = 100)
 abline(v = c(0.01,0.025, 0.05, 0.1), col = &quot;red&quot; )</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-22.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-22">
+Past versions of "RUVg model-22.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-22" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-22.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Volcano plots 
 # 1. Create a column to threshold P-values 
 toptable_summary_DoxvNorm &lt;- toptable_summary_DoxvNorm %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
@@ -4428,6 +5305,43 @@ ggplot(toptable_summary_DoxvNorm)+
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-23.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-RUVg-model-23">
+Past versions of "RUVg model-23.png"
+</button>
+</p>
+<div id="fig-no-spaces-RUVg-model-23" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-23.png" target="_blank">397b327</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
