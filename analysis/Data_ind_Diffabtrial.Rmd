@@ -860,30 +860,34 @@ ggplot(toptable_summary)+
 # Linear model + RUVg + Imputation 
 ```{r RUVg model}
 
-# Assuming 'x' is your proteomic data matrix
-# Convert to DGEList object (commonly used in edgeR and useful for data manipulation)
+
+# Convert to DGEList object 
 dge <- DGEList(counts = as.matrix(Protein_DF_Abundance_imp_2))
 
-# Compute variability (e.g., coefficient of variation)
+# Calculate variability 
 cv <- rowSds(dge$counts, useNames = TRUE)/rowMeans(dge$counts)
 
-# Identify the 2.5% lowest variable proteins
+# Identify the 10% least variable proteins
 num_controls <- ceiling(0.1 * nrow(dge$counts))
 control_proteins <- names(sort(cv, decreasing = FALSE))[1:num_controls]
 
 
-# Convert to a DESeqDataSet (required for RUVSeq)
+# Round abundance values (applies more specifically to the imputed values) so that the abundance matrix iss valid input into newSeqExpressionSet
 dge$counts <- round(dge$counts)
 dge$counts %>% dim()
 
+
+# Generate newSeqExpressionSet object
 dds<- newSeqExpressionSet(counts = dge$counts, phenoData =Meta )
 
 
 # Apply RUVg normalization
-set_ruv <- RUVg(dds, control_proteins, k = 1)  # Adjust 'k' as necessary
+set_ruv <- RUVg(dds, control_proteins, k = 1)  
+
+# View the normalized counts from RUVg
 normCounts(set_ruv) %>% head()
 
-# PCA of log2-quantile normalized-RUVs values:
+# PCA of RUVg normalized abundance values:
 prcomp_res <- prcomp(t(normCounts(set_ruv) %>% as.matrix()), center = TRUE, scale. = TRUE)
 ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = "Cond", shape = "Ind", size =4)+
   theme_bw()
@@ -892,6 +896,9 @@ ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = "Cond", shape
 counts_RUVg_log2 <- normCounts(set_ruv) %>% log2()
 counts_RUVg_log2 %>% head()
 counts_RUVg_log2 %>% dim()
+prcomp_res <- prcomp(t(counts_RUVg_log2 %>% as.matrix()), center = TRUE, scale. = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = "Cond", shape = "Ind", size =4)+
+  theme_bw()
 counts_RUVg_log2[,1] %>% hist(breaks = 100)
 counts_RUVg_log2[,2] %>% hist(breaks = 100)
 counts_RUVg_log2[,3] %>% hist(breaks = 100)
@@ -904,15 +911,16 @@ counts_RUVg_log2[,9] %>% hist(breaks = 100)
 counts_RUVg_log2[,10] %>% hist(breaks = 100)
 
 
-# PCA of log2-quantile normalized-RUVs values:
-prcomp_res <- prcomp(t(counts_RUVg_log2 %>% as.matrix()), center = TRUE, scale. = TRUE)
-ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = "Cond", shape = "Ind", size =4)+
-  theme_bw()
+
+
 
 
 counts_RUVg_log2_sub <- counts_RUVg_log2[,c(1,2,4,6,7,9)]
 counts_RUVg_log2_sub %>% head()
 counts_RUVg_log2_sub %>% dim()
+prcomp_res <- prcomp(t(counts_RUVg_log2_sub %>% as.matrix()), center = TRUE, scale. = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = "Cond", shape = "Ind", size =4)+
+  theme_bw()
 counts_RUVg_log2_sub[,1] %>% hist(breaks = 100)
 counts_RUVg_log2_sub[,2] %>% hist(breaks = 100)
 counts_RUVg_log2_sub[,3] %>% hist(breaks = 100)
@@ -921,15 +929,16 @@ counts_RUVg_log2_sub[,5] %>% hist(breaks = 100)
 counts_RUVg_log2_sub[,6] %>% hist(breaks = 100)
 
 
-# PCA of log2-quantile normalized-RUVs values:
-prcomp_res <- prcomp(t(counts_RUVg_log2_sub %>% as.matrix()), center = TRUE, scale. = TRUE)
-ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = "Cond", shape = "Ind", size =4)+
-  theme_bw()
 
-
+# Quantile normalization after RUVg normalized abundances have been 
+# subset to 6 samples and log2 transformed
 counts_RUVg_log2_sub_quantnorm <- limma::normalizeBetweenArrays(counts_RUVg_log2_sub, method = "quantile")
 counts_RUVg_log2_sub_quantnorm %>% head()
 counts_RUVg_log2_sub_quantnorm %>% dim()
+# PCA of log2-quantile normalized-RUVs values:
+prcomp_res <- prcomp(t(counts_RUVg_log2_sub_quantnorm %>% as.matrix()), center = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = "Cond", shape = "Ind", size =4)+
+  theme_bw()
 counts_RUVg_log2_sub_quantnorm[,1] %>% hist(breaks = 100)
 counts_RUVg_log2_sub_quantnorm[,2] %>% hist(breaks = 100)
 counts_RUVg_log2_sub_quantnorm[,3] %>% hist(breaks = 100)
@@ -938,10 +947,7 @@ counts_RUVg_log2_sub_quantnorm[,5] %>% hist(breaks = 100)
 counts_RUVg_log2_sub_quantnorm[,6] %>% hist(breaks = 100)
 
 
-# PCA of log2-quantile normalized-RUVs values:
-prcomp_res <- prcomp(t(counts_RUVg_log2_sub_quantnorm %>% as.matrix()), center = TRUE)
-ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = "Cond", shape = "Ind", size =4)+
-  theme_bw()
+
 
 
 
