@@ -388,7 +388,7 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2023-12-13
+<strong>Last updated:</strong> 2023-12-18
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -519,15 +519,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreefefc20b7587b5cea029769167c178589027a69f8targetblankfefc20ba">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree2c1648060c8ef0674909f51c1604cb5c535ee359targetblank2c16480a">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/Omar-Johnson/myproject/tree/fefc20b7587b5cea029769167c178589027a69f8" target="_blank">fefc20b</a>
+<a href="https://github.com/Omar-Johnson/myproject/tree/2c1648060c8ef0674909f51c1604cb5c535ee359" target="_blank">2c16480</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreefefc20b7587b5cea029769167c178589027a69f8targetblankfefc20ba"
+id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttree2c1648060c8ef0674909f51c1604cb5c535ee359targetblank2c16480a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -537,7 +537,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/Omar-Johnson/myproject/tree/fefc20b7587b5cea029769167c178589027a69f8" target="_blank">fefc20b</a>.
+<a href="https://github.com/Omar-Johnson/myproject/tree/2c1648060c8ef0674909f51c1604cb5c535ee359" target="_blank">2c16480</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -556,10 +556,10 @@ Ignored files:
     Ignored:    analysis/.DS_Store
 
 Untracked files:
-    Untracked:  Data_ind_Diffabtrial.html
     Untracked:  analysis/Random_bed.R
 
 Unstaged changes:
+    Modified:   Data_ind_Diffabtrial.Rmd
     Modified:   analysis/Differentially_abundant_proteins_impute.Rmd
     Modified:   analysis/Differentially_abunddant_proteins.Rmd
 
@@ -607,6 +607,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2c1648060c8ef0674909f51c1604cb5c535ee359/analysis/Data_ind_Diffabtrial.Rmd" target="_blank">2c16480</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+<td>
+Update
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Omar-Johnson/myproject/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/Data_ind_Diffabtrial.html" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -848,12 +882,86 @@ Protein_DF_Abundance %&gt;% dim()</code></pre>
 <pre class="r"><code>log2_norm_counts &lt;- log2(Protein_DF_Abundance)
 log2_norm_counts %&gt;% rowMeans() %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%2090-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-90-1">
+Past versions of "Wrangle Data Frame 90-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-90-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 90-1.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="quantile-normalization" class="section level1">
 <h1>Quantile Normalization</h1>
 <pre class="r"><code>normalizedData &lt;- limma::normalizeBetweenArrays(log2_norm_counts[, c(1,2,4,6,7,9)], method = &quot;quantile&quot;)
 normalizedData %&gt;% rowMeans() %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%2055-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-55-1">
+Past versions of "Wrangle Data Frame 55-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-55-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 55-1.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="linear-model---ruvs" class="section level1">
 <h1>Linear model - RUVs</h1>
@@ -915,12 +1023,86 @@ toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow
 toptable_summary$Protein &lt;- rownames(toptable_summary)
 toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%202-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-2-1">
+Past versions of "upcor on 6 samples 2-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-2-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 2-1.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
 prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
 
 ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%202-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-2-2">
+Past versions of "upcor on 6 samples 2-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-2-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 2-2.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Volcano plots 
 # 1. Create a column to threshold P-values 
 toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
@@ -937,6 +1119,43 @@ ggplot(toptable_summary)+
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%202-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-2-3">
+Past versions of "upcor on 6 samples 2-3.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-2-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 2-3.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Other fits 
 fit3 &lt;- eBayes(fit2, robust = TRUE, trend = TRUE)</code></pre>
 <pre><code>Warning: One very small variance detected, has been offset away from zero</code></pre>
@@ -952,6 +1171,43 @@ toptable_summary &lt;- topTable(fit3, coef = &quot;DoxvNorm&quot;,number = (nrow
 toptable_summary$Protein &lt;- rownames(toptable_summary)
 toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%202-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-2-4">
+Past versions of "upcor on 6 samples 2-4.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-2-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 2-4.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
 prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
 
@@ -959,6 +1215,43 @@ prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
 ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%202-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-2-5">
+Past versions of "upcor on 6 samples 2-5.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-2-5" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 2-5.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Volcano plots 
 # 1. Create a column to threshold P-values 
 toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
@@ -976,439 +1269,338 @@ ggplot(toptable_summary)+
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%202-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-2-6">
+Past versions of "upcor on 6 samples 2-6.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-2-6" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 2-6.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="linear-model-ruvs" class="section level1">
 <h1>Linear model + RUVs</h1>
-<pre class="r"><code># 1. Get non log abundance values 
-Protein_DF_Abundance %&gt;% head()</code></pre>
-<pre><code>                   S1       S3       S5       S7       S9         S2       S4
-A0A0B4J2A2   979954.0  1470000  1460000  1560000  1700000   940535.0  2020000
-A0A0B4J2D5 16000000.0 17000000 15800000 14400000 15500000 15300000.0 13500000
-A0A494C071   381352.0   429735   287237   412285   380499   433456.0   540008
-A0AVT1        62810.7   135522   159045   123045   123823    49388.1   144860
-A0FGR8      1240000.0  1120000   969130  1040000  1020000  1120000.0  1120000
-A0JLT2       217977.0   181404   182657   145408   208660   224881.0   202427
-                 S6       S8      S10
-A0A0B4J2A2  1460000  1390000  1620000
-A0A0B4J2D5 13600000 13200000 12600000
-A0A494C071   376304   460580   355701
-A0AVT1       127488    84684   102306
-A0FGR8      1080000  1120000  1060000
-A0JLT2       160150   126127   209726</code></pre>
-<pre class="r"><code>Protein_DF_Abundance %&gt;% dim()</code></pre>
-<pre><code>[1] 3934   10</code></pre>
-<pre class="r"><code># 2. Generate RUVs related objects (differences_all and set_all)
-Meta</code></pre>
-<pre><code>    Samples  Ind  Rep    Cond     Cond_Ind
-S1       S1 B_77  Bio     Dox     B_77_Dox
-S3       S3 C_87  Bio     Dox     C_87_Dox
-S5       S5 A_48 Tech     Dox     A_48_Dox
-S7       S7 A_48 Tech     Dox     A_48_Dox
-S9       S9 A_48 Tech     Dox     A_48_Dox
-S2       S2 B_77  Bio Control B_77_Control
-S4       S4 C_87  Bio Control C_87_Control
-S6       S6 A_48 Tech Control A_48_Control
-S8       S8 A_48 Tech Control A_48_Control
-S10     S10 A_48 Tech Control A_48_Control</code></pre>
-<pre class="r"><code>genes_all &lt;- rownames(Protein_DF_Abundance)
-x_all &lt;- c(1,2,3,3,3,4,5,6,6,6)
-differences_all &lt;- makeGroups(x_all)
-differences_all</code></pre>
-<pre><code>     [,1] [,2] [,3]
-[1,]    1   -1   -1
-[2,]    2   -1   -1
-[3,]    3    4    5
-[4,]    6   -1   -1
-[5,]    7   -1   -1
-[6,]    8    9   10</code></pre>
-<pre class="r"><code>set_all &lt;- newSeqExpressionSet(as.matrix(round(Protein_DF_Abundance)),phenoData = data.frame(x_all, row.names=colnames(Protein_DF_Abundance)))
-
-
-
-
-# 3. Get RUV weights using all 10 samples and view for different values of &quot;k&quot;
-# K =1 
-set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=1, differences_all, isLog = FALSE)
-prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
-ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
-  theme_bw()</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># K =2 
-set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=2, differences_all, isLog = FALSE)
-prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
-ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
-  theme_bw()</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-2.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># K =3 
-set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=3, differences_all, isLog = FALSE)
-prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
-ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
-  theme_bw()</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-3.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># Proceed with K =3 
-set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=3, differences_all, isLog = FALSE)
-
-
-# 4. Subset counts by the 6 columns of interest, Metadata by 6 rows of interest, RUV weights vector to the 6 values of interest
-#  counts need to be integer values and in a numeric matrix 
-counts_RUVs &lt;- as.matrix(Protein_DF_Abundance) 
-
-# Create a DataFrame for the phenoData
-phenoData_RUVs &lt;- DataFrame(Meta)
-phenoData_RUVs &lt;- phenoData_RUVs[c(1,2,4,6,7,9), ]
-
-counts_RUVs &lt;- counts_RUVs[,c(1,2,4,6,7,9)]
-
-counts_RUVs %&gt;% dim()</code></pre>
-<pre><code>[1] 3934    6</code></pre>
-<pre class="r"><code>phenoData_RUVs %&gt;% dim()</code></pre>
-<pre><code>[1] 6 5</code></pre>
-<pre class="r"><code>RUV_1 &lt;- set_all_RUV$W_1
-RUV_2 &lt;- set_all_RUV$W_2
-RUV_3 &lt;- set_all_RUV$W_3
-phenoData_RUVs$RUV_1 &lt;- RUV_1[c(1,2,4,6,7,9)]
-phenoData_RUVs$RUV_2 &lt;- RUV_2[c(1,2,4,6,7,9)]
-phenoData_RUVs$RUV_3 &lt;- RUV_3[c(1,2,4,6,7,9)]
-
-# View changes 
-phenoData_RUVs %&gt;% head()</code></pre>
-<pre><code>DataFrame with 6 rows and 8 columns
-       Samples         Ind         Rep        Cond     Cond_Ind     RUV_1
-   &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;  &lt;character&gt; &lt;numeric&gt;
-S1          S1        B_77         Bio         Dox     B_77_Dox   7.97556
-S3          S3        C_87         Bio         Dox     C_87_Dox   8.09371
-S7          S7        A_48        Tech         Dox     A_48_Dox   8.18286
-S2          S2        B_77         Bio     Control B_77_Control   8.32611
-S4          S4        C_87         Bio     Control C_87_Control   8.53023
-S8          S8        A_48        Tech     Control A_48_Control   8.87029
-       RUV_2     RUV_3
-   &lt;numeric&gt; &lt;numeric&gt;
-S1  -11.6940   9.84514
-S3  -12.1211   9.20445
-S7  -11.0654  10.13369
-S2  -11.5362  10.28430
-S4  -12.0215   9.65146
-S8  -11.6699   8.92455</code></pre>
-<pre class="r"><code>counts_RUVs %&gt;% head()</code></pre>
-<pre><code>                   S1       S3       S7         S2       S4       S8
-A0A0B4J2A2   979954.0  1470000  1560000   940535.0  2020000  1390000
-A0A0B4J2D5 16000000.0 17000000 14400000 15300000.0 13500000 13200000
-A0A494C071   381352.0   429735   412285   433456.0   540008   460580
-A0AVT1        62810.7   135522   123045    49388.1   144860    84684
-A0FGR8      1240000.0  1120000  1040000  1120000.0  1120000  1120000
-A0JLT2       217977.0   181404   145408   224881.0   202427   126127</code></pre>
-<pre class="r"><code># 5. Take the info from 4 and assign it to a new object
-counts_RUV_nolog &lt;- assayData(set_all_RUV)$counts
-counts_RUV_nolog %&gt;% head()</code></pre>
-<pre><code>                 S1       S3       S5       S7       S9       S2       S4
-A0A0B4J2A2   979954  1470000  1460000  1560000  1700000   940535  2020000
-A0A0B4J2D5 16000000 17000000 15800000 14400000 15500000 15300000 13500000
-A0A494C071   381352   429735   287237   412285   380499   433456   540008
-A0AVT1        62811   135522   159045   123045   123823    49388   144860
-A0FGR8      1240000  1120000   969130  1040000  1020000  1120000  1120000
-A0JLT2       217977   181404   182657   145408   208660   224881   202427
-                 S6       S8      S10
-A0A0B4J2A2  1460000  1390000  1620000
-A0A0B4J2D5 13600000 13200000 12600000
-A0A494C071   376304   460580   355701
-A0AVT1       127488    84684   102306
-A0FGR8      1080000  1120000  1060000
-A0JLT2       160150   126127   209726</code></pre>
-<pre class="r"><code>counts_RUV_nolog %&gt;% dim()</code></pre>
-<pre><code>[1] 3934   10</code></pre>
-<pre class="r"><code>counts_RUV_nolog[,1] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-4.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_nolog[,2] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-5.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_nolog[,3] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-6.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_nolog[,4] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-7.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_nolog[,5] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-8.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_nolog[,6] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-9.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_nolog[,7] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-10.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_nolog[,8] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-11.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_nolog[,9] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-12.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_nolog[,10] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-13.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_normalized &lt;- assayData(set_all_RUV)$normalizedCounts
-counts_RUV_normalized %&gt;% head()</code></pre>
-<pre><code>                 S1       S3       S5       S7       S9       S2       S4
-A0A0B4J2A2   104990   157378   175185   170070   172166    96559   204813
-A0A0B4J2D5 20378332 20874942 19072139 19309173 19210828 20334204 17337838
-A0A494C071    79170    88059    73627    78380    76379    81169    97766
-A0AVT1       109990   260155   232021   231649   231803    92616   304756
-A0FGR8       948713   856198   770671   781537   777027   840199   836435
-A0JLT2         5679     4479     5014     4467     4686     6027     5084
-                 S6       S8      S10
-A0A0B4J2A2   146791   148695   162835
-A0A0B4J2D5 17205000 17112834 16476963
-A0A494C071    76458    74406    61423
-A0AVT1       223387   223542   224643
-A0FGR8       823882   818880   784474
-A0JLT2         3637     3824     5450</code></pre>
-<pre class="r"><code>counts_RUV_normalized %&gt;% dim()</code></pre>
-<pre><code>[1] 3934   10</code></pre>
-<pre class="r"><code>counts_RUV_normalized[,1] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-14.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_normalized[,2] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-15.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_normalized[,3] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-16.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_normalized[,4] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-17.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_normalized[,5] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-18.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_normalized[,6] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-19.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_normalized[,7] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-20.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_normalized[,8] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-21.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_normalized[,9] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-22.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_normalized[,10] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-23.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2 &lt;- assayData(set_all_RUV)$normalizedCounts %&gt;% log2()
-counts_RUV_log2 %&gt;% head()</code></pre>
-<pre><code>                 S1       S3       S5       S7       S9       S2       S4
-A0A0B4J2A2 16.67989 17.26387 17.41852 17.37577 17.39344 16.55912 17.64395
-A0A0B4J2D5 24.28053 24.31527 24.18496 24.20278 24.19542 24.27741 24.04742
-A0A494C071 16.27267 16.42618 16.16795 16.25820 16.22089 16.30864 16.57705
-A0AVT1     16.74701 17.98901 17.82390 17.82158 17.82254 16.49897 18.21730
-A0FGR8     19.85561 19.70758 19.55576 19.57595 19.56761 19.68037 19.67389
-A0JLT2     12.47142 12.12896 12.29175 12.12509 12.19414 12.55722 12.31175
-                 S6       S8      S10
-A0A0B4J2A2 17.16340 17.18200 17.31305
-A0A0B4J2D5 24.03632 24.02858 23.97395
-A0A494C071 16.22238 16.18313 15.90649
-A0AVT1     17.76919 17.77019 17.77727
-A0FGR8     19.65208 19.64329 19.58137
-A0JLT2     11.82853 11.90087 12.41204</code></pre>
-<pre class="r"><code>counts_RUV_log2 %&gt;% dim()</code></pre>
-<pre><code>[1] 3934   10</code></pre>
-<pre class="r"><code>counts_RUV_log2[,1] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-24.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2[,2] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-25.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2[,3] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-26.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2[,4] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-27.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2[,5] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-28.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2[,6] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-29.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2[,7] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-30.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2[,8] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-31.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2[,9] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-32.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2[,10] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-33.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub &lt;- counts_RUV_log2[,c(1,2,4,6,7,9)]
-counts_RUV_log2_sub %&gt;% head()</code></pre>
-<pre><code>                 S1       S3       S7       S2       S4       S8
-A0A0B4J2A2 16.67989 17.26387 17.37577 16.55912 17.64395 17.18200
-A0A0B4J2D5 24.28053 24.31527 24.20278 24.27741 24.04742 24.02858
-A0A494C071 16.27267 16.42618 16.25820 16.30864 16.57705 16.18313
-A0AVT1     16.74701 17.98901 17.82158 16.49897 18.21730 17.77019
-A0FGR8     19.85561 19.70758 19.57595 19.68037 19.67389 19.64329
-A0JLT2     12.47142 12.12896 12.12509 12.55722 12.31175 11.90087</code></pre>
-<pre class="r"><code>counts_RUV_log2_sub %&gt;% dim()</code></pre>
-<pre><code>[1] 3934    6</code></pre>
-<pre class="r"><code>counts_RUV_log2_sub[,1] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-34.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub[,2] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-35.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub[,3] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-36.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub[,4] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-37.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub[,5] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-38.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub[,6] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-39.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm &lt;- limma::normalizeBetweenArrays(counts_RUV_log2_sub, method = &quot;quantile&quot;)
-counts_RUV_log2_sub_quantnorm %&gt;% head()</code></pre>
-<pre><code>                 S1       S3       S7       S2       S4       S8
-A0A0B4J2A2 16.60199 17.36045 17.37648 16.57591 17.62207 17.08849
-A0A0B4J2D5 24.26919 24.35661 24.25171 24.22858 24.12722 23.99902
-A0A494C071 16.20716 16.57023 16.26064 16.33996 16.62185 16.11990
-A0AVT1     16.67846 18.12391 17.79291 16.50239 18.21874 17.66237
-A0FGR8     19.79076 19.81785 19.59594 19.66751 19.73426 19.53039
-A0JLT2     12.49489 12.17945 12.13916 12.64199 12.28014 11.80610</code></pre>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm %&gt;% dim()</code></pre>
-<pre><code>[1] 3934    6</code></pre>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,1] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-40.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,2] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-41.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,3] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-42.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,4] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-43.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,5] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-44.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,6] %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-45.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># Create Design Matrix 
-# phenoData$Cond &lt;- factor(phenoData$Cond , levels = c(&quot;Control&quot;, &quot;Dox&quot;))
-design &lt;- model.matrix(~ 0 + Cond + RUV_1 + RUV_2 + RUV_3, data = phenoData_RUVs)
-design</code></pre>
-<pre><code>   CondControl CondDox    RUV_1     RUV_2     RUV_3
-S1           0       1 7.975563 -11.69397  9.845140
-S3           0       1 8.093714 -12.12113  9.204452
-S7           0       1 8.182856 -11.06543 10.133694
-S2           1       0 8.326109 -11.53620 10.284297
-S4           1       0 8.530235 -12.02148  9.651456
-S8           1       0 8.870292 -11.66986  8.924546
-attr(,&quot;assign&quot;)
-[1] 1 1 2 3 4
-attr(,&quot;contrasts&quot;)
-attr(,&quot;contrasts&quot;)$Cond
-[1] &quot;contr.treatment&quot;</code></pre>
-<pre class="r"><code># rename columns 
-colnames(design) &lt;- c(&#39;Control&#39;, &quot;Dox&quot;, &quot;RUV_1&quot;, &quot;RUV_2&quot;, &quot;RUV_3&quot;)
-
-
-# Get model counts 
-Model_counts &lt;- counts_RUV_log2_sub_quantnorm
-
-
-# Fit model
-fit &lt;- lmFit(object = as.matrix(Model_counts), design = design)</code></pre>
-<pre><code>Warning: Partial NA coefficients for 4 probe(s)</code></pre>
-<pre class="r"><code>fit2 &lt;- eBayes(fit)
-
-
-# Make contrasts
-cm &lt;- makeContrasts(
-  DoxvNorm = Dox - Control,
-  RUV1vNorm = RUV_1 - Control,
-  RUV2vNorm = RUV_2 - Control, 
-  RUV3vNorm = RUV_3 - Control,
-  levels = design)
-
-
-# Model with contrasts
-fit2 &lt;- contrasts.fit(fit, cm)
-fit2 &lt;- eBayes(fit2)
-
-
-# Summarize
-results_summary &lt;- decideTests(fit2, adjust.method = &quot;none&quot;, p.value = 0.05)
-summary(results_summary)</code></pre>
-<pre><code>       DoxvNorm RUV1vNorm RUV2vNorm RUV3vNorm
-Down        350       588       609       590
-NotSig     3083      3055      3045      3053
-Up          480       269       256       267</code></pre>
-<pre class="r"><code># Toptable summary organized   
-toptable_summary_DoxvNorm &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
-toptable_summary_DoxvNorm$Protein &lt;- rownames(toptable_summary_DoxvNorm)
-toptable_summary_DoxvNorm$P.Value %&gt;% hist(breaks = 100)</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-46.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># # Toptable summary organized   
-# toptable_summary_RUV1vNorm &lt;- topTable(fit2, coef = &quot;RUV1vNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
-# toptable_summary_RUV1vNorm$Protein &lt;- rownames(toptable_summary_RUV1vNorm)
-# toptable_summary_RUV1vNorm$P.Value %&gt;% hist(breaks = 100)
+<pre class="r"><code># # 1. Get non log abundance values 
+# Protein_DF_Abundance %&gt;% head()
+# Protein_DF_Abundance %&gt;% dim()
+# 
+# 
+# 
+# # 2. Generate RUVs related objects (differences_all and set_all)
+# Meta
+# genes_all &lt;- rownames(Protein_DF_Abundance)
+# x_all &lt;- c(1,2,3,3,3,4,5,6,6,6)
+# differences_all &lt;- makeGroups(x_all)
+# differences_all
+# set_all &lt;- newSeqExpressionSet(as.matrix(round(Protein_DF_Abundance)),phenoData = data.frame(x_all, row.names=colnames(Protein_DF_Abundance)))
+# 
+# 
+# 
+# 
+# # 3. Get RUV weights using all 10 samples and view for different values of &quot;k&quot;
+# # K =1 
+# set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=1, differences_all, isLog = FALSE)
+# prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
+# ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+#   theme_bw()
+# 
+# # K =2 
+# set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=2, differences_all, isLog = FALSE)
+# prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
+# ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+#   theme_bw()
+# 
+# # K =3 
+# set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=3, differences_all, isLog = FALSE)
+# prcomp_res &lt;- prcomp(t(as.matrix(assayData(set_all_RUV)$normalizedCounts)))
+# ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+#   theme_bw()
+# 
+# # Proceed with K =3 
+# set_all_RUV &lt;- RUVSeq::RUVs(set_all, genes_all, k=3, differences_all, isLog = FALSE)
+# 
+# 
+# # 4. Subset counts by the 6 columns of interest, Metadata by 6 rows of interest, RUV weights vector to the 6 values of interest
+# #  counts need to be integer values and in a numeric matrix 
+# counts_RUVs &lt;- as.matrix(Protein_DF_Abundance) 
+# 
+# # Create a DataFrame for the phenoData
+# phenoData_RUVs &lt;- DataFrame(Meta)
+# phenoData_RUVs &lt;- phenoData_RUVs[c(1,2,4,6,7,9), ]
+# 
+# counts_RUVs &lt;- counts_RUVs[,c(1,2,4,6,7,9)]
+# 
+# counts_RUVs %&gt;% dim()
+# phenoData_RUVs %&gt;% dim()
+# 
+# 
+# RUV_1 &lt;- set_all_RUV$W_1
+# RUV_2 &lt;- set_all_RUV$W_2
+# RUV_3 &lt;- set_all_RUV$W_3
+# phenoData_RUVs$RUV_1 &lt;- RUV_1[c(1,2,4,6,7,9)]
+# phenoData_RUVs$RUV_2 &lt;- RUV_2[c(1,2,4,6,7,9)]
+# phenoData_RUVs$RUV_3 &lt;- RUV_3[c(1,2,4,6,7,9)]
+# 
+# # View changes 
+# phenoData_RUVs %&gt;% head()
+# counts_RUVs %&gt;% head()
+# 
+# 
+# 
+# 
+# # 5. Take the info from 4 and assign it to a new object
+# counts_RUV_nolog &lt;- assayData(set_all_RUV)$counts
+# counts_RUV_nolog %&gt;% head()
+# counts_RUV_nolog %&gt;% dim()
+# counts_RUV_nolog[,1] %&gt;% hist(breaks = 100)
+# counts_RUV_nolog[,2] %&gt;% hist(breaks = 100)
+# counts_RUV_nolog[,3] %&gt;% hist(breaks = 100)
+# counts_RUV_nolog[,4] %&gt;% hist(breaks = 100)
+# counts_RUV_nolog[,5] %&gt;% hist(breaks = 100)
+# counts_RUV_nolog[,6] %&gt;% hist(breaks = 100)
+# counts_RUV_nolog[,7] %&gt;% hist(breaks = 100)
+# counts_RUV_nolog[,8] %&gt;% hist(breaks = 100)
+# counts_RUV_nolog[,9] %&gt;% hist(breaks = 100)
+# counts_RUV_nolog[,10] %&gt;% hist(breaks = 100)
+# 
+# 
+# 
+# 
+# 
+# counts_RUV_normalized &lt;- assayData(set_all_RUV)$normalizedCounts
+# counts_RUV_normalized %&gt;% head()
+# counts_RUV_normalized %&gt;% dim()
+# counts_RUV_normalized[,1] %&gt;% hist(breaks = 100)
+# counts_RUV_normalized[,2] %&gt;% hist(breaks = 100)
+# counts_RUV_normalized[,3] %&gt;% hist(breaks = 100)
+# counts_RUV_normalized[,4] %&gt;% hist(breaks = 100)
+# counts_RUV_normalized[,5] %&gt;% hist(breaks = 100)
+# counts_RUV_normalized[,6] %&gt;% hist(breaks = 100)
+# counts_RUV_normalized[,7] %&gt;% hist(breaks = 100)
+# counts_RUV_normalized[,8] %&gt;% hist(breaks = 100)
+# counts_RUV_normalized[,9] %&gt;% hist(breaks = 100)
+# counts_RUV_normalized[,10] %&gt;% hist(breaks = 100)
+# 
+# 
+# 
+# 
+# 
+# 
+# counts_RUV_log2 &lt;- assayData(set_all_RUV)$normalizedCounts %&gt;% log2()
+# counts_RUV_log2 %&gt;% head()
+# counts_RUV_log2 %&gt;% dim()
+# counts_RUV_log2[,1] %&gt;% hist(breaks = 100)
+# counts_RUV_log2[,2] %&gt;% hist(breaks = 100)
+# counts_RUV_log2[,3] %&gt;% hist(breaks = 100)
+# counts_RUV_log2[,4] %&gt;% hist(breaks = 100)
+# counts_RUV_log2[,5] %&gt;% hist(breaks = 100)
+# counts_RUV_log2[,6] %&gt;% hist(breaks = 100)
+# counts_RUV_log2[,7] %&gt;% hist(breaks = 100)
+# counts_RUV_log2[,8] %&gt;% hist(breaks = 100)
+# counts_RUV_log2[,9] %&gt;% hist(breaks = 100)
+# counts_RUV_log2[,10] %&gt;% hist(breaks = 100)
+# 
+# 
+# 
+# 
+# counts_RUV_log2_sub &lt;- counts_RUV_log2[,c(1,2,4,6,7,9)]
+# counts_RUV_log2_sub %&gt;% head()
+# counts_RUV_log2_sub %&gt;% dim()
+# counts_RUV_log2_sub[,1] %&gt;% hist(breaks = 100)
+# counts_RUV_log2_sub[,2] %&gt;% hist(breaks = 100)
+# counts_RUV_log2_sub[,3] %&gt;% hist(breaks = 100)
+# counts_RUV_log2_sub[,4] %&gt;% hist(breaks = 100)
+# counts_RUV_log2_sub[,5] %&gt;% hist(breaks = 100)
+# counts_RUV_log2_sub[,6] %&gt;% hist(breaks = 100)
+# 
+# 
+# 
+# 
+# counts_RUV_log2_sub_quantnorm &lt;- limma::normalizeBetweenArrays(counts_RUV_log2_sub, method = &quot;quantile&quot;)
+# counts_RUV_log2_sub_quantnorm %&gt;% head()
+# counts_RUV_log2_sub_quantnorm %&gt;% dim()
+# counts_RUV_log2_sub_quantnorm[,1] %&gt;% hist(breaks = 100)
+# counts_RUV_log2_sub_quantnorm[,2] %&gt;% hist(breaks = 100)
+# counts_RUV_log2_sub_quantnorm[,3] %&gt;% hist(breaks = 100)
+# counts_RUV_log2_sub_quantnorm[,4] %&gt;% hist(breaks = 100)
+# counts_RUV_log2_sub_quantnorm[,5] %&gt;% hist(breaks = 100)
+# counts_RUV_log2_sub_quantnorm[,6] %&gt;% hist(breaks = 100)
+# 
+# 
+# 
+# 
+# # Create Design Matrix 
+# # phenoData$Cond &lt;- factor(phenoData$Cond , levels = c(&quot;Control&quot;, &quot;Dox&quot;))
+# design &lt;- model.matrix(~ 0 + Cond + RUV_1 + RUV_2 + RUV_3, data = phenoData_RUVs)
+# design
+# 
+# 
+# # rename columns 
+# colnames(design) &lt;- c(&#39;Control&#39;, &quot;Dox&quot;, &quot;RUV_1&quot;, &quot;RUV_2&quot;, &quot;RUV_3&quot;)
+# 
+# 
+# # Get model counts 
+# Model_counts &lt;- counts_RUV_log2_sub_quantnorm
+# 
+# 
+# # Fit model
+# dupcor &lt;- duplicateCorrelation(Model_counts, design = design, block = phenoData_sub$Ind)
+# fit &lt;- lmFit(object = as.matrix(Model_counts), block = phenoData_sub$Ind, design = design, correlation = dupcor$consensus.correlation)
+# fit2 &lt;- eBayes(fit)
+# 
+# 
+# # Make contrasts
+# cm &lt;- makeContrasts(
+#   DoxvNorm = Dox - Control,
+#   RUV1vNorm = RUV_1 - Control,
+#   RUV2vNorm = RUV_2 - Control, 
+#   RUV3vNorm = RUV_3 - Control,
+#   levels = design)
+# 
+# 
+# # Model with contrasts
+# fit2 &lt;- contrasts.fit(fit, cm)
+# fit2 &lt;- eBayes(fit2)
+# 
+# 
+# # Summarize
+# results_summary &lt;- decideTests(fit2, adjust.method = &quot;none&quot;, p.value = 0.05)
+# summary(results_summary)
+# 
+# 
 # 
 # 
 # # Toptable summary organized   
-# toptable_summary_RUV2vNorm &lt;- topTable(fit2, coef = &quot;RUV2vNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
-# toptable_summary_RUV2vNorm$Protein &lt;- rownames(toptable_summary_RUV2vNorm)
-# toptable_summary_RUV2vNorm$P.Value %&gt;% hist(breaks = 100)
+# toptable_summary_DoxvNorm &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
+# toptable_summary_DoxvNorm$Protein &lt;- rownames(toptable_summary_DoxvNorm)
+# toptable_summary_DoxvNorm$P.Value %&gt;% hist(breaks = 100)
 # 
 # 
-# # Toptable summary organized   
-# toptable_summary_RUV3vNorm &lt;- topTable(fit2, coef = &quot;RUV3vNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
-# toptable_summary_RUV3vNorm$Protein &lt;- rownames(toptable_summary_RUV3vNorm)
-# toptable_summary_RUV3vNorm$P.Value %&gt;% hist(breaks = 100)
-
-
-
-
-# Volcano plot DoxvNorm
-# 1. Create a column to threshold P-values 
-toptable_summary_DoxvNorm &lt;- toptable_summary_DoxvNorm %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
-
-
-# 2. Plot 
-ggplot(toptable_summary_DoxvNorm)+
-  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
-  xlab(&quot;log2FC&quot;)+
-  ylab(&quot;-log10 nominal p-value&quot;)+
-  ylim(0, 6)+
-  xlim(-20, 20)+
-  theme(legend.position = &quot;none&quot;, 
-        plot.title = element_text(size = rel(1.5), hjust = 0.5),
-        axis.title = element_text(size = rel(1.25)))+
-  theme_bw()</code></pre>
-<pre><code>Warning: Removed 22 rows containing missing values (`geom_point()`).</code></pre>
-<p><img src="figure/Data_ind_Diffabtrial.Rmd/MW%20suggested%20workflow-47.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># # Volcano plots RUV1vNorm
+# # # Toptable summary organized   
+# # toptable_summary_RUV1vNorm &lt;- topTable(fit2, coef = &quot;RUV1vNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
+# # toptable_summary_RUV1vNorm$Protein &lt;- rownames(toptable_summary_RUV1vNorm)
+# # toptable_summary_RUV1vNorm$P.Value %&gt;% hist(breaks = 100)
+# # 
+# # 
+# # # Toptable summary organized   
+# # toptable_summary_RUV2vNorm &lt;- topTable(fit2, coef = &quot;RUV2vNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
+# # toptable_summary_RUV2vNorm$Protein &lt;- rownames(toptable_summary_RUV2vNorm)
+# # toptable_summary_RUV2vNorm$P.Value %&gt;% hist(breaks = 100)
+# # 
+# # 
+# # # Toptable summary organized   
+# # toptable_summary_RUV3vNorm &lt;- topTable(fit2, coef = &quot;RUV3vNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
+# # toptable_summary_RUV3vNorm$Protein &lt;- rownames(toptable_summary_RUV3vNorm)
+# # toptable_summary_RUV3vNorm$P.Value %&gt;% hist(breaks = 100)
+# 
+# 
+# 
+# 
+# # Volcano plot DoxvNorm
 # # 1. Create a column to threshold P-values 
-# toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
+# toptable_summary_DoxvNorm &lt;- toptable_summary_DoxvNorm %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
 # 
 # 
 # # 2. Plot 
-# ggplot(toptable_summary)+
+# ggplot(toptable_summary_DoxvNorm)+
 #   geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
 #   xlab(&quot;log2FC&quot;)+
 #   ylab(&quot;-log10 nominal p-value&quot;)+
 #   ylim(0, 6)+
-#   xlim(-7, 7)+
+#   xlim(-20, 20)+
 #   theme(legend.position = &quot;none&quot;, 
 #         plot.title = element_text(size = rel(1.5), hjust = 0.5),
 #         axis.title = element_text(size = rel(1.25)))+
 #   theme_bw()
 # 
 # 
-# # Volcano plots RUV2vNorm
-# # 1. Create a column to threshold P-values 
-# toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
 # 
-# 
-# # 2. Plot 
-# ggplot(toptable_summary)+
-#   geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
-#   xlab(&quot;log2FC&quot;)+
-#   ylab(&quot;-log10 nominal p-value&quot;)+
-#   ylim(0, 6)+
-#   xlim(-7, 7)+
-#   theme(legend.position = &quot;none&quot;, 
-#         plot.title = element_text(size = rel(1.5), hjust = 0.5),
-#         axis.title = element_text(size = rel(1.25)))+
-#   theme_bw()
-# 
-# 
-# # Volcano plots RUV3vNorm
-# # 1. Create a column to threshold P-values 
-# toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
-# 
-# 
-# # 2. Plot 
-# ggplot(toptable_summary)+
-#   geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
-#   xlab(&quot;log2FC&quot;)+
-#   ylab(&quot;-log10 nominal p-value&quot;)+
-#   ylim(0, 6)+
-#   xlim(-7, 7)+
-#   theme(legend.position = &quot;none&quot;, 
-#         plot.title = element_text(size = rel(1.5), hjust = 0.5),
-#         axis.title = element_text(size = rel(1.25)))+
-#   theme_bw()</code></pre>
+# # # Volcano plots RUV1vNorm
+# # # 1. Create a column to threshold P-values 
+# # toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
+# # 
+# # 
+# # # 2. Plot 
+# # ggplot(toptable_summary)+
+# #   geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+# #   xlab(&quot;log2FC&quot;)+
+# #   ylab(&quot;-log10 nominal p-value&quot;)+
+# #   ylim(0, 6)+
+# #   xlim(-7, 7)+
+# #   theme(legend.position = &quot;none&quot;, 
+# #         plot.title = element_text(size = rel(1.5), hjust = 0.5),
+# #         axis.title = element_text(size = rel(1.25)))+
+# #   theme_bw()
+# # 
+# # 
+# # # Volcano plots RUV2vNorm
+# # # 1. Create a column to threshold P-values 
+# # toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
+# # 
+# # 
+# # # 2. Plot 
+# # ggplot(toptable_summary)+
+# #   geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+# #   xlab(&quot;log2FC&quot;)+
+# #   ylab(&quot;-log10 nominal p-value&quot;)+
+# #   ylim(0, 6)+
+# #   xlim(-7, 7)+
+# #   theme(legend.position = &quot;none&quot;, 
+# #         plot.title = element_text(size = rel(1.5), hjust = 0.5),
+# #         axis.title = element_text(size = rel(1.25)))+
+# #   theme_bw()
+# # 
+# # 
+# # # Volcano plots RUV3vNorm
+# # # 1. Create a column to threshold P-values 
+# # toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
+# # 
+# # 
+# # # 2. Plot 
+# # ggplot(toptable_summary)+
+# #   geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+# #   xlab(&quot;log2FC&quot;)+
+# #   ylab(&quot;-log10 nominal p-value&quot;)+
+# #   ylim(0, 6)+
+# #   xlim(-7, 7)+
+# #   theme(legend.position = &quot;none&quot;, 
+# #         plot.title = element_text(size = rel(1.5), hjust = 0.5),
+# #         axis.title = element_text(size = rel(1.25)))+
+# #   theme_bw()</code></pre>
 </div>
 <div id="wrangle-data-frame-for-imputed-data" class="section level1">
 <h1>Wrangle Data Frame for imputed data</h1>
-<pre class="r"><code># Save the original 
-Full_DF &lt;- Protein_DF 
+<pre class="r"><code># Save the original
+Full_DF &lt;- Protein_DF
 Full_DF %&gt;% head()</code></pre>
 <pre><code>  Protein.Group Protein.Ids Protein.Names   Genes First.Protein.Description
 1    A0A0B4J2A2  A0A0B4J2A2            NA PPIAL4C                        NA
@@ -1433,8 +1625,8 @@ Full_DF %&gt;% head()</code></pre>
 6   126127   209726</code></pre>
 <pre class="r"><code>Full_DF %&gt;% dim()</code></pre>
 <pre><code>[1] 4261   15</code></pre>
-<pre class="r"><code># Subset the columns referring to abundance
-Protein_DF_Abundance &lt;- Full_DF[,colnames(Full_DF) %in% c(&quot;Protein.Ids&quot;, &quot;S1&quot; , &quot;S3&quot; , &quot;S5&quot; , &quot;S7&quot;, &quot;S9&quot;, &quot;S2&quot;, &quot;S4&quot;, &quot;S6&quot; , &quot;S8&quot;, &quot;S10&quot;)] 
+<pre class="r"><code># # Subset the columns referring to abundance
+Protein_DF_Abundance &lt;- Full_DF[,colnames(Full_DF) %in% c(&quot;Protein.Ids&quot;, &quot;S1&quot; , &quot;S3&quot; , &quot;S5&quot; , &quot;S7&quot;, &quot;S9&quot;, &quot;S2&quot;, &quot;S4&quot;, &quot;S6&quot; , &quot;S8&quot;, &quot;S10&quot;)]
 Protein_DF_Abundance %&gt;% head()</code></pre>
 <pre><code>  Protein.Ids         S1       S3       S5       S7       S9         S2
 1  A0A0B4J2A2   979954.0  1470000  1460000  1560000  1700000   940535.0
@@ -1470,22 +1662,22 @@ Protein_DF_Abundance %&gt;% head()</code></pre>
 6   160150   126127   209726</code></pre>
 <pre class="r"><code>Protein_DF_Abundance %&gt;% dim()</code></pre>
 <pre><code>[1] 4261   11</code></pre>
-<pre class="r"><code># Check for duplicated rows 
-# Identify duplicated values
+<pre class="r"><code># # Check for duplicated rows 
+# # Identify duplicated values
 Protein_DF_Abundance$duplicated_name &lt;- duplicated(Protein_DF_Abundance$Accession)
 
-# This will return a logical vector where TRUE indicates the position of duplicates in the column.
-# To see only rows with duplicated values, you can subset the dataframe like this:
+# # This will return a logical vector where TRUE indicates the position of duplicates in the column.
+# # To see only rows with duplicated values, you can subset the dataframe like this:
 duplicated_rows &lt;- Protein_DF_Abundance[Protein_DF_Abundance$duplicated_name == TRUE, ]
-print(duplicated_rows) # We have 0 rows with duplicate protein names </code></pre>
+print(duplicated_rows) # We have 0 rows with duplicate protein names</code></pre>
 <pre><code> [1] Accession       S1              S3              S5             
  [5] S7              S9              S2              S4             
  [9] S6              S8              S10             duplicated_name
 &lt;0 rows&gt; (or 0-length row.names)</code></pre>
-<pre class="r"><code># Make rownames of the data frame accession IDs
+<pre class="r"><code># # Make rownames of the data frame accession IDs
 rownames(Protein_DF_Abundance) &lt;- Protein_DF_Abundance$Accession
 
-# Change colnames 
+# # Change colnames 
 colnames(Protein_DF_Abundance)</code></pre>
 <pre><code> [1] &quot;Accession&quot;       &quot;S1&quot;              &quot;S3&quot;              &quot;S5&quot;             
  [5] &quot;S7&quot;              &quot;S9&quot;              &quot;S2&quot;              &quot;S4&quot;             
@@ -1508,7 +1700,8 @@ A0FGR8      1080000  1120000  1060000
 A0JLT2       160150   126127   209726</code></pre>
 <pre class="r"><code>Protein_DF_Abundance %&gt;% dim()</code></pre>
 <pre><code>[1] 4261   10</code></pre>
-<pre class="r"><code># Assuming column names of Protein_DF match with the rows in Meta
+<pre class="r"><code># 
+# # Assuming column names of Protein_DF match with the rows in Meta
 Meta</code></pre>
 <pre><code>    Samples  Ind  Rep    Cond     Cond_Ind
 S1       S1 B_77  Bio     Dox     B_77_Dox
@@ -1597,6 +1790,43 @@ remove_rows_with_nas_var(data_frame = Protein_DF_Abundance , NA_remove = 8 ) %&g
 <pre class="r"><code># View in graph 
 plot_nrow_vs_naremove(Protein_DF_Abundance)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/viewing%20NA%20and%20imp-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-viewing-NA-and-imp-1">
+Past versions of "viewing NA and imp-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-viewing-NA-and-imp-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/viewing NA and imp-1.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="na-removal-and-imputing-with-knn" class="section level1">
 <h1>NA removal and imputing with knn</h1>
@@ -1618,48 +1848,788 @@ A0FGR8      1080000  1120000  1060000
 A0JLT2       160150   126127   209726</code></pre>
 <pre class="r"><code>Protein_DF_Abundance[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-1">
+Past versions of "knn impute NA-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-1.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-2">
+Past versions of "knn impute NA-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-2.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-3">
+Past versions of "knn impute NA-3.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-3.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-4">
+Past versions of "knn impute NA-4.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-4.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-5">
+Past versions of "knn impute NA-5.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-5" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-5.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-6">
+Past versions of "knn impute NA-6.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-6" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-6.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance[,7] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-7.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-7">
+Past versions of "knn impute NA-7.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-7" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-7.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance[,8] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-8.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-8">
+Past versions of "knn impute NA-8.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-8" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-8.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance[,9] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-9.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-9">
+Past versions of "knn impute NA-9.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-9" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-9.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance[,10] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-10.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-10">
+Past versions of "knn impute NA-10.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-10" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-10.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># View abundances after removing proteins with 5 or more (50%) NA 
 Protein_DF_Abundance_imp &lt;- remove_rows_with_nas(Protein_DF_Abundance)
 Protein_DF_Abundance_imp %&gt;% dim()</code></pre>
 <pre><code>[1] 4182   10</code></pre>
 <pre class="r"><code>Protein_DF_Abundance_imp[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-11.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-11">
+Past versions of "knn impute NA-11.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-11" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-11.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-12.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-12">
+Past versions of "knn impute NA-12.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-12" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-12.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-13.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-13">
+Past versions of "knn impute NA-13.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-13" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-13.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-14.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-14">
+Past versions of "knn impute NA-14.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-14" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-14.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-15.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-15">
+Past versions of "knn impute NA-15.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-15" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-15.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-16.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-16">
+Past versions of "knn impute NA-16.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-16" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-16.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp[,7] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-17.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-17">
+Past versions of "knn impute NA-17.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-17" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-17.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp[,8] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-18.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-18">
+Past versions of "knn impute NA-18.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-18" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-18.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp[,9] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-19.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-19">
+Past versions of "knn impute NA-19.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-19" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-19.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp[,10] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-20.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-20">
+Past versions of "knn impute NA-20.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-20" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-20.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp_2 &lt;- impute.knn(as.matrix(Protein_DF_Abundance_imp), k = 10, rowmax = 0.4)$data</code></pre>
 <pre><code>Cluster size 4182 broken into 60 4122 
 Done cluster 60 
@@ -1680,50 +2650,827 @@ Done cluster 4122 </code></pre>
 <pre><code>[1] 4182   10</code></pre>
 <pre class="r"><code>Protein_DF_Abundance_imp_2[,1] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-21.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-21">
+Past versions of "knn impute NA-21.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-21" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-21.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp_2[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-22.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-22">
+Past versions of "knn impute NA-22.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-22" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-22.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp_2[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-23.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-23">
+Past versions of "knn impute NA-23.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-23" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-23.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp_2[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-24.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-24">
+Past versions of "knn impute NA-24.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-24" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-24.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp_2[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-25.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-25">
+Past versions of "knn impute NA-25.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-25" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-25.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp_2[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-26.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-26">
+Past versions of "knn impute NA-26.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-26" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-26.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp_2[,7] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-27.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-27">
+Past versions of "knn impute NA-27.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-27" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-27.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp_2[,8] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-28.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-28">
+Past versions of "knn impute NA-28.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-28" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-28.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp_2[,9] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-29.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-29">
+Past versions of "knn impute NA-29.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-29" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-29.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>Protein_DF_Abundance_imp_2[,10] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/knn%20impute%20NA-30.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-knn-impute-NA-30">
+Past versions of "knn impute NA-30.png"
+</button>
+</p>
+<div id="fig-no-spaces-knn-impute-NA-30" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/knn impute NA-30.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="log2-transform-for-imputed-data" class="section level1">
 <h1>Log2 transform for imputed data</h1>
 <pre class="r"><code>log2_norm_counts &lt;- log2(Protein_DF_Abundance_imp_2)
 log2_norm_counts %&gt;% rowMeans() %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-1">
+Past versions of "Wrangle Data Frame 3-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 3-1.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>log2_norm_counts[,1] %&gt;% hist(breaks = 100) </code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-2">
+Past versions of "Wrangle Data Frame 3-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 3-2.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>log2_norm_counts[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-3">
+Past versions of "Wrangle Data Frame 3-3.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 3-3.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>log2_norm_counts[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-4">
+Past versions of "Wrangle Data Frame 3-4.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 3-4.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>log2_norm_counts[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-5">
+Past versions of "Wrangle Data Frame 3-5.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-5" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 3-5.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>log2_norm_counts[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-6">
+Past versions of "Wrangle Data Frame 3-6.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-6" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 3-6.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>log2_norm_counts[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-7.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-7">
+Past versions of "Wrangle Data Frame 3-7.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-7" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 3-7.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>log2_norm_counts[,7] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-8.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-8">
+Past versions of "Wrangle Data Frame 3-8.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-8" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 3-8.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>log2_norm_counts[,8] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-9.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-9">
+Past versions of "Wrangle Data Frame 3-9.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-9" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 3-9.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>log2_norm_counts[,9] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-10.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-10">
+Past versions of "Wrangle Data Frame 3-10.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-10" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 3-10.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>log2_norm_counts[,10] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%203-11.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-3-11">
+Past versions of "Wrangle Data Frame 3-11.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-3-11" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 3-11.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="quantile-normalization-for-imputed-data"
 class="section level1">
@@ -1731,18 +3478,277 @@ class="section level1">
 <pre class="r"><code>normalizedData &lt;- limma::normalizeBetweenArrays(log2_norm_counts[, c(1,2,4,6,7,9)], method = &quot;quantile&quot;)
 normalizedData %&gt;% rowMeans() %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-4-1">
+Past versions of "Wrangle Data Frame 4-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-4-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 4-1.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>normalizedData[,1] %&gt;% hist(breaks = 100) </code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-4-2">
+Past versions of "Wrangle Data Frame 4-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-4-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 4-2.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>normalizedData[,2] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-4-3">
+Past versions of "Wrangle Data Frame 4-3.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-4-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 4-3.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>normalizedData[,3] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-4-4">
+Past versions of "Wrangle Data Frame 4-4.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-4-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 4-4.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>normalizedData[,4] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-4-5">
+Past versions of "Wrangle Data Frame 4-5.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-4-5" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 4-5.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>normalizedData[,5] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-4-6">
+Past versions of "Wrangle Data Frame 4-6.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-4-6" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 4-6.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code>normalizedData[,6] %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Wrangle%20Data%20Frame%204-7.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Wrangle-Data-Frame-4-7">
+Past versions of "Wrangle Data Frame 4-7.png"
+</button>
+</p>
+<div id="fig-no-spaces-Wrangle-Data-Frame-4-7" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Wrangle Data Frame 4-7.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="view-distribution-of-imputed-na-values-for-all-samples"
 class="section level1">
@@ -1751,16 +3757,90 @@ class="section level1">
 
 imputed_dataframe &lt;- normalizedData
 
-imputed_values &lt;- imputed_dataframe[na_positions]
+imputed_values &lt;- imputed_dataframe[na_positions] %&gt;% na.omit()
 
-hist(imputed_values, main = &quot;Histogram of Imputed Values&quot;, xlab = &quot;Value&quot;)</code></pre>
+hist(imputed_values, breaks = 50, main = &quot;Histogram of Imputed Values&quot;, xlab = &quot;Value&quot;)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Imputed%20value%20distribution-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Imputed-value-distribution-1">
+Past versions of "Imputed value distribution-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-Imputed-value-distribution-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Imputed value distribution-1.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Histogram of original data (with NA values removed)
-hist(log2(Protein_DF_Abundance_imp) %&gt;% rowMeans(), xlim = range(log2(Protein_DF_Abundance_imp) %&gt;% rowMeans(), na.rm = TRUE), main = &quot;Histogram with Imputed &amp; Non-imputed Values&quot;, xlab = &quot;Value&quot;)
+hist(log2(Protein_DF_Abundance_imp) %&gt;% rowMeans(na.rm = TRUE), xlim = range(log2(Protein_DF_Abundance_imp) %&gt;% rowMeans(), na.rm = TRUE), breaks = 50, main = &quot;Histogram with Imputed &amp; Non-imputed Values&quot;, xlab = &quot;Value&quot;)
 
 # Histogram of imputed values
-hist(imputed_values, add = TRUE, col = rgb(1, 0, 0, 0.5))</code></pre>
+hist(imputed_values, breaks = 50, add = TRUE, col = &quot;red&quot;)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/Imputed%20value%20distribution-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-Imputed-value-distribution-2">
+Past versions of "Imputed value distribution-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-Imputed-value-distribution-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/Imputed value distribution-2.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="linear-model---ruvs-imputation" class="section level1">
 <h1>Linear model - RUVs + Imputation</h1>
@@ -1822,12 +3902,86 @@ toptable_summary &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow
 toptable_summary$Protein &lt;- rownames(toptable_summary)
 toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%2022-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-22-1">
+Past versions of "upcor on 6 samples 22-1.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-22-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 22-1.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
 prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
 
 ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%2022-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-22-2">
+Past versions of "upcor on 6 samples 22-2.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-22-2" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 22-2.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Volcano plots 
 # 1. Create a column to threshold P-values 
 toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
@@ -1844,6 +3998,43 @@ ggplot(toptable_summary)+
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%2022-3.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-22-3">
+Past versions of "upcor on 6 samples 22-3.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-22-3" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 22-3.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Other fits 
 fit3 &lt;- eBayes(fit2, robust = TRUE, trend = TRUE)</code></pre>
 <pre><code>Warning: One very small variance detected, has been offset away from zero</code></pre>
@@ -1859,6 +4050,46 @@ toptable_summary &lt;- topTable(fit3, coef = &quot;DoxvNorm&quot;,number = (nrow
 toptable_summary$Protein &lt;- rownames(toptable_summary)
 toptable_summary$P.Value %&gt;% hist(breaks = 100)</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%2022-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-22-4">
+Past versions of "upcor on 6 samples 22-4.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-22-4" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 22-4.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<pre class="r"><code>toptable_summary[&quot;P16860&quot;,]</code></pre>
+<pre><code>            logFC  AveExpr          t   P.Value adj.P.Val         B Protein
+P16860 -0.0824422 17.29226 -0.1403269 0.8922319 0.8922319 -6.866182  P16860</code></pre>
 <pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
 prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
 
@@ -1866,6 +4097,43 @@ prcomp_res &lt;- prcomp(t(normalizedData %&gt;% as.matrix()), center = TRUE)
 ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
   theme_bw()</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%2022-5.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-22-5">
+Past versions of "upcor on 6 samples 22-5.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-22-5" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 22-5.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <pre class="r"><code># Volcano plots 
 # 1. Create a column to threshold P-values 
 toptable_summary &lt;- toptable_summary %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
@@ -1883,6 +4151,283 @@ ggplot(toptable_summary)+
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()</code></pre>
 <p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%2022-6.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-no-spaces-upcor-on-6-samples-22-6">
+Past versions of "upcor on 6 samples 22-6.png"
+</button>
+</p>
+<div id="fig-no-spaces-upcor-on-6-samples-22-6" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/5f32731ad2e318c62f6290cf100ae515e63b38f1/docs/figure/Data_ind_Diffabtrial.Rmd/upcor on 6 samples 22-6.png" target="_blank">5f32731</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-13
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="linear-model-ruvg-imputation" class="section level1">
+<h1>Linear model + RUVg + Imputation</h1>
+<pre class="r"><code># Assuming &#39;x&#39; is your proteomic data matrix
+# Convert to DGEList object (commonly used in edgeR and useful for data manipulation)
+dge &lt;- DGEList(counts = as.matrix(Protein_DF_Abundance_imp_2))
+
+# Compute variability (e.g., coefficient of variation)
+cv &lt;- rowSds(dge$counts, useNames = TRUE)/rowMeans(dge$counts)
+
+# Identify the 2.5% lowest variable proteins
+num_controls &lt;- ceiling(0.1 * nrow(dge$counts))
+control_proteins &lt;- names(sort(cv, decreasing = FALSE))[1:num_controls]
+
+
+# Convert to a DESeqDataSet (required for RUVSeq)
+dge$counts &lt;- round(dge$counts)
+dge$counts %&gt;% dim()</code></pre>
+<pre><code>[1] 4182   10</code></pre>
+<pre class="r"><code>dds&lt;- newSeqExpressionSet(counts = dge$counts, phenoData =Meta )
+
+
+# Apply RUVg normalization
+set_ruv &lt;- RUVg(dds, control_proteins, k = 1)  # Adjust &#39;k&#39; as necessary
+normCounts(set_ruv) %&gt;% head()</code></pre>
+<pre><code>                 S1       S3       S5       S7       S9       S2       S4
+A0A0B4J2A2  1170994  1177013  1594300  1671732  1807304  1162508  1412564
+A0A0B4J2D5 15635010 17496725 15620877 14271514 15377563 14885677 14140379
+A0A494C071   418258   382940   300651   427346   392772   483809   448568
+A0AVT1        79578   100870   178768   134888   134312    65444    90070
+A0FGR8      1243016  1116610   970294  1040982  1020852  1123241  1114550
+A0JLT2       214334   185260   181142   144459   207455   220417   209395
+                 S6       S8      S10
+A0A0B4J2A2  1480424  1388010  1555148
+A0A0B4J2D5 13575542 13202450 12666875
+A0A494C071   379025   460238   348243
+A0AVT1       129863    84523    96901
+A0FGR8      1080205  1119978  1059410
+A0JLT2       159940   126144   210538</code></pre>
+<pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
+prcomp_res &lt;- prcomp(t(normCounts(set_ruv) %&gt;% as.matrix()), center = TRUE, scale. = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2 &lt;- normCounts(set_ruv) %&gt;% log2()
+counts_RUVg_log2 %&gt;% head()</code></pre>
+<pre><code>                 S1       S3       S5       S7       S9       S2       S4
+A0A0B4J2A2 20.15930 20.16670 20.60449 20.67291 20.78541 20.14881 20.42988
+A0A0B4J2D5 23.89828 24.06058 23.89697 23.76664 23.87432 23.82742 23.75332
+A0A494C071 18.67403 18.54676 18.19773 18.70505 18.58333 18.88408 18.77497
+A0AVT1     16.28008 16.62214 17.44773 17.04140 17.03523 15.99797 16.45876
+A0FGR8     20.24541 20.09069 19.88806 19.98951 19.96134 20.09924 20.08803
+A0JLT2     17.70950 17.49919 17.46676 17.14030 17.66244 17.74988 17.67587
+                 S6       S8      S10
+A0A0B4J2A2 20.49758 20.40459 20.56862
+A0A0B4J2D5 23.69451 23.65430 23.59456
+A0A494C071 18.53193 18.81202 18.40973
+A0AVT1     16.98663 16.36706 16.56422
+A0FGR8     20.04287 20.09504 20.01483
+A0JLT2     17.28717 16.94471 17.68372</code></pre>
+<pre class="r"><code>counts_RUVg_log2 %&gt;% dim()</code></pre>
+<pre><code>[1] 4182   10</code></pre>
+<pre class="r"><code>counts_RUVg_log2[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-6.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-7.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2[,7] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-8.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2[,8] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-9.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2[,9] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-10.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2[,10] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-11.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
+prcomp_res &lt;- prcomp(t(counts_RUVg_log2 %&gt;% as.matrix()), center = TRUE, scale. = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-12.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2_sub &lt;- counts_RUVg_log2[,c(1,2,4,6,7,9)]
+counts_RUVg_log2_sub %&gt;% head()</code></pre>
+<pre><code>                 S1       S3       S7       S2       S4       S8
+A0A0B4J2A2 20.15930 20.16670 20.67291 20.14881 20.42988 20.40459
+A0A0B4J2D5 23.89828 24.06058 23.76664 23.82742 23.75332 23.65430
+A0A494C071 18.67403 18.54676 18.70505 18.88408 18.77497 18.81202
+A0AVT1     16.28008 16.62214 17.04140 15.99797 16.45876 16.36706
+A0FGR8     20.24541 20.09069 19.98951 20.09924 20.08803 20.09504
+A0JLT2     17.70950 17.49919 17.14030 17.74988 17.67587 16.94471</code></pre>
+<pre class="r"><code>counts_RUVg_log2_sub %&gt;% dim()</code></pre>
+<pre><code>[1] 4182    6</code></pre>
+<pre class="r"><code>counts_RUVg_log2_sub[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-13.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2_sub[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-14.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2_sub[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-15.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2_sub[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-16.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2_sub[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-17.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2_sub[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-18.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># PCA of log2-quantile normalized-RUVs values:
+prcomp_res &lt;- prcomp(t(counts_RUVg_log2_sub %&gt;% as.matrix()), center = TRUE, scale. = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-19.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2_sub_quantnorm &lt;- limma::normalizeBetweenArrays(counts_RUVg_log2_sub, method = &quot;quantile&quot;)
+counts_RUVg_log2_sub_quantnorm %&gt;% head()</code></pre>
+<pre><code>                 S1       S3       S7       S2       S4       S8
+A0A0B4J2A2 20.13888 20.23864 20.67329 20.16485 20.42308 20.31020
+A0A0B4J2D5 23.90579 24.01114 23.76820 23.82365 23.81224 23.51349
+A0A494C071 18.65403 18.67200 18.76198 18.83975 18.72029 18.74987
+A0AVT1     16.36156 16.80301 17.05071 15.91893 16.26320 16.31186
+A0FGR8     20.22776 20.16953 20.01610 20.10131 20.08928 20.00796
+A0JLT2     17.70234 17.63727 17.19631 17.68290 17.57631 16.89455</code></pre>
+<pre class="r"><code>counts_RUVg_log2_sub_quantnorm %&gt;% dim()</code></pre>
+<pre><code>[1] 4182    6</code></pre>
+<pre class="r"><code>counts_RUVg_log2_sub_quantnorm[,1] %&gt;% hist(breaks = 100)
+counts_RUVg_log2_sub_quantnorm[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-20.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUVg_log2_sub_quantnorm[,3] %&gt;% hist(breaks = 100)
+counts_RUVg_log2_sub_quantnorm[,4] %&gt;% hist(breaks = 100)
+counts_RUVg_log2_sub_quantnorm[,5] %&gt;% hist(breaks = 100)
+counts_RUVg_log2_sub_quantnorm[,6] %&gt;% hist(breaks = 100)
+
+
+# PCA of log2-quantile normalized-RUVs values:
+prcomp_res &lt;- prcomp(t(counts_RUVg_log2_sub_quantnorm %&gt;% as.matrix()), center = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(phenoData_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-21.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Create a DataFrame for the phenoData
+phenoData_RUVg &lt;- DataFrame(Meta)
+phenoData_RUVg &lt;- Meta[c(1,2,4,6,7,9), ]
+
+set_ruv$W_1</code></pre>
+<pre><code> [1] -0.341427911  0.426122666 -0.168696007 -0.132609568 -0.117337568
+ [6] -0.406192248  0.685705127 -0.026632222  0.002746413  0.078321318</code></pre>
+<pre class="r"><code>RUV_1 &lt;- set_ruv$W_1
+
+phenoData_RUVg$RUV_1 &lt;- RUV_1[c(1,2,4,6,7,9)]
+
+
+# View changes 
+phenoData_RUVg %&gt;% head()</code></pre>
+<pre><code>   Samples  Ind  Rep    Cond     Cond_Ind        RUV_1
+S1      S1 B_77  Bio     Dox     B_77_Dox -0.341427911
+S3      S3 C_87  Bio     Dox     C_87_Dox  0.426122666
+S7      S7 A_48 Tech     Dox     A_48_Dox -0.132609568
+S2      S2 B_77  Bio Control B_77_Control -0.406192248
+S4      S4 C_87  Bio Control C_87_Control  0.685705127
+S8      S8 A_48 Tech Control A_48_Control  0.002746413</code></pre>
+<pre class="r"><code>phenoData_RUVg</code></pre>
+<pre><code>   Samples  Ind  Rep    Cond     Cond_Ind        RUV_1
+S1      S1 B_77  Bio     Dox     B_77_Dox -0.341427911
+S3      S3 C_87  Bio     Dox     C_87_Dox  0.426122666
+S7      S7 A_48 Tech     Dox     A_48_Dox -0.132609568
+S2      S2 B_77  Bio Control B_77_Control -0.406192248
+S4      S4 C_87  Bio Control C_87_Control  0.685705127
+S8      S8 A_48 Tech Control A_48_Control  0.002746413</code></pre>
+<pre class="r"><code># Create Design Matrix 
+# phenoData$Cond &lt;- factor(phenoData$Cond , levels = c(&quot;Control&quot;, &quot;Dox&quot;))
+design &lt;- model.matrix(~ 0 + Cond + RUV_1, data = phenoData_RUVg)
+design</code></pre>
+<pre><code>   CondControl CondDox        RUV_1
+S1           0       1 -0.341427911
+S3           0       1  0.426122666
+S7           0       1 -0.132609568
+S2           1       0 -0.406192248
+S4           1       0  0.685705127
+S8           1       0  0.002746413
+attr(,&quot;assign&quot;)
+[1] 1 1 2
+attr(,&quot;contrasts&quot;)
+attr(,&quot;contrasts&quot;)$Cond
+[1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code># rename columns 
+colnames(design) &lt;- c(&#39;Control&#39;, &quot;Dox&quot;, &quot;RUV_1&quot;)
+
+
+# Get model counts 
+Model_counts &lt;- counts_RUVg_log2_sub_quantnorm
+
+
+# Fit model
+dupcor &lt;- duplicateCorrelation(Model_counts, design = design, block = phenoData_RUVg$Ind)
+fit &lt;- lmFit(object = as.matrix(Model_counts), block = phenoData_RUVg$Ind, design = design, correlation = dupcor$consensus.correlation)
+fit2 &lt;- eBayes(fit)
+
+
+# Make contrasts
+cm &lt;- makeContrasts(
+  DoxvNorm = Dox - Control,
+  RUV1vNorm = RUV_1 - Control,
+  levels = design)
+
+
+# Model with contrasts
+fit2 &lt;- contrasts.fit(fit, cm)
+fit2 &lt;- eBayes(fit2, robust = TRUE, trend = TRUE)</code></pre>
+<pre><code>Warning: 4 very small variances detected, have been offset away from zero</code></pre>
+<pre class="r"><code># Summarize
+results_summary &lt;- decideTests(fit2, adjust.method = &quot;none&quot;, p.value = 0.05)
+summary(results_summary)</code></pre>
+<pre><code>       DoxvNorm RUV1vNorm
+Down        536      4182
+NotSig     3019         0
+Up          627         0</code></pre>
+<pre class="r"><code># Toptable summary organized   
+toptable_summary_DoxvNorm &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
+toptable_summary_DoxvNorm$Protein &lt;- rownames(toptable_summary_DoxvNorm)
+toptable_summary_DoxvNorm$P.Value %&gt;% hist(breaks = 100)
+abline(v = c(0.01,0.025, 0.05, 0.1), col = &quot;red&quot; )</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-22.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Volcano plots 
+# 1. Create a column to threshold P-values 
+toptable_summary_DoxvNorm &lt;- toptable_summary_DoxvNorm %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
+
+
+# 2. Plot 
+ggplot(toptable_summary_DoxvNorm)+
+  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+  xlab(&quot;log2FC&quot;)+
+  ylab(&quot;-log10 nominal p-value&quot;)+
+  ylim(0, 6)+
+  xlim(-6, 6)+
+  theme(legend.position = &quot;none&quot;, 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-23.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -1908,61 +4453,62 @@ attached base packages:
 [8] methods   base     
 
 other attached packages:
- [1] impute_1.70.0                          
- [2] WGCNA_1.72-1                           
- [3] fastcluster_1.2.3                      
- [4] dynamicTreeCut_1.63-1                  
- [5] BioNERO_1.4.2                          
- [6] reshape2_1.4.4                         
- [7] ggridges_0.5.4                         
- [8] biomaRt_2.52.0                         
- [9] ggvenn_0.1.10                          
-[10] UpSetR_1.4.0                           
-[11] DOSE_3.22.1                            
-[12] variancePartition_1.26.0               
-[13] clusterProfiler_4.4.4                  
-[14] pheatmap_1.0.12                        
-[15] qvalue_2.28.0                          
-[16] Homo.sapiens_1.3.1                     
-[17] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2
-[18] org.Hs.eg.db_3.15.0                    
-[19] GO.db_3.15.0                           
-[20] OrganismDbi_1.38.1                     
-[21] GenomicFeatures_1.48.4                 
-[22] AnnotationDbi_1.58.0                   
-[23] cluster_2.1.4                          
-[24] ggfortify_0.4.16                       
-[25] lubridate_1.9.2                        
-[26] forcats_1.0.0                          
-[27] stringr_1.5.0                          
-[28] dplyr_1.1.2                            
-[29] purrr_1.0.2                            
-[30] readr_2.1.4                            
-[31] tidyr_1.3.0                            
-[32] tibble_3.2.1                           
-[33] ggplot2_3.4.3                          
-[34] tidyverse_2.0.0                        
-[35] RColorBrewer_1.1-3                     
-[36] RUVSeq_1.30.0                          
-[37] edgeR_3.38.4                           
-[38] limma_3.52.4                           
-[39] EDASeq_2.30.0                          
-[40] ShortRead_1.54.0                       
-[41] GenomicAlignments_1.32.1               
-[42] SummarizedExperiment_1.26.1            
-[43] MatrixGenerics_1.8.1                   
-[44] matrixStats_1.0.0                      
-[45] Rsamtools_2.12.0                       
-[46] GenomicRanges_1.48.0                   
-[47] Biostrings_2.64.1                      
-[48] GenomeInfoDb_1.32.4                    
-[49] XVector_0.36.0                         
-[50] IRanges_2.30.1                         
-[51] S4Vectors_0.34.0                       
-[52] BiocParallel_1.30.4                    
-[53] Biobase_2.56.0                         
-[54] BiocGenerics_0.42.0                    
-[55] workflowr_1.7.1                        
+ [1] DESeq2_1.36.0                          
+ [2] impute_1.70.0                          
+ [3] WGCNA_1.72-1                           
+ [4] fastcluster_1.2.3                      
+ [5] dynamicTreeCut_1.63-1                  
+ [6] BioNERO_1.4.2                          
+ [7] reshape2_1.4.4                         
+ [8] ggridges_0.5.4                         
+ [9] biomaRt_2.52.0                         
+[10] ggvenn_0.1.10                          
+[11] UpSetR_1.4.0                           
+[12] DOSE_3.22.1                            
+[13] variancePartition_1.26.0               
+[14] clusterProfiler_4.4.4                  
+[15] pheatmap_1.0.12                        
+[16] qvalue_2.28.0                          
+[17] Homo.sapiens_1.3.1                     
+[18] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2
+[19] org.Hs.eg.db_3.15.0                    
+[20] GO.db_3.15.0                           
+[21] OrganismDbi_1.38.1                     
+[22] GenomicFeatures_1.48.4                 
+[23] AnnotationDbi_1.58.0                   
+[24] cluster_2.1.4                          
+[25] ggfortify_0.4.16                       
+[26] lubridate_1.9.2                        
+[27] forcats_1.0.0                          
+[28] stringr_1.5.0                          
+[29] dplyr_1.1.2                            
+[30] purrr_1.0.2                            
+[31] readr_2.1.4                            
+[32] tidyr_1.3.0                            
+[33] tibble_3.2.1                           
+[34] ggplot2_3.4.3                          
+[35] tidyverse_2.0.0                        
+[36] RColorBrewer_1.1-3                     
+[37] RUVSeq_1.30.0                          
+[38] edgeR_3.38.4                           
+[39] limma_3.52.4                           
+[40] EDASeq_2.30.0                          
+[41] ShortRead_1.54.0                       
+[42] GenomicAlignments_1.32.1               
+[43] SummarizedExperiment_1.26.1            
+[44] MatrixGenerics_1.8.1                   
+[45] matrixStats_1.0.0                      
+[46] Rsamtools_2.12.0                       
+[47] GenomicRanges_1.48.0                   
+[48] Biostrings_2.64.1                      
+[49] GenomeInfoDb_1.32.4                    
+[50] XVector_0.36.0                         
+[51] IRanges_2.30.1                         
+[52] S4Vectors_0.34.0                       
+[53] BiocParallel_1.30.4                    
+[54] Biobase_2.56.0                         
+[55] BiocGenerics_0.42.0                    
+[56] workflowr_1.7.1                        
 
 loaded via a namespace (and not attached):
   [1] rappdirs_0.3.3         rtracklayer_1.56.1     minet_3.54.0          
@@ -1977,56 +4523,56 @@ loaded via a namespace (and not attached):
  [28] viridis_0.6.4          xfun_0.40              hms_1.1.3             
  [31] jquerylib_0.1.4        evaluate_0.21          promises_1.2.1        
  [34] fansi_1.0.4            restfulr_0.0.15        progress_1.2.2        
- [37] caTools_1.18.2         dbplyr_2.3.3           htmlwidgets_1.6.2     
- [40] igraph_1.5.1           DBI_1.1.3              ggnewscale_0.4.9      
- [43] backports_1.4.1        annotate_1.74.0        aod_1.3.2             
- [46] deldir_1.0-9           vctrs_0.6.3            abind_1.4-5           
- [49] cachem_1.0.8           withr_2.5.0            ggforce_0.4.1         
- [52] checkmate_2.2.0        treeio_1.20.2          prettyunits_1.1.1     
- [55] ape_5.7-1              lazyeval_0.2.2         crayon_1.5.2          
- [58] genefilter_1.78.0      labeling_0.4.2         pkgconfig_2.0.3       
- [61] tweenr_2.0.2           nlme_3.1-163           nnet_7.3-19           
- [64] rlang_1.1.1            lifecycle_1.0.3        downloader_0.4        
- [67] filelock_1.0.2         BiocFileCache_2.4.0    rprojroot_2.0.3       
- [70] polyclip_1.10-4        graph_1.74.0           Matrix_1.5-4.1        
- [73] aplot_0.2.0            NetRep_1.2.7           boot_1.3-28.1         
- [76] base64enc_0.1-3        GlobalOptions_0.1.2    whisker_0.4.1         
- [79] processx_3.8.2         png_0.1-8              viridisLite_0.4.2     
- [82] rjson_0.2.21           bitops_1.0-7           getPass_0.2-2         
- [85] R.oo_1.25.0            ggnetwork_0.5.12       KernSmooth_2.23-22    
- [88] blob_1.2.4             shape_1.4.6            jpeg_0.1-10           
- [91] gridGraphics_0.5-1     scales_1.2.1           memoise_2.0.1         
- [94] magrittr_2.0.3         plyr_1.8.8             gplots_3.1.3          
- [97] zlibbioc_1.42.0        compiler_4.2.0         scatterpie_0.2.1      
-[100] BiocIO_1.6.0           clue_0.3-64            intergraph_2.0-3      
-[103] lme4_1.1-34            cli_3.6.1              patchwork_1.1.3       
-[106] ps_1.7.5               htmlTable_2.4.1        Formula_1.2-5         
-[109] mgcv_1.9-0             MASS_7.3-60            tidyselect_1.2.0      
-[112] stringi_1.7.12         highr_0.10             yaml_2.3.7            
-[115] GOSemSim_2.22.0        locfit_1.5-9.8         latticeExtra_0.6-30   
-[118] ggrepel_0.9.3          sass_0.4.7             fastmatch_1.1-4       
-[121] tools_4.2.0            timechange_0.2.0       parallel_4.2.0        
-[124] circlize_0.4.15        rstudioapi_0.15.0      foreign_0.8-84        
-[127] foreach_1.5.2          git2r_0.32.0           gridExtra_2.3         
-[130] farver_2.1.1           ggraph_2.1.0           digest_0.6.33         
-[133] BiocManager_1.30.22    networkD3_0.4          Rcpp_1.0.11           
-[136] broom_1.0.5            later_1.3.1            httr_1.4.7            
-[139] ComplexHeatmap_2.12.1  GENIE3_1.18.0          Rdpack_2.5            
-[142] colorspace_2.1-0       XML_3.99-0.14          fs_1.6.3              
-[145] splines_4.2.0          statmod_1.5.0          yulab.utils_0.0.8     
-[148] RBGL_1.72.0            tidytree_0.4.5         graphlayouts_1.0.0    
-[151] ggplotify_0.1.2        xtable_1.8-4           jsonlite_1.8.7        
-[154] nloptr_2.0.3           ggtree_3.4.4           tidygraph_1.2.3       
-[157] ggfun_0.1.2            R6_2.5.1               Hmisc_5.1-0           
-[160] pillar_1.9.0           htmltools_0.5.6        glue_1.6.2            
-[163] fastmap_1.1.1          minqa_1.2.5            codetools_0.2-19      
-[166] fgsea_1.22.0           utf8_1.2.3             sva_3.44.0            
-[169] lattice_0.21-8         bslib_0.5.1            network_1.18.1        
-[172] pbkrtest_0.5.2         curl_5.0.2             gtools_3.9.4          
-[175] interp_1.1-4           survival_3.5-7         statnet.common_4.9.0  
-[178] rmarkdown_2.24         munsell_0.5.0          GetoptLong_1.0.5      
-[181] DO.db_2.9              GenomeInfoDbData_1.2.8 iterators_1.0.14      
-[184] gtable_0.3.4           rbibutils_2.2.15      </code></pre>
+ [37] caTools_1.18.2         dbplyr_2.3.3           geneplotter_1.74.0    
+ [40] htmlwidgets_1.6.2      igraph_1.5.1           DBI_1.1.3             
+ [43] ggnewscale_0.4.9       backports_1.4.1        annotate_1.74.0       
+ [46] aod_1.3.2              deldir_1.0-9           vctrs_0.6.3           
+ [49] abind_1.4-5            cachem_1.0.8           withr_2.5.0           
+ [52] ggforce_0.4.1          checkmate_2.2.0        treeio_1.20.2         
+ [55] prettyunits_1.1.1      ape_5.7-1              lazyeval_0.2.2        
+ [58] crayon_1.5.2           genefilter_1.78.0      labeling_0.4.2        
+ [61] pkgconfig_2.0.3        tweenr_2.0.2           nlme_3.1-163          
+ [64] nnet_7.3-19            rlang_1.1.1            lifecycle_1.0.3       
+ [67] downloader_0.4         filelock_1.0.2         BiocFileCache_2.4.0   
+ [70] rprojroot_2.0.3        polyclip_1.10-4        graph_1.74.0          
+ [73] Matrix_1.5-4.1         aplot_0.2.0            NetRep_1.2.7          
+ [76] boot_1.3-28.1          base64enc_0.1-3        GlobalOptions_0.1.2   
+ [79] whisker_0.4.1          processx_3.8.2         png_0.1-8             
+ [82] viridisLite_0.4.2      rjson_0.2.21           bitops_1.0-7          
+ [85] getPass_0.2-2          R.oo_1.25.0            ggnetwork_0.5.12      
+ [88] KernSmooth_2.23-22     blob_1.2.4             shape_1.4.6           
+ [91] jpeg_0.1-10            gridGraphics_0.5-1     scales_1.2.1          
+ [94] memoise_2.0.1          magrittr_2.0.3         plyr_1.8.8            
+ [97] gplots_3.1.3           zlibbioc_1.42.0        compiler_4.2.0        
+[100] scatterpie_0.2.1       BiocIO_1.6.0           clue_0.3-64           
+[103] intergraph_2.0-3       lme4_1.1-34            cli_3.6.1             
+[106] patchwork_1.1.3        ps_1.7.5               htmlTable_2.4.1       
+[109] Formula_1.2-5          mgcv_1.9-0             MASS_7.3-60           
+[112] tidyselect_1.2.0       stringi_1.7.12         highr_0.10            
+[115] yaml_2.3.7             GOSemSim_2.22.0        locfit_1.5-9.8        
+[118] latticeExtra_0.6-30    ggrepel_0.9.3          sass_0.4.7            
+[121] fastmatch_1.1-4        tools_4.2.0            timechange_0.2.0      
+[124] parallel_4.2.0         circlize_0.4.15        rstudioapi_0.15.0     
+[127] foreign_0.8-84         foreach_1.5.2          git2r_0.32.0          
+[130] gridExtra_2.3          farver_2.1.1           ggraph_2.1.0          
+[133] digest_0.6.33          BiocManager_1.30.22    networkD3_0.4         
+[136] Rcpp_1.0.11            broom_1.0.5            later_1.3.1           
+[139] httr_1.4.7             ComplexHeatmap_2.12.1  GENIE3_1.18.0         
+[142] Rdpack_2.5             colorspace_2.1-0       XML_3.99-0.14         
+[145] fs_1.6.3               splines_4.2.0          statmod_1.5.0         
+[148] yulab.utils_0.0.8      RBGL_1.72.0            tidytree_0.4.5        
+[151] graphlayouts_1.0.0     ggplotify_0.1.2        xtable_1.8-4          
+[154] jsonlite_1.8.7         nloptr_2.0.3           ggtree_3.4.4          
+[157] tidygraph_1.2.3        ggfun_0.1.2            R6_2.5.1              
+[160] Hmisc_5.1-0            pillar_1.9.0           htmltools_0.5.6       
+[163] glue_1.6.2             fastmap_1.1.1          minqa_1.2.5           
+[166] codetools_0.2-19       fgsea_1.22.0           utf8_1.2.3            
+[169] sva_3.44.0             lattice_0.21-8         bslib_0.5.1           
+[172] network_1.18.1         pbkrtest_0.5.2         curl_5.0.2            
+[175] gtools_3.9.4           interp_1.1-4           survival_3.5-7        
+[178] statnet.common_4.9.0   rmarkdown_2.24         munsell_0.5.0         
+[181] GetoptLong_1.0.5       DO.db_2.9              GenomeInfoDbData_1.2.8
+[184] iterators_1.0.14       gtable_0.3.4           rbibutils_2.2.15      </code></pre>
 </div>
 </div>
 
