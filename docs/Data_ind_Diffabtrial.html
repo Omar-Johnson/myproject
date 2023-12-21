@@ -388,7 +388,7 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2023-12-18
+<strong>Last updated:</strong> 2023-12-21
 </p>
 <p>
 <strong>Checks:</strong> <span
@@ -519,15 +519,15 @@ project makes it easier to run your code on other machines.</p>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreefd2f3e14b23d5e43e671319258845d74f8c7253atargetblankfd2f3e1a">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreed019bfff2b69dc1b3bfd2179e43a42ca48acbfb4targetblankd019bffa">
 <span class="glyphicon glyphicon-ok text-success"
 aria-hidden="true"></span> <strong>Repository version:</strong>
-<a href="https://github.com/Omar-Johnson/myproject/tree/fd2f3e14b23d5e43e671319258845d74f8c7253a" target="_blank">fd2f3e1</a>
+<a href="https://github.com/Omar-Johnson/myproject/tree/d019bfff2b69dc1b3bfd2179e43a42ca48acbfb4" target="_blank">d019bff</a>
 </a>
 </p>
 </div>
 <div
-id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreefd2f3e14b23d5e43e671319258845d74f8c7253atargetblankfd2f3e1a"
+id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreed019bfff2b69dc1b3bfd2179e43a42ca48acbfb4targetblankd019bffa"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -537,7 +537,7 @@ reproducibility.
 </p>
 <p>
 The results in this page were generated with repository version
-<a href="https://github.com/Omar-Johnson/myproject/tree/fd2f3e14b23d5e43e671319258845d74f8c7253a" target="_blank">fd2f3e1</a>.
+<a href="https://github.com/Omar-Johnson/myproject/tree/d019bfff2b69dc1b3bfd2179e43a42ca48acbfb4" target="_blank">d019bff</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -556,10 +556,11 @@ Ignored files:
     Ignored:    analysis/.DS_Store
 
 Untracked files:
+    Untracked:  analysis/Data_ind_imp_RUVg_WPCNA.Rmd
     Untracked:  analysis/Random_bed.R
 
 Unstaged changes:
-    Deleted:    Data_ind_Diffabtrial.Rmd
+    Modified:   Data_ind_Diffabtrial.Rmd
     Modified:   analysis/Differentially_abundant_proteins_impute.Rmd
     Modified:   analysis/Differentially_abunddant_proteins.Rmd
 
@@ -607,6 +608,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/d019bfff2b69dc1b3bfd2179e43a42ca48acbfb4/analysis/Data_ind_Diffabtrial.Rmd" target="_blank">d019bff</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-21
+</td>
+<td>
+update
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/Omar-Johnson/myproject/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/Data_ind_Diffabtrial.html" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -708,10 +743,12 @@ update
 remove_rows_with_nas &lt;- function(data_frame) {
   data_frame[rowSums(is.na(data_frame)) &lt; 5, ]
 }
+
 # 2
 remove_rows_with_nas_var &lt;- function(data_frame, NA_remove) {
   data_frame[rowSums(is.na(data_frame)) &lt; NA_remove, ]
 }
+
 # 3
 plot_nrow_vs_naremove &lt;- function(data_frame) {
   results &lt;- data.frame(NA_remove = integer(), Rows_Remaining = integer())
@@ -4244,6 +4281,20 @@ Omar-Johnson
 </table>
 </div>
 </div>
+<pre class="r"><code># Make top_proteins your toptable summary 
+top_proteins &lt;- toptable_summary[1:5, ] %&gt;% rownames()
+
+# Loop through each of the top proteins within the Model_counts
+for (i in top_proteins) {
+  # Create a boxplot for each protein
+  boxplot(counts[i, ] ~ phenoData_sub$Cond, 
+          main = i, 
+          xlab = &quot;Condition&quot;, 
+          ylab = &quot;log2-RUVg-Quantnorm Abundance&quot;, 
+          col = c(&quot;lightblue&quot;, &quot;red2&quot;),
+          las = 2)  # las = 2 makes the axis labels perpendicular to the axis
+}</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%2022-7.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%2022-8.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%2022-9.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%2022-10.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/upcor%20on%206%20samples%2022-11.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="linear-model-ruvg-imputation" class="section level1">
 <h1>Linear model + RUVg + Imputation</h1>
@@ -4256,14 +4307,14 @@ cv &lt;- rowSds(dge$counts, useNames = TRUE)/rowMeans(dge$counts)
 # Identify the 10% least variable proteins
 num_controls &lt;- ceiling(0.1 * nrow(dge$counts))
 control_proteins &lt;- names(sort(cv, decreasing = FALSE))[1:num_controls]
-
-
-# Round abundance values (applies more specifically to the imputed values) so that the abundance matrix iss valid input into newSeqExpressionSet
+control_proteins %&gt;% length()</code></pre>
+<pre><code>[1] 419</code></pre>
+<pre class="r"><code># Round abundance values (applies more specifically to the imputed values) so that the abundance matrix iss valid input into newSeqExpressionSet
 dge$counts &lt;- round(dge$counts)
 dge$counts %&gt;% dim()</code></pre>
 <pre><code>[1] 4182   10</code></pre>
 <pre class="r"><code># Generate newSeqExpressionSet object
-dds&lt;- newSeqExpressionSet(counts = dge$counts, phenoData =Meta )
+dds&lt;- newSeqExpressionSet(counts = dge$counts, phenoData = Meta )
 
 
 # Apply RUVg normalization
@@ -4373,6 +4424,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-2.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-2.png" target="_blank">397b327</a>
 </td>
 <td>
@@ -4410,6 +4472,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-3.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-3.png" target="_blank">397b327</a>
@@ -4451,6 +4524,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-4.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-4.png" target="_blank">397b327</a>
 </td>
 <td>
@@ -4488,6 +4572,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-5.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-5.png" target="_blank">397b327</a>
@@ -4529,6 +4624,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-6.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-6.png" target="_blank">397b327</a>
 </td>
 <td>
@@ -4566,6 +4672,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-7.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-7.png" target="_blank">397b327</a>
@@ -4607,6 +4724,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-8.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-8.png" target="_blank">397b327</a>
 </td>
 <td>
@@ -4644,6 +4772,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-9.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-9.png" target="_blank">397b327</a>
@@ -4685,6 +4824,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-10.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-10.png" target="_blank">397b327</a>
 </td>
 <td>
@@ -4722,6 +4872,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-11.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-11.png" target="_blank">397b327</a>
@@ -4763,6 +4924,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-12.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-12.png" target="_blank">397b327</a>
 </td>
 <td>
@@ -4776,7 +4948,22 @@ Omar-Johnson
 </table>
 </div>
 </div>
-<pre class="r"><code>counts_RUVg_log2_sub &lt;- counts_RUVg_log2[,c(1,2,4,6,7,9)]
+<pre class="r"><code>Meta</code></pre>
+<pre><code>    Samples  Ind  Rep    Cond     Cond_Ind
+S1       S1 B_77  Bio     Dox     B_77_Dox
+S3       S3 C_87  Bio     Dox     C_87_Dox
+S5       S5 A_48 Tech     Dox     A_48_Dox
+S7       S7 A_48 Tech     Dox     A_48_Dox
+S9       S9 A_48 Tech     Dox     A_48_Dox
+S2       S2 B_77  Bio Control B_77_Control
+S4       S4 C_87  Bio Control C_87_Control
+S6       S6 A_48 Tech Control A_48_Control
+S8       S8 A_48 Tech Control A_48_Control
+S10     S10 A_48 Tech Control A_48_Control</code></pre>
+<pre class="r"><code>phenoData_sub &lt;- Meta[c(1,2,4,6,7,9),]
+
+
+counts_RUVg_log2_sub &lt;- counts_RUVg_log2[,c(1,2,4,6,7,9)]
 counts_RUVg_log2_sub %&gt;% head()</code></pre>
 <pre><code>                 S1       S3       S7       S2       S4       S8
 A0A0B4J2A2 20.15930 20.16670 20.67291 20.14881 20.42988 20.40459
@@ -4813,6 +5000,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-13.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-13.png" target="_blank">397b327</a>
@@ -4854,6 +5052,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-14.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-14.png" target="_blank">397b327</a>
 </td>
 <td>
@@ -4891,6 +5100,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-15.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-15.png" target="_blank">397b327</a>
@@ -4932,6 +5152,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-16.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-16.png" target="_blank">397b327</a>
 </td>
 <td>
@@ -4969,6 +5200,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-17.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-17.png" target="_blank">397b327</a>
@@ -5010,6 +5252,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-18.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-18.png" target="_blank">397b327</a>
 </td>
 <td>
@@ -5047,6 +5300,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-19.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-19.png" target="_blank">397b327</a>
@@ -5104,6 +5368,17 @@ Date
 <tbody>
 <tr>
 <td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-20.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
+<tr>
+<td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-20.png" target="_blank">397b327</a>
 </td>
 <td>
@@ -5142,6 +5417,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/2929416dfeadd1a4f9ac6a99c90135eced046d50/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-21.png" target="_blank">2929416</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2023-12-18
+</td>
+</tr>
 <tr>
 <td>
 <a href="https://github.com/Omar-Johnson/myproject/blob/397b327d39f332fa31b98c8b82ac499fe31a9f81/docs/figure/Data_ind_Diffabtrial.Rmd/RUVg model-21.png" target="_blank">397b327</a>
@@ -5342,6 +5628,327 @@ Omar-Johnson
 </table>
 </div>
 </div>
+<pre class="r"><code># Make top_proteins your toptable summary 
+top_proteins &lt;- toptable_summary_DoxvNorm[1:5, ] %&gt;% rownames()
+
+# Loop through each of the top proteins within the Model_counts
+for (i in top_proteins) {
+  # Create a boxplot for each protein
+  boxplot(Model_counts[i, ] ~ phenoData_RUVg$Cond, 
+          main = i, 
+          xlab = &quot;Condition&quot;, 
+          ylab = &quot;log2-RUVg-Quantnorm Abundance&quot;, 
+          col = c(&quot;lightblue&quot;, &quot;red2&quot;),
+          las = 2)  # las = 2 makes the axis labels perpendicular to the axis
+}</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-24.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-25.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-26.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-27.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/RUVg%20model-28.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="ruv-iii" class="section level1">
+<h1>RUV III</h1>
+<pre class="r"><code># Convert to DGEList object 
+dge &lt;- DGEList(counts = as.matrix(Protein_DF_Abundance_imp_2))
+
+
+# Calculate variability 
+cv &lt;- rowSds(dge$counts, useNames = TRUE)/rowMeans(dge$counts)
+
+# Identify the 10% least variable proteins
+num_controls &lt;- ceiling(0.05 * nrow(dge$counts))
+control_proteins &lt;- names(sort(cv, decreasing = FALSE))[1:num_controls]
+control_proteins %&gt;% length()</code></pre>
+<pre><code>[1] 210</code></pre>
+<pre class="r"><code># Create an index vector
+control_proteins_index &lt;- match(control_proteins, rownames(Protein_DF_Abundance_imp_2))
+control_proteins_index %&gt;% length()</code></pre>
+<pre><code>[1] 210</code></pre>
+<pre class="r"><code># Design matrix from metadata
+Meta</code></pre>
+<pre><code>    Samples  Ind  Rep    Cond     Cond_Ind
+S1       S1 B_77  Bio     Dox     B_77_Dox
+S3       S3 C_87  Bio     Dox     C_87_Dox
+S5       S5 A_48 Tech     Dox     A_48_Dox
+S7       S7 A_48 Tech     Dox     A_48_Dox
+S9       S9 A_48 Tech     Dox     A_48_Dox
+S2       S2 B_77  Bio Control B_77_Control
+S4       S4 C_87  Bio Control C_87_Control
+S6       S6 A_48 Tech Control A_48_Control
+S8       S8 A_48 Tech Control A_48_Control
+S10     S10 A_48 Tech Control A_48_Control</code></pre>
+<pre class="r"><code>Model_mat &lt;- replicate.matrix(a = Meta[,c(4)])
+Model_mat</code></pre>
+<pre><code>   Control Dox
+1        0   1
+2        0   1
+3        0   1
+4        0   1
+5        0   1
+6        1   0
+7        1   0
+8        1   0
+9        1   0
+10       1   0
+attr(,&quot;assign&quot;)
+[1] 1 1
+attr(,&quot;contrasts&quot;)
+attr(,&quot;contrasts&quot;)$a
+[1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code>Test &lt;- RUVIII(Y = t(Protein_DF_Abundance_imp_2 %&gt;% log2()), M = Model_mat, ctl =control_proteins_index , k = 1, return.info = TRUE)
+
+
+New_Y &lt;- Test$newY %&gt;% t() 
+New_Y[(New_Y %&gt;% rowMeans()) &lt; 0, ]</code></pre>
+<pre><code>     S1 S3 S5 S7 S9 S2 S4 S6 S8 S10</code></pre>
+<pre class="r"><code># PCA of RUVIII normalized abundance values:
+prcomp_res &lt;- prcomp(t(New_Y %&gt;% as.matrix()), center = TRUE, scale. = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_Y %&gt;% head()</code></pre>
+<pre><code>                 S1       S3       S5       S7       S9       S2       S4
+A0A0B4J2A2 18.83632 18.79443 19.28942 19.40656 19.49348 18.97978 19.24259
+A0A0B4J2D5 23.96540 24.07276 23.95113 23.81659 23.92396 23.89443 23.74051
+A0A494C071 18.14255 18.08070 17.68807 18.21752 18.08793 18.40303 18.40635
+A0AVT1     14.29941 14.44480 15.45203 15.11493 15.06703 14.26425 14.52497
+A0FGR8     20.26983 20.13941 19.91745 20.01871 19.99166 20.11768 20.13968
+A0JLT2     17.90073 17.73392 17.66481 17.33240 17.85925 17.91398 17.89374
+                 S6       S8      S10
+A0A0B4J2A2 19.25256 19.16810 19.31979
+A0A0B4J2D5 23.73598 23.69334 23.62843
+A0A494C071 18.06396 18.35044 17.95179
+A0AVT1     15.07628 14.46519 14.63148
+A0FGR8     20.07468 20.12751 20.04989
+A0JLT2     17.48087 17.13845 17.88291</code></pre>
+<pre class="r"><code>New_Y %&gt;% rowMeans() %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_Y %&gt;% na.omit() %&gt;% dim()</code></pre>
+<pre><code>[1] 4182   10</code></pre>
+<pre class="r"><code>New_Y[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_Y[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_Y[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_Y[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-6.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_Y[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-7.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_Y[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-8.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_Y[,7] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-9.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_Y[,8] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-10.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_Y[,9] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-11.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>New_Y[,10] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-12.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Meta_sub&lt;-Meta[c(1,2,4,6,7,9),]
+counts_RUV_log2_sub &lt;- New_Y[,c(1,2,4,6,7,9)]
+counts_RUV_log2_sub %&gt;% head()</code></pre>
+<pre><code>                 S1       S3       S7       S2       S4       S8
+A0A0B4J2A2 18.83632 18.79443 19.40656 18.97978 19.24259 19.16810
+A0A0B4J2D5 23.96540 24.07276 23.81659 23.89443 23.74051 23.69334
+A0A494C071 18.14255 18.08070 18.21752 18.40303 18.40635 18.35044
+A0AVT1     14.29941 14.44480 15.11493 14.26425 14.52497 14.46519
+A0FGR8     20.26983 20.13941 20.01871 20.11768 20.13968 20.12751
+A0JLT2     17.90073 17.73392 17.33240 17.91398 17.89374 17.13845</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub %&gt;% dim()</code></pre>
+<pre><code>[1] 4182    6</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub[,1] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-13.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-14.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub[,3] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-15.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub[,4] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-16.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub[,5] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-17.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub[,6] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-18.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># PCA of RUVIII normalized abundance values:
+prcomp_res &lt;- prcomp(t(counts_RUV_log2_sub %&gt;% as.matrix()), center = TRUE, scale. = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-19.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm &lt;- limma::normalizeBetweenArrays(counts_RUV_log2_sub, method = &quot;quantile&quot;)
+counts_RUV_log2_sub_quantnorm %&gt;% head()</code></pre>
+<pre><code>                 S1       S3       S7       S2       S4       S8
+A0A0B4J2A2 18.86297 18.90679 19.42470 18.98217 19.19023 19.07789
+A0A0B4J2D5 23.92284 24.05312 23.80434 23.96008 23.78608 23.61631
+A0A494C071 18.18276 18.18276 18.23292 18.39560 18.33624 18.28836
+A0AVT1     14.39705 14.50740 15.22635 14.27202 14.39705 14.42666
+A0FGR8     20.25839 20.18068 20.05801 20.12714 20.10611 20.06667
+A0JLT2     17.92053 17.84082 17.39529 17.88697 17.81814 17.05696</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm %&gt;% dim()</code></pre>
+<pre><code>[1] 4182    6</code></pre>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,1] %&gt;% hist(breaks = 100)
+counts_RUV_log2_sub_quantnorm[,2] %&gt;% hist(breaks = 100)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-20.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>counts_RUV_log2_sub_quantnorm[,3] %&gt;% hist(breaks = 100)
+counts_RUV_log2_sub_quantnorm[,4] %&gt;% hist(breaks = 100)
+counts_RUV_log2_sub_quantnorm[,5] %&gt;% hist(breaks = 100)
+counts_RUV_log2_sub_quantnorm[,6] %&gt;% hist(breaks = 100)
+# PCA of RUVIII normalized abundance values:
+prcomp_res &lt;- prcomp(t(counts_RUV_log2_sub_quantnorm %&gt;% as.matrix()), center = TRUE, scale. = TRUE)
+ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta_sub), colour = &quot;Cond&quot;, shape = &quot;Ind&quot;, size =4)+
+  theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-21.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Create a DataFrame for the phenoData
+phenoData_RUVIII &lt;- DataFrame(Meta)
+phenoData_RUVIII &lt;- Meta[c(1,2,4,6,7,9), ]
+
+
+
+# View changes 
+phenoData_RUVIII</code></pre>
+<pre><code>   Samples  Ind  Rep    Cond     Cond_Ind
+S1      S1 B_77  Bio     Dox     B_77_Dox
+S3      S3 C_87  Bio     Dox     C_87_Dox
+S7      S7 A_48 Tech     Dox     A_48_Dox
+S2      S2 B_77  Bio Control B_77_Control
+S4      S4 C_87  Bio Control C_87_Control
+S8      S8 A_48 Tech Control A_48_Control</code></pre>
+<pre class="r"><code># Create Design Matrix 
+# phenoData$Cond &lt;- factor(phenoData$Cond , levels = c(&quot;Control&quot;, &quot;Dox&quot;))
+design &lt;- model.matrix(~ 0 + Cond, data = phenoData_RUVIII)
+design</code></pre>
+<pre><code>   CondControl CondDox
+S1           0       1
+S3           0       1
+S7           0       1
+S2           1       0
+S4           1       0
+S8           1       0
+attr(,&quot;assign&quot;)
+[1] 1 1
+attr(,&quot;contrasts&quot;)
+attr(,&quot;contrasts&quot;)$Cond
+[1] &quot;contr.treatment&quot;</code></pre>
+<pre class="r"><code># rename columns 
+colnames(design) &lt;- c(&#39;Control&#39;, &quot;Dox&quot;)
+
+
+# Get model counts 
+Model_counts &lt;- counts_RUV_log2_sub_quantnorm
+
+
+# Fit model
+dupcor &lt;- duplicateCorrelation(Model_counts, design = design, block = phenoData_RUVIII$Ind)
+
+fit &lt;- lmFit(object = as.matrix(Model_counts), block = phenoData_RUVIII$Ind, design = design, correlation = dupcor$consensus.correlation)
+
+fit2 &lt;- eBayes(fit)
+
+
+# Make contrasts
+cm &lt;- makeContrasts(
+  DoxvNorm = Dox - Control,
+  levels = design)
+
+
+# Model with contrasts
+fit2 &lt;- contrasts.fit(fit, cm)
+fit2 &lt;- eBayes(fit2, robust = TRUE, trend = TRUE)
+
+
+# Summarize
+results_summary &lt;- decideTests(fit2, adjust.method = &quot;none&quot;, p.value = 0.05)
+summary(results_summary)</code></pre>
+<pre><code>       DoxvNorm
+Down        546
+NotSig     3027
+Up          609</code></pre>
+<pre class="r"><code># Toptable summary organized   
+toptable_summary_DoxvNorm &lt;- topTable(fit2, coef = &quot;DoxvNorm&quot;,number = (nrow(Model_counts)), p.value = 1, adjust.method = &quot;none&quot;)
+toptable_summary_DoxvNorm$Protein &lt;- rownames(toptable_summary_DoxvNorm)
+toptable_summary_DoxvNorm$P.Value %&gt;% hist(breaks = 100)
+abline(v = c(0.01,0.025, 0.05, 0.1), col = &quot;red&quot; )</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-22.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>toptable_summary_DoxvNorm %&gt;% head()</code></pre>
+<pre><code>           logFC  AveExpr         t      P.Value    adj.P.Val        B Protein
+Q15061  2.444967 18.06896  22.98679 2.938337e-07 2.938337e-07 6.950800  Q15061
+O76021 -2.204465 21.49534 -18.66029 1.173790e-06 1.173790e-06 5.995308  O76021
+P43694 -1.842058 18.83998 -15.92359 2.895475e-06 2.895475e-06 5.308015  P43694
+P01130 -1.815040 19.22969 -14.90808 4.560250e-06 4.560250e-06 4.929984  P01130
+O14763  2.068618 20.70338  13.71850 7.513816e-06 7.513816e-06 4.502320  O14763
+Q6EMK4  1.804211 18.96917  13.54255 8.117846e-06 8.117846e-06 4.434546  Q6EMK4</code></pre>
+<pre class="r"><code># Volcano plots 
+# 1. Create a column to threshold P-values 
+toptable_summary_DoxvNorm &lt;- toptable_summary_DoxvNorm %&gt;%  mutate(threshold_P = P.Value &lt; 0.05)
+
+
+# 2. Plot 
+ggplot(toptable_summary_DoxvNorm)+
+  geom_point(mapping = aes(x = logFC, y = -log10(P.Value), color = threshold_P))+
+  xlab(&quot;log2FC&quot;)+
+  ylab(&quot;-log10 nominal p-value&quot;)+
+  ylim(0, 7)+
+  xlim(-6, 6)+
+  theme(legend.position = &quot;none&quot;, 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-23.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Boxplots 
+toptable_summary_DoxvNorm[1:5,] %&gt;% rownames()</code></pre>
+<pre><code>[1] &quot;Q15061&quot; &quot;O76021&quot; &quot;P43694&quot; &quot;P01130&quot; &quot;O14763&quot;</code></pre>
+<pre class="r"><code># 1.
+boxplot(Model_counts[&quot;Q15061&quot;,]~Meta_sub$Cond, 
+        main = &quot;Q15061&quot;, 
+        xlab = &quot;Condition&quot;, 
+        ylab = &quot;log2-RUVIII-Quntnorm Abundance&quot;, 
+        col = c( &quot;lightblue&quot;,&quot;red2&quot;)
+)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-24.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># 2.
+boxplot(Model_counts[&quot;O76021&quot;,]~Meta_sub$Cond, 
+        main = &quot;O76021&quot;, 
+        xlab = &quot;Condition&quot;, 
+        ylab = &quot;log2-RUVIII-Quntnorm Abundance&quot;, 
+        col = c( &quot;lightblue&quot;,&quot;red2&quot;)
+)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-25.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># 3.
+boxplot(Model_counts[&quot;P43694&quot;,]~Meta_sub$Cond, 
+        main = &quot;P43694&quot;, 
+        xlab = &quot;Condition&quot;, 
+        ylab = &quot;log2-RUVIII-Quntnorm Abundance&quot;, 
+        col = c( &quot;lightblue&quot;,&quot;red2&quot;)
+)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-26.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># 4.
+boxplot(Model_counts[&quot;P01130&quot;,]~Meta_sub$Cond, 
+        main = &quot;P01130&quot;, 
+        xlab = &quot;Condition&quot;, 
+        ylab = &quot;log2-RUVIII-Quntnorm Abundance&quot;, 
+        col = c( &quot;lightblue&quot;,&quot;red2&quot;)
+)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-27.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># 5.
+boxplot(Model_counts[&quot;O14763&quot;,]~Meta_sub$Cond, 
+        main = &quot;O14763&quot;, 
+        xlab = &quot;Condition&quot;, 
+        ylab = &quot;log2-RUVIII-Quntnorm Abundance&quot;, 
+        col = c( &quot;lightblue&quot;,&quot;red2&quot;)
+)</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-28.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># Make top_proteins your toptable summary 
+top_proteins &lt;- toptable_summary_DoxvNorm[1:5, ] %&gt;% rownames()
+
+# Loop through each of the top proteins within the Model_counts
+for (i in top_proteins) {
+  # Create a boxplot for each protein
+  boxplot(Model_counts[i, ] ~ Meta_sub$Cond, 
+          main = i, 
+          xlab = &quot;Condition&quot;, 
+          ylab = &quot;log2-RUVIII-Quantnorm Abundance&quot;, 
+          col = c(&quot;lightblue&quot;, &quot;red2&quot;),
+          las = 2)  # las = 2 makes the axis labels perpendicular to the axis
+
+
+}</code></pre>
+<p><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-29.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-30.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-31.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-32.png" width="672" style="display: block; margin: auto;" /><img src="figure/Data_ind_Diffabtrial.Rmd/RUVIII-33.png" width="672" style="display: block; margin: auto;" /></p>
 <br>
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
@@ -5367,62 +5974,63 @@ attached base packages:
 [8] methods   base     
 
 other attached packages:
- [1] DESeq2_1.36.0                          
- [2] impute_1.70.0                          
- [3] WGCNA_1.72-1                           
- [4] fastcluster_1.2.3                      
- [5] dynamicTreeCut_1.63-1                  
- [6] BioNERO_1.4.2                          
- [7] reshape2_1.4.4                         
- [8] ggridges_0.5.4                         
- [9] biomaRt_2.52.0                         
-[10] ggvenn_0.1.10                          
-[11] UpSetR_1.4.0                           
-[12] DOSE_3.22.1                            
-[13] variancePartition_1.26.0               
-[14] clusterProfiler_4.4.4                  
-[15] pheatmap_1.0.12                        
-[16] qvalue_2.28.0                          
-[17] Homo.sapiens_1.3.1                     
-[18] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2
-[19] org.Hs.eg.db_3.15.0                    
-[20] GO.db_3.15.0                           
-[21] OrganismDbi_1.38.1                     
-[22] GenomicFeatures_1.48.4                 
-[23] AnnotationDbi_1.58.0                   
-[24] cluster_2.1.4                          
-[25] ggfortify_0.4.16                       
-[26] lubridate_1.9.2                        
-[27] forcats_1.0.0                          
-[28] stringr_1.5.0                          
-[29] dplyr_1.1.2                            
-[30] purrr_1.0.2                            
-[31] readr_2.1.4                            
-[32] tidyr_1.3.0                            
-[33] tibble_3.2.1                           
-[34] ggplot2_3.4.3                          
-[35] tidyverse_2.0.0                        
-[36] RColorBrewer_1.1-3                     
-[37] RUVSeq_1.30.0                          
-[38] edgeR_3.38.4                           
-[39] limma_3.52.4                           
-[40] EDASeq_2.30.0                          
-[41] ShortRead_1.54.0                       
-[42] GenomicAlignments_1.32.1               
-[43] SummarizedExperiment_1.26.1            
-[44] MatrixGenerics_1.8.1                   
-[45] matrixStats_1.0.0                      
-[46] Rsamtools_2.12.0                       
-[47] GenomicRanges_1.48.0                   
-[48] Biostrings_2.64.1                      
-[49] GenomeInfoDb_1.32.4                    
-[50] XVector_0.36.0                         
-[51] IRanges_2.30.1                         
-[52] S4Vectors_0.34.0                       
-[53] BiocParallel_1.30.4                    
-[54] Biobase_2.56.0                         
-[55] BiocGenerics_0.42.0                    
-[56] workflowr_1.7.1                        
+ [1] ruv_0.9.7.1                            
+ [2] DESeq2_1.36.0                          
+ [3] impute_1.70.0                          
+ [4] WGCNA_1.72-1                           
+ [5] fastcluster_1.2.3                      
+ [6] dynamicTreeCut_1.63-1                  
+ [7] BioNERO_1.4.2                          
+ [8] reshape2_1.4.4                         
+ [9] ggridges_0.5.4                         
+[10] biomaRt_2.52.0                         
+[11] ggvenn_0.1.10                          
+[12] UpSetR_1.4.0                           
+[13] DOSE_3.22.1                            
+[14] variancePartition_1.26.0               
+[15] clusterProfiler_4.4.4                  
+[16] pheatmap_1.0.12                        
+[17] qvalue_2.28.0                          
+[18] Homo.sapiens_1.3.1                     
+[19] TxDb.Hsapiens.UCSC.hg19.knownGene_3.2.2
+[20] org.Hs.eg.db_3.15.0                    
+[21] GO.db_3.15.0                           
+[22] OrganismDbi_1.38.1                     
+[23] GenomicFeatures_1.48.4                 
+[24] AnnotationDbi_1.58.0                   
+[25] cluster_2.1.4                          
+[26] ggfortify_0.4.16                       
+[27] lubridate_1.9.2                        
+[28] forcats_1.0.0                          
+[29] stringr_1.5.0                          
+[30] dplyr_1.1.2                            
+[31] purrr_1.0.2                            
+[32] readr_2.1.4                            
+[33] tidyr_1.3.0                            
+[34] tibble_3.2.1                           
+[35] ggplot2_3.4.3                          
+[36] tidyverse_2.0.0                        
+[37] RColorBrewer_1.1-3                     
+[38] RUVSeq_1.30.0                          
+[39] edgeR_3.38.4                           
+[40] limma_3.52.4                           
+[41] EDASeq_2.30.0                          
+[42] ShortRead_1.54.0                       
+[43] GenomicAlignments_1.32.1               
+[44] SummarizedExperiment_1.26.1            
+[45] MatrixGenerics_1.8.1                   
+[46] matrixStats_1.0.0                      
+[47] Rsamtools_2.12.0                       
+[48] GenomicRanges_1.48.0                   
+[49] Biostrings_2.64.1                      
+[50] GenomeInfoDb_1.32.4                    
+[51] XVector_0.36.0                         
+[52] IRanges_2.30.1                         
+[53] S4Vectors_0.34.0                       
+[54] BiocParallel_1.30.4                    
+[55] Biobase_2.56.0                         
+[56] BiocGenerics_0.42.0                    
+[57] workflowr_1.7.1                        
 
 loaded via a namespace (and not attached):
   [1] rappdirs_0.3.3         rtracklayer_1.56.1     minet_3.54.0          
