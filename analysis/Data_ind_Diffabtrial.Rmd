@@ -1121,12 +1121,20 @@ ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta_sub), colour = "Cond", s
 counts_RUV_log2_sub_quantnorm <- limma::normalizeBetweenArrays(counts_RUV_log2_sub, method = "quantile")
 counts_RUV_log2_sub_quantnorm %>% head()
 counts_RUV_log2_sub_quantnorm %>% dim()
-counts_RUV_log2_sub_quantnorm[,1] %>% hist(breaks = 100)
-counts_RUV_log2_sub_quantnorm[,2] %>% hist(breaks = 100)
-counts_RUV_log2_sub_quantnorm[,3] %>% hist(breaks = 100)
-counts_RUV_log2_sub_quantnorm[,4] %>% hist(breaks = 100)
-counts_RUV_log2_sub_quantnorm[,5] %>% hist(breaks = 100)
-counts_RUV_log2_sub_quantnorm[,6] %>% hist(breaks = 100)
+Meta_sub
+# 1.
+counts_RUV_log2_sub_quantnorm[,1] %>% hist(main = "B_77_Dox", breaks = 50)
+# 2.
+counts_RUV_log2_sub_quantnorm[,2] %>% hist(main = "C_87_Dox", breaks = 50)
+# 3.
+counts_RUV_log2_sub_quantnorm[,3] %>% hist(main = "A_48_Dox", breaks = 50)
+# 4.
+counts_RUV_log2_sub_quantnorm[,4] %>% hist(main = "B_77_Control", breaks = 50)
+# 5.
+counts_RUV_log2_sub_quantnorm[,5] %>% hist(main = "C_87_Control", breaks = 50)
+# 6.
+counts_RUV_log2_sub_quantnorm[,6] %>% hist(main = "A_48_Control", breaks = 50)
+
 # PCA of RUVIII normalized abundance values:
 prcomp_res <- prcomp(t(counts_RUV_log2_sub_quantnorm %>% as.matrix()), center = TRUE, scale. = TRUE)
 ggplot2::autoplot(prcomp_res, data = as.data.frame(Meta_sub), colour = "Cond", shape = "Ind", size =4)+
@@ -1210,53 +1218,6 @@ ggplot(toptable_summary_DoxvNorm)+
         axis.title = element_text(size = rel(1.25)))+
   theme_bw()
 
-
-# Boxplots 
-toptable_summary_DoxvNorm[1:5,] %>% rownames()
-
-# 1.
-boxplot(Model_counts["Q15061",]~Meta_sub$Cond, 
-        main = "Q15061", 
-        xlab = "Condition", 
-        ylab = "log2-RUVIII-Quntnorm Abundance", 
-        col = c( "lightblue","red2")
-)
-
-
-# 2.
-boxplot(Model_counts["O76021",]~Meta_sub$Cond, 
-        main = "O76021", 
-        xlab = "Condition", 
-        ylab = "log2-RUVIII-Quntnorm Abundance", 
-        col = c( "lightblue","red2")
-)
-
-
-# 3.
-boxplot(Model_counts["P43694",]~Meta_sub$Cond, 
-        main = "P43694", 
-        xlab = "Condition", 
-        ylab = "log2-RUVIII-Quntnorm Abundance", 
-        col = c( "lightblue","red2")
-)
-
-
-# 4.
-boxplot(Model_counts["P01130",]~Meta_sub$Cond, 
-        main = "P01130", 
-        xlab = "Condition", 
-        ylab = "log2-RUVIII-Quntnorm Abundance", 
-        col = c( "lightblue","red2")
-)
-
-
-# 5.
-boxplot(Model_counts["O14763",]~Meta_sub$Cond, 
-        main = "O14763", 
-        xlab = "Condition", 
-        ylab = "log2-RUVIII-Quntnorm Abundance", 
-        col = c( "lightblue","red2")
-)
 
 # Make top_proteins your toptable summary 
 top_proteins <- toptable_summary_DoxvNorm[1:5, ] %>% rownames()
