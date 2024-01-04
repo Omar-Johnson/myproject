@@ -1101,6 +1101,7 @@ New_Y[,8] %>% hist(breaks = 100)
 New_Y[,9] %>% hist(breaks = 100)
 New_Y[,10] %>% hist(breaks = 100)
 
+
 Meta_sub<-Meta[c(1,2,4,6,7,9),]
 counts_RUV_log2_sub <- New_Y[,c(1,2,4,6,7,9)]
 counts_RUV_log2_sub %>% head()
@@ -1221,6 +1222,23 @@ ggplot(toptable_summary_DoxvNorm)+
 
 # Make top_proteins your toptable summary 
 top_proteins <- toptable_summary_DoxvNorm[1:5, ] %>% rownames()
+
+# Loop through each of the top proteins within the Model_counts
+for (i in top_proteins) {
+  # Create a boxplot for each protein
+  boxplot(Model_counts[i, ] ~ Meta_sub$Cond, 
+          main = i, 
+          xlab = "Condition", 
+          ylab = "log2-RUVIII-Quantnorm Abundance", 
+          col = c("lightblue", "red2"),
+          las = 2)  # las = 2 makes the axis labels perpendicular to the axis
+
+
+}
+
+
+# Comparing to a ddifferent cutoff
+top_proteins <- toptable_summary_DoxvNorm[(toptable_summary_DoxvNorm$P.Value < 0.05) & (toptable_summary_DoxvNorm$P.Value > 0.0495),] %>% rownames()
 
 # Loop through each of the top proteins within the Model_counts
 for (i in top_proteins) {

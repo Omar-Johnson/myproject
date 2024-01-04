@@ -23,8 +23,14 @@ editor_options:
 
 [2. All NA removed values + Simple tree](https://omar-johnson.github.io/myproject/WPCNA_shallow_split_2.html)
 
+[3. RUVIII Imputed DIA tree](https://omar-johnson.github.io/myproject/Data_ind_imp_RUVIII_WPCNA.html)
+
+
+
 # Enrichment of things 
 [1. DE proteins (imputed) in GO + Reactome ](https://omar-johnson.github.io/myproject/GO_Reactome_enrich_Imputed_proteins.html)
+
+[2. Sign testing and GWAS sumstat enrichment tests with DIA imputed data ](https://omar-johnson.github.io/myproject/Sign_and_genetic_summary_stat_testing.html)
 
 
 

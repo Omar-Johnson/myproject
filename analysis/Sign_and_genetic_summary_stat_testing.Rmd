@@ -1,0 +1,1484 @@
+---
+title: "Sign_and_genetic_summary_stat_testing"
+author: "Omar Johnson"
+date: "2023-12-27"
+output: html_document
+---
+```{r Libraries, include=FALSE}
+library(TxDb.Hsapiens.UCSC.hg19.knownGene)
+library(TxDb.Hsapiens.UCSC.hg38.knownGene)
+library(Homo.sapiens)
+library(GenomicRanges)
+library(IRanges)
+library(EDASeq)
+library(RUVSeq)
+library(RColorBrewer)
+library(edgeR)
+library(limma)
+library(Biobase)
+library(SummarizedExperiment)
+library(tidyverse) 
+library(ggfortify)
+library(cluster)
+library(edgeR)
+library(limma)
+library(Homo.sapiens)
+library(BiocParallel)
+library(qvalue)
+library(pheatmap)
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(RColorBrewer)
+library(variancePartition)
+library(DOSE)
+library(UpSetR)
+library(ggvenn)
+library(biomaRt)
+library(ggridges)
+library(reshape2)
+library(BioNERO)
+library(WGCNA)
+library(impute)
+library(dynamicTreeCut)
+```
+
+```{r RNA-Seq plots}
+# Get data 
+RNA_Seq_Top_Table <- read_csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/RNA_Seq/Doxtoplist.csv", col_names = TRUE, row.names(1))
+RNA_Seq_Top_Table %>% dim()
+
+# Group the 24hr data together 
+RNA_Seq_Top_Table_24hr <- RNA_Seq_Top_Table %>% dplyr::filter(time == "24_hours")
+
+
+
+toptable_summary_DoxvNorm <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/DIA_proteins/RUVIII_Imputed/Toptable_summary_RUVIII.csv", header = TRUE, row.names = 1)
+toptable_summary_DoxvNorm %>% head()
+
+
+
+#### 24 hr Plots ####
+# Basic workflow for visualizing. and interpreting genes for 24 hr timepoint. 
+# Multiply by -1 according to Renee. 
+RNA_Seq_Top_Table_24hr$logFC <- RNA_Seq_Top_Table_24hr$logFC * -1 
+
+# 1. Create a column to threshold adjusted P-values/q-values 
+RNA_24hr_Dox_toptable_Threshold_0.05 <- RNA_Seq_Top_Table_24hr %>%  mutate(threshold_P = adj.P.Val < 0.05)
+
+
+# 2. Do the volcano plot 
+ggplot(RNA_24hr_Dox_toptable_Threshold_0.05)+
+  geom_point(mapping = aes(x = logFC, y = -log10(adj.P.Val), color = threshold_P ))+
+  xlab("log2FC")+
+  ylab("-log10 adjusted p-value")+
+  ylim(0, 25)+
+  xlim(-8, 8)+
+  theme(legend.position = "none", 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()
+
+#### Volcano plot with labels  #### 
+ggplot(RNA_24hr_Dox_toptable_Threshold_0.05)+
+  geom_point(mapping = aes(x = logFC, y = -log10(adj.P.Val), color = threshold_P))+
+  geom_text(mapping = aes(x = logFC, y = -log10(adj.P.Val), label = SYMBOL), 
+            hjust = -0.1, vjust = -0.1, check_overlap = TRUE, size = 3)+
+  xlab("log2FC")+
+  ylab("-log10 adjusted p-value")+
+  ylim(0, 30)+
+  xlim(-10, 10)+
+  theme(legend.position = "none", 
+        plot.title = element_text(size = rel(1.5), hjust = 0.5),
+        axis.title = element_text(size = rel(1.25)))+
+  theme_bw()
+```
+
+```{r Sign Tests}
+# Use the ensembl dataset
+mart <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+# vector of Uniprot IDs
+uniprot_ids <- toptable_summary_DoxvNorm %>% rownames()
+
+uniprot_ids %>% length()
+
+
+
+# Get the corresponding ENTREZ IDs----"ensembl_gene_id"
+results_Pro <- getBM(filters = "uniprotswissprot", 
+                     attributes = c("uniprotswissprot", "hgnc_symbol"), 
+                     values = uniprot_ids, 
+                     mart = mart)
+
+
+# Get the corresponding SYMBOLs
+results_RNA <- getBM(filters = "hgnc_symbol", 
+                     attributes = c("uniprotswissprot", "hgnc_symbol"), 
+                     values = RNA_24hr_Dox_toptable_Threshold_0.05$SYMBOL, 
+                     mart = mart)
+
+results_Pro %>% colnames()
+results_RNA %>% colnames()
+RNA_Key_Merged <- merge(RNA_24hr_Dox_toptable_Threshold_0.05, results_RNA, by.x = "SYMBOL" , by.y = "hgnc_symbol")
+
+Pro_Key_Merged <- merge(toptable_summary_DoxvNorm, results_Pro, by.x = "Protein" , by.y = "uniprotswissprot")
+
+Pro_RNA_Key_Merge <-  merge(RNA_Key_Merged, Pro_Key_Merged, by.x = "uniprotswissprot" , by.y = "Protein")
+ 
+
+RNA_for_merge <- RNA_24hr_Dox_toptable_Threshold_0.05[, colnames(RNA_24hr_Dox_toptable_Threshold_0.05) %in% c("logFC","adj.P.Val","SYMBOL" )]
+colnames(RNA_for_merge) <- c("SYMBOL", "RNA_LogFC", "RNA_adj_P")
+RNA_for_merge_2 <- merge(results_RNA, RNA_for_merge, by.x = "hgnc_symbol" , by.y = "SYMBOL")
+RNA_for_merge_2 %>% head()
+
+Pro_Key_Merged_2 <- merge(Pro_Key_Merged, RNA_for_merge_2, by.x = "Protein" , by.y = "uniprotswissprot")
+Pro_Key_Merged_2 %>% head()
+
+# Joining protein and RNA data frames together 
+Results_RNA_DF_Pro_DF_Merged_NAomit <- data.frame(uniprotswissprot = Pro_Key_Merged_2$Protein, 
+                                                  hgnc_symbol =Pro_Key_Merged_2$hgnc_symbol.x , 
+                                                  RNA_LogFC = Pro_Key_Merged_2$RNA_LogFC, 
+                                                  RNA_Pval = Pro_Key_Merged_2$RNA_adj_P, 
+                                                  Pro_LogFC = Pro_Key_Merged_2$logFC, 
+                                                  Pro_Pval =  Pro_Key_Merged_2$P.Value)
+
+Results_RNA_DF_Pro_DF_Merged_NAomit %>% head()
+Results_RNA_DF_Pro_DF_Merged_NAomit %>% dim()
+
+
+
+#### Sign Testing #### 
+# 24hr--- DE protein & Not DE RNA (Up and down regulated), ~ DE protein & DE RNA (up and down regulated), DE protein & DE RNA with same and opposite sign (up and down regulated)
+
+
+# Add a new column to the data frame indicating whether the signs of Pro_LogFC and RNA_LogFC match
+Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match <- sign(Results_RNA_DF_Pro_DF_Merged_NAomit$RNA_LogFC) == sign(Results_RNA_DF_Pro_DF_Merged_NAomit$Pro_LogFC)
+
+
+# Calculate the proportion of matches for all members 
+proportion_sign_matches <- mean(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match)
+print(proportion_sign_matches)
+
+
+# Calculate the proportion of matches for DE proteins 
+proportion_sign_matches <- mean(Results_RNA_DF_Pro_DF_Merged_NAomit[Results_RNA_DF_Pro_DF_Merged_NAomit$Pro_Pval <0.05, ]$sign_match)
+print(proportion_sign_matches)
+
+
+Results_RNA_DF_Pro_DF_Merged_NAomit %>% head()
+```
+
+```{r plots for SIGN tests}
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = Results_RNA_DF_Pro_DF_Merged_NAomit)
+
+
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(Results_RNA_DF_Pro_DF_Merged_NAomit, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+
+
+
+
+
+#------ Plot for same sign 
+SAME_SIGN <- Results_RNA_DF_Pro_DF_Merged_NAomit[Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == TRUE, ]
+
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = SAME_SIGN)
+
+nrow(SAME_SIGN)/nrow(Results_RNA_DF_Pro_DF_Merged_NAomit)
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+ggplot(SAME_SIGN, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+
+
+
+
+
+#------ Plot for opposite signs
+OPPOSITE_SIGN <- Results_RNA_DF_Pro_DF_Merged_NAomit[Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == FALSE, ]
+
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = OPPOSITE_SIGN)
+
+
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+ggplot(OPPOSITE_SIGN, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+
+
+
+
+
+# Plot for Same sign & DE in both cases 
+SAME_Sign_DE <- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == TRUE),  ]
+
+SAME_Sign_DE_2 <- SAME_Sign_DE[ (SAME_Sign_DE$RNA_Pval < 0.05) & (SAME_Sign_DE$Pro_Pval < 0.05),  ]
+
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = SAME_Sign_DE_2)
+
+
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+ggplot(SAME_Sign_DE_2, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+
+
+
+
+
+# Plot for opposite sign & DE 
+SAME_Sign_DE <- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$sign_match == FALSE),  ]
+
+SAME_Sign_DE_2 <- SAME_Sign_DE[ (SAME_Sign_DE$RNA_Pval < 0.05) & (SAME_Sign_DE$Pro_Pval < 0.05),  ]
+
+SAME_Sign_DE_2 %>% dim()
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = SAME_Sign_DE_2)
+
+
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+ggplot(SAME_Sign_DE_2, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+
+
+
+
+
+#---------- Plot for DE 
+RNA_Pro_DE <- Results_RNA_DF_Pro_DF_Merged_NAomit[(Results_RNA_DF_Pro_DF_Merged_NAomit$RNA_Pval < 0.05) & (Results_RNA_DF_Pro_DF_Merged_NAomit$Pro_Pval < 0.05),  ]
+
+
+
+
+# Fit linear model
+model_LogFC <- lm(RNA_LogFC ~ Pro_LogFC, data = RNA_Pro_DE)
+
+
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+r2
+
+ggplot(RNA_Pro_DE, aes(x = Pro_LogFC, y = RNA_LogFC, color = sign_match)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+```
+
+```{r Getting sumstats for testing}
+#### Read in GWAS Sumstats #### 
+# Make an object for each GWAS sumstat of interest that 
+# is just a vecctor of unique rsIDs. 
+AC_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/eQTLs/NIHMS827139-ACGWAS.csv", header = TRUE)
+AC_GWAS <- AC_GWAS$RSID
+
+gluc2hr_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/2hr_gluc_GWAS.csv", header = TRUE)
+gluc2hr_GWAS <- gluc2hr_GWAS$SNP %>% unique()
+
+Fast_gluc_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Fast_gluc_GWAS.csv", header = TRUE)
+Fast_gluc_GWAS <- Fast_gluc_GWAS$X.Uploaded_variation %>% unique()
+
+Fast_ins_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Fasting_ins_GWAS.csv", header = TRUE)
+Fast_ins_GWAS <- Fast_ins_GWAS$SNP %>% unique()
+
+Long_gluc_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Long_term_gluc_GWAS.csv", header = TRUE)
+Long_gluc_GWAS <- Long_gluc_GWAS$SNP %>% unique()
+
+HF_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/HF_GWAS_GCST90162626.csv", header = TRUE)
+HF_GWAS<- HF_GWAS$riskAllele
+
+Arrythmia_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Arrythmia_GWAS_pubmedId_36653681.csv", header = TRUE)
+Arrythmia_GWAS <- Arrythmia_GWAS$SNPS
+
+
+
+
+
+# Getting close genes to SNPs using multiple DFs 
+snpmart = useEnsembl(biomart = "snp", dataset="hsapiens_snp", version=110)
+
+# Example list of SNP sets
+snp_sets <- list(
+  AC_GWAS = AC_GWAS,
+  gluc2hr_GWAS = gluc2hr_GWAS,
+  Fast_gluc_GWAS = Fast_gluc_GWAS, 
+  Fast_ins_GWAS=Fast_ins_GWAS,
+  Long_gluc_GWAS=Long_gluc_GWAS, 
+  HF_GWAS = HF_GWAS, 
+  Arrythmia_GWAS=Arrythmia_GWAS
+)
+
+# Initialize a list to store the results
+snp_locations_list <- list()
+
+# Loop over the SNP sets
+for (set_name in names(snp_sets)) {
+  snps <- snp_sets[[set_name]]
+  
+  # Retrieve SNP locations for the current set
+  snp_locations <- getBM(attributes = c('refsnp_id', 'chr_name', 'chrom_start', 'chrom_end'),
+                         filters = 'snp_filter',
+                         values = snps,
+                         mart = snpmart)
+  
+  # Store the results in the list with a dynamic name
+  snp_locations_list[[paste(set_name, "snp_locations", sep = "_")]] <- snp_locations
+}
+
+
+
+
+# List loop 
+# Initialize a list to store BED data frames
+bed_df_list <- list()
+
+
+# Loop over each item in snp_locations_list
+for (name in names(snp_locations_list)) {
+  # Extract the SNP location data
+  snp_locations <- snp_locations_list[[name]]
+  
+  # Create the BED format data frame
+  bed_df <- data.frame(
+    chr = snp_locations$chr_name,
+    start = snp_locations$chrom_start,
+    end = snp_locations$chrom_end + 1,
+    name = snp_locations$refsnp_id
+  )
+  
+  # Store the BED data frame in the list with a dynamic name
+  bed_df_list[[paste(name, "bed_df", sep = "_")]] <- bed_df
+}
+
+
+
+
+#### Get the mapped genes #### 
+# Connect to the Ensembl database
+ensembl <- useEnsembl(biomart = "ensembl", dataset = "hsapiens_gene_ensembl")
+
+
+# Assuming you have a reasonable range to search for nearby genes
+search_range <- 100000  # 100kb assumed to be cis-reg on the chromosome
+
+
+# Initialize an empty list to store closest genes for each BED data frame
+closest_genes_list <- list()
+
+
+# Loop over each BED data frame in the list
+for (bed_name in names(bed_df_list)) {
+  bed_df <- bed_df_list[[bed_name]]
+  closest_genes <- data.frame(SNP = character(), Gene = character(), stringsAsFactors = FALSE)
+  
+  # Loop through each SNP location in the current BED data frame
+  for (i in 1:nrow(bed_df)) {
+    snp <- bed_df[i, ]
+    genes <- getBM(
+      attributes = c('external_gene_name', 'chromosome_name', 'start_position', 'end_position'),
+      filters = c('chromosome_name', 'start', 'end'),
+      values = list(snp$chr, max(1, snp$start - search_range), snp$end + search_range),
+      mart = ensembl
+    )
+    
+    # If genes are found, select the closest one
+    if (nrow(genes) > 0) {
+      genes$distance <- abs(genes$start_position - snp$start)
+      closest_gene <- genes[which.min(genes$distance), 'external_gene_name']
+      closest_genes <- rbind(closest_genes, data.frame(SNP = snp$name, Gene = closest_gene))
+    } else {
+      closest_genes <- rbind(closest_genes, data.frame(SNP = snp$name, Gene = NA))
+    }
+  }
+  
+  # Store the closest genes data frame in the list with a dynamic name
+  closest_genes_list[[bed_name]] <- closest_genes
+}
+
+```
+
+```{r MSG enrichment tests}
+
+# Read in data frame curated from (https://msgp.pt/)
+MSG <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/SG_RBP_AUtoph/MSG.csv", header = TRUE)
+
+New_RNA_PRO_DF <- Results_RNA_DF_Pro_DF_Merged_NAomit
+
+
+# 1. Generate lists of gene-protein pairs with interesting functional genomic properties
+#*DE proteins
+MSG_DE <- New_RNA_PRO_DF[New_RNA_PRO_DF$Pro_Pval < 0.05, ]
+
+#*DE proteins same sign 
+MSG_DE_SAME <- New_RNA_PRO_DF[(New_RNA_PRO_DF$sign_match == TRUE) & (New_RNA_PRO_DF$Pro_Pval < 0.05), ]
+
+#*DE proteins opposite sign 
+MSG_DE_OPPOSITE <- New_RNA_PRO_DF[(New_RNA_PRO_DF$sign_match == FALSE) & (New_RNA_PRO_DF$Pro_Pval < 0.05), ]
+
+
+
+
+# 2. Generate sets from MSG data frame 
+#* MSG (All)
+MSG %>% head()
+
+#* RPB
+MSG_RPB <- MSG[MSG$RPB == TRUE, ]
+
+#* Autophagy
+MSG_Auto <- MSG[MSG$Autophagy == TRUE, ]
+
+#* Heat shock 
+MSG_HSP <- MSG[MSG$Heat_shock == TRUE, ]
+
+
+#### DE Proteins #### 
+SAME_Sign_DE <- MSG_DE
+
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# 1. MSG (All)
+#**************************
+MSG_Exp <- intersect(Expressed_protein, MSG$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("MSG", "Non-MSG", "MSG", "Non-MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+# Table to percentages 
+table_percent <- as.table(matrix(c(A/(A+B), B/(A+B), C/(C+D), D/(C+D)), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+
+# Convert the table to a data frame with percentages 
+df_mat <- tidyr::gather(as.data.frame.matrix(table_percent))
+df_mat$key <- c("MSG", "Non-MSG", "MSG", "Non-MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+
+
+
+# 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_RPB$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("RPB", "Non-RPB"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + RPB", "DE ~ RPB", "~ DE + RPB", "~ DE ~ RPB")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+# Table to percentages 
+table_percent <- as.table(matrix(c(A/(A+B), B/(A+B), C/(C+D), D/(C+D)), nrow = 2,
+                                 dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                                 Protein = c("DE", "Non-DE"))))
+
+# Convert the table to a data frame with percentages 
+df_mat <- tidyr::gather(as.data.frame.matrix(table_percent))
+df_mat$key <- c("MSG", "Non-MSG", "MSG", "Non-MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+
+
+# 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_Auto$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("Autophagy", "Non-Autophagy"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + Autophagy", "DE ~ Autophagy", "~ DE + Autophagy", "~ DE ~ Autophagy")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+# Table to percentages 
+table_percent <- as.table(matrix(c(A/(A+B), B/(A+B), C/(C+D), D/(C+D)), nrow = 2,
+                                 dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                                 Protein = c("DE", "Non-DE"))))
+
+# Convert the table to a data frame with percentages 
+df_mat <- tidyr::gather(as.data.frame.matrix(table_percent))
+df_mat$key <- c("MSG", "Non-MSG", "MSG", "Non-MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("Contingency Table Stacked Bar Chart") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+
+
+
+# 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_HSP$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("HSP", "Non-HSP"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + HSP", "DE ~ HSP", "~ DE + HSP", "~ DE ~ HSP")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+# Table to percentages 
+table_percent <- as.table(matrix(c(A/(A+B), B/(A+B), C/(C+D), D/(C+D)), nrow = 2,
+                                 dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                                 Protein = c("DE", "Non-DE"))))
+
+# Convert the table to a data frame with percentages 
+df_mat <- tidyr::gather(as.data.frame.matrix(table_percent))
+df_mat$key <- c("MSG", "Non-MSG", "MSG", "Non-MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+
+#### DE proteins SAME SIGN ####
+SAME_Sign_DE <- MSG_DE_SAME
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+
+# 1. MSG (All)
+#**************************
+MSG_Exp <- intersect(Expressed_protein, MSG$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + MSG", "DE ~ MSG", "~ DE + MSG", "~ DE ~ MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+
+# 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_SAME
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_RPB$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("RPB", "Non-RPB"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + RPB", "DE ~ RPB", "~ DE + RPB", "~ DE ~ RPB")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + MSG", "DE ~ MSG", "~ DE + MSG", "~ DE ~ MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+# 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_SAME
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_Auto$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("Autophagy", "Non-Autophagy"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + Autophagy", "DE ~ Autophagy", "~ DE + Autophagy", "~ DE ~ Autophagy")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+
+
+# 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_SAME
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_HSP$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("HSP", "Non-HSP"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + HSP", "DE ~ HSP", "~ DE + HSP", "~ DE ~ HSP")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle("") +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+
+
+#### DE_OPPOSSITE Proteins ####
+SAME_Sign_DE <- MSG_DE_OPPOSITE
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+
+# 1. MSG (All)
+#**************************
+MSG_Exp <- intersect(Expressed_protein, MSG$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + MSG", "DE ~ MSG", "~ DE + MSG", "~ DE ~ MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+
+
+# 2. RNA Binding Proteins RPBs 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_OPPOSITE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_RPB$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("RPB", "Non-RPB"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + RPB", "DE ~ RPB", "~ DE + RPB", "~ DE ~ RPB")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+
+
+
+# 3. Autophagy proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_OPPOSITE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_Auto$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("Autophagy", "Non-Autophagy"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + Autophagy", "DE ~ Autophagy", "~ DE + Autophagy", "~ DE ~ Autophagy")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+
+
+
+# 4. Heat Shock Proteins 
+#**************************
+# All expressed proteins 
+Expressed_protein <- New_RNA_PRO_DF$uniprotswissprot
+
+# Set I am testing 
+SAME_Sign_DE <- MSG_DE_OPPOSITE
+
+# Intersection between MSG proteins and my expressed/detected proteins 
+MSG_Exp <- intersect(Expressed_protein, MSG_HSP$Uniprot)
+MSG_Exp
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(SAME_Sign_DE$uniprotswissprot, MSG_Exp) %>% length()
+A
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(SAME_Sign_DE$uniprotswissprot) - A
+B
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(MSG_Exp) - A
+C
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (nrow(New_RNA_PRO_DF) - length(SAME_Sign_DE$uniprotswissprot)) - C
+D
+
+# Chi-Squared Test
+mat <- matrix(c(A, B, C, D), nrow = 2)
+chisq.test(mat)
+fisher.test(mat)
+
+
+
+table <- as.table(matrix(c(A, B, C, D), nrow = 2,
+                         dimnames = list(Gene = c("HSP", "Non-HSP"),
+                                         Protein = c("DE", "Non-DE"))))
+table
+
+# Convert the table to a data frame
+df_mat <- tidyr::gather(as.data.frame.matrix(table))
+df_mat$key <- c("DE + HSP", "DE ~ HSP", "~ DE + HSP", "~ DE ~ HSP")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+```
+
+```{r Enrichtest-function}
+enrichment_test <- function(Test_set, Background_exp, Test_set_2, test_type = "chisq", plot = FALSE, custom_title = "Enrichment test") {
+  
+  # 1. pQTL test
+#**************************
+# pQTLs that are also expressed proteins 
+EXP <- intersect(Background_exp,Test_set_2)
+
+
+# A = number of Test Set proteins that are in the MSG_Exp list
+A <- intersect(Test_set, EXP) %>% length()
+
+
+# B = number of Test Set proteins that are not in the MSG_Exp list
+B <- length(Test_set) - A
+
+# C = number of expressed proteins that are in the MSG_Exp list but are not in Test Set proteins
+C <- length(EXP) - A
+
+# D = number of expressed proteins that are not in the MSG_Exp list and are not in Test Set proteins
+D <- (length(Background_exp) - length(Test_set)) - C
+
+
+
+  # Create the contingency matrix
+  mat <- matrix(c(A, B, C, D), nrow = 2, byrow = TRUE,
+                dimnames = list(c("DE", "Not DE"),
+                                c("In Background", "Not in Background")))
+
+  # Perform the selected test
+  test_result <- NULL
+  if (test_type == "chisq") {
+    test_result <- chisq.test(mat)
+  } else if (test_type == "fisher") {
+    test_result <- fisher.test(mat)
+  }
+
+  # Plotting (if requested)
+  if (plot == TRUE) {
+    table_percent <- as.table(matrix(c(A/(A+B), B/(A+B), C/(C+D), D/(C+D)), nrow = 2,
+                         dimnames = list(Gene = c("MSG", "Non-MSG"),
+                                         Protein = c("DE", "Non-DE"))))
+
+    # Convert the table to a data frame with percentages 
+df_mat <- tidyr::gather(as.data.frame.matrix(table_percent))
+df_mat$key <- c("MSG", "Non-MSG", "MSG", "Non-MSG")
+df_mat$Group <- c("DE", "DE", "~DE", "~DE")
+
+
+
+# Create stacked bar chart
+PLOT <- ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
+  geom_bar(stat="identity") +
+  theme_minimal() +
+  ylab("Frequency") +
+  xlab("Category") +
+  ggtitle(custom_title) +
+  scale_fill_discrete(name="Key") +
+  theme(legend.position="bottom")
+  }
+
+  # Return the test result
+  return(list("Test_Result" = test_result, "Plot" = PLOT, "Mat" = mat))
+}
+
+```
+
+```{r Olinkplatform protein tests}
+# Read in pQTL data 
+Olink <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Olink.csv", header = TRUE)
+
+DE_PRO <- New_RNA_PRO_DF[New_RNA_PRO_DF$Pro_Pval < 0.05, ]$uniprotswissprot
+BACK_PRO <- New_RNA_PRO_DF$uniprotswissprot
+
+Olink$Protein.panel %>% unique()
+
+Cardiometabolic <- Olink[Olink$Protein.panel == "Cardiometabolic",  ]$UniProt
+Cardiometabolic_II <- Olink[Olink$Protein.panel == "Cardiometabolic_II",  ]$UniProt
+Inflammation <- Olink[Olink$Protein.panel == "Inflammation",  ]$UniProt
+Inflammation_II <- Olink[Olink$Protein.panel == "Inflammation_II",  ]$UniProt
+
+ALL_cardiometabolic <- c(Cardiometabolic_II,Cardiometabolic) %>% unique()
+ALL_Inflammation <- c(Inflammation, Inflammation_II) %>% unique()
+
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =Cardiometabolic, test_type = "chisq", plot = TRUE, custom_title = "OLINK 3 K Cardiometabolic proteins")
+
+
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =Cardiometabolic_II, test_type = "chisq", plot = TRUE, custom_title = "OLINK 3 K Cardiometabolic_II proteins")
+
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =Inflammation, test_type = "chisq", plot = TRUE, custom_title = "OLINK 3 K Inflammation proteins")
+
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =Inflammation_II, test_type = "chisq", plot = TRUE, custom_title = "OLINK 3 K Inflammation_II proteins")
+
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =ALL_cardiometabolic, test_type = "chisq", plot = TRUE, custom_title = "OLINK 3 K ALL_cardiometabolic proteins")
+
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =ALL_Inflammation, test_type = "chisq", plot = TRUE, custom_title = "OLINK 3 K ALL_Inflammation proteins")
+
+```
+
+```{r pQTL and SIGN Results}
+# pQTL data from https://www.nature.com/articles/s41586-023-06592-6
+# Generate a series of test sets  
+DE_PRO <- New_RNA_PRO_DF[New_RNA_PRO_DF$Pro_Pval < 0.05, ]$uniprotswissprot
+
+BACK_PRO <- New_RNA_PRO_DF$uniprotswissprot
+
+DE_SAME <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & (New_RNA_PRO_DF$sign_match == TRUE), ]$uniprotswissprot 
+
+DE_OPP <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & (New_RNA_PRO_DF$sign_match == FALSE), ]$uniprotswissprot 
+
+DE_PRO_DE_RNA <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & (New_RNA_PRO_DF$RNA_Pval < 0.05), ]$uniprotswissprot 
+
+DE_PRO_DE_RNA_SAME <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & (New_RNA_PRO_DF$RNA_Pval < 0.05) & (New_RNA_PRO_DF$sign_match == TRUE), ]$uniprotswissprot
+
+DE_PRO_DE_RNA_OPP <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & (New_RNA_PRO_DF$RNA_Pval < 0.05) & (New_RNA_PRO_DF$sign_match == FALSE), ]$uniprotswissprot
+
+DE_PRO_ONLY <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & !(New_RNA_PRO_DF$RNA_Pval < 0.05), ]$uniprotswissprot
+
+
+# Sanity check for test sets 
+intersect(DE_PRO_DE_RNA, DE_PRO_ONLY )
+
+
+pQTL_data <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Olink.csv", header = TRUE)
+
+pQTL_pro_unique <- pQTL_data$UniProt %>% unique()
+pQTL_pro_unique %>% length()
+intersect(pQTL_pro_unique, BACK_PRO) %>% length()
+
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =pQTL_pro_unique, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO in pQTL_pro_unique")
+
+enrichment_test(Test_set = DE_SAME, Background_exp = BACK_PRO, Test_set_2 =pQTL_pro_unique, test_type = "chisq", plot = TRUE, custom_title = "DE_SAME in pQTL_pro_unique")
+
+enrichment_test(Test_set = DE_OPP, Background_exp = BACK_PRO, Test_set_2 =pQTL_pro_unique, test_type = "chisq", plot = TRUE, custom_title = "DE_OPP in pQTL_pro_unique")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA, Background_exp = BACK_PRO, Test_set_2 =pQTL_pro_unique, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO_DE_RNA in pQTL_pro_unique")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_SAME, Background_exp = BACK_PRO, Test_set_2 =pQTL_pro_unique, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO_DE_RNA_SAME in pQTL_pro_unique")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_OPP, Background_exp = BACK_PRO, Test_set_2 =pQTL_pro_unique, test_type = "chisq", plot = TRUE, custom_title ="DE_PRO_DE_RNA_OPP in pQTL_pro_unique")
+
+enrichment_test(Test_set = DE_PRO_ONLY, Background_exp = BACK_PRO, Test_set_2 =pQTL_pro_unique, test_type = "chisq", plot = TRUE, custom_title ="DE_PRO_ONLY in pQTL_pro_unique")
+```
+
+```{r Enrichment GWAS AC HF TOX }
+# HF GWAS from 
+# Enrichment test for HF mapped genes that are detected protein in our set 
+AC_TOX <- closest_genes_list$AC_GWAS_snp_locations_bed_df$Gene %>% unique()
+AC_TOX
+
+# Redefine test sets in terms of gene names 
+DE_PRO <- New_RNA_PRO_DF[New_RNA_PRO_DF$Pro_Pval < 0.05, ]$hgnc_symbol
+
+BACK_PRO <- New_RNA_PRO_DF$hgnc_symbol
+
+DE_SAME <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & (New_RNA_PRO_DF$sign_match == TRUE), ]$hgnc_symbol 
+
+DE_OPP <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & (New_RNA_PRO_DF$sign_match == FALSE), ]$hgnc_symbol 
+
+DE_PRO_DE_RNA <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & (New_RNA_PRO_DF$RNA_Pval < 0.05), ]$hgnc_symbol 
+
+DE_PRO_DE_RNA_SAME <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & (New_RNA_PRO_DF$RNA_Pval < 0.05) & (New_RNA_PRO_DF$sign_match == TRUE), ]$hgnc_symbol
+
+DE_PRO_DE_RNA_OPP <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & (New_RNA_PRO_DF$RNA_Pval < 0.05) & (New_RNA_PRO_DF$sign_match == FALSE), ]$hgnc_symbol
+
+DE_PRO_ONLY <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & !(New_RNA_PRO_DF$RNA_Pval < 0.05), ]$hgnc_symbol
+
+DE_RNA_ONLY <- New_RNA_PRO_DF[!(New_RNA_PRO_DF$Pro_Pval < 0.05) & (New_RNA_PRO_DF$RNA_Pval < 0.05), ]$hgnc_symbol
+
+
+
+
+# Do enrchment tests for AC_TOX GWAS 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =AC_TOX, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO in AC_TOX")
+
+enrichment_test(Test_set = DE_SAME, Background_exp = BACK_PRO, Test_set_2 =AC_TOX, test_type = "chisq", plot = TRUE, custom_title = "DE_SAME in AC_TOX")
+
+enrichment_test(Test_set = DE_OPP, Background_exp = BACK_PRO, Test_set_2 =AC_TOX, test_type = "chisq", plot = TRUE, custom_title = "DE_OPP in AC_TOX")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA, Background_exp = BACK_PRO, Test_set_2 =AC_TOX, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO_DE_RNA in AC_TOX")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_SAME, Background_exp = BACK_PRO, Test_set_2 =AC_TOX, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO_DE_RNA_SAME in AC_TOX")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_OPP, Background_exp = BACK_PRO, Test_set_2 =AC_TOX, test_type = "chisq", plot = TRUE, custom_title ="DE_PRO_DE_RNA_OPP in AC_TOX")
+
+enrichment_test(Test_set = DE_PRO_ONLY, Background_exp = BACK_PRO, Test_set_2 =AC_TOX, test_type = "chisq", plot = TRUE, custom_title ="DE_PRO_ONLY in AC_TOX")
+
+enrichment_test(Test_set = DE_RNA_ONLY, Background_exp = BACK_PRO, Test_set_2 =AC_TOX, test_type = "chisq", plot = TRUE, custom_title ="DE_RNA_ONLY in AC_TOX")
+```
+
+```{r Enrichment GWAS HF TOX }
+# Enrichment test for HF mapped genes that are detected protein in our set 
+HF_GWAS <- closest_genes_list$HF_GWAS_snp_locations_bed_df$Gene %>% unique()
+HF_GWAS
+
+
+
+# Do enrchment tests for HF_GWAS GWAS 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO in HF_GWAS")
+
+enrichment_test(Test_set = DE_SAME, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_SAME in HF_GWAS")
+
+enrichment_test(Test_set = DE_OPP, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_OPP in HF_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO_DE_RNA in HF_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_SAME, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO_DE_RNA_SAME in HF_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_OPP, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_DE_RNA_OPP in HF_GWAS")
+
+enrichment_test(Test_set = DE_PRO_ONLY, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_ONLY in HF_GWAS")
+
+enrichment_test(Test_set = DE_RNA_ONLY, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_RNA_ONLY in HF_GWAS")
+
+```
+
+```{r Enrichment GWAS Arr }
+# Enrichment test for Arr mapped genes that are detected protein in our set 
+Arr_GWAS <- closest_genes_list$Arrythmia_GWAS_snp_locations_bed_df$Gene %>% unique()
+Arr_GWAS
+
+intersect(DE_PRO, Arr_GWAS)
+
+# Do enrchment tests for Arr_GWAS GWAS 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO in Arr_GWAS")
+
+enrichment_test(Test_set = DE_SAME, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "chisq", plot = TRUE, custom_title = "DE_SAME in Arr_GWAS")
+
+enrichment_test(Test_set = DE_OPP, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "chisq", plot = TRUE, custom_title = "DE_OPP in Arr_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO_DE_RNA in Arr_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_SAME, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO_DE_RNA_SAME in Arr_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_OPP, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "chisq", plot = TRUE, custom_title ="DE_PRO_DE_RNA_OPP in Arr_GWAS")
+
+enrichment_test(Test_set = DE_PRO_ONLY, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "chisq", plot = TRUE, custom_title ="DE_PRO_ONLY in Arr_GWAS")
+
+enrichment_test(Test_set = DE_RNA_ONLY, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "chisq", plot = TRUE, custom_title ="DE_RNA_ONLY in Arr_GWAS")
+```
+
+```{r Enrichment GWAS gluc fast }
+# Enrichment test for Arr mapped genes that are detected protein in our set 
+Gluc_Fast_GWAS <- closest_genes_list$Fast_gluc_GWAS_snp_locations_bed_df$Gene %>% unique()
+Gluc_Fast_GWAS
+
+intersect(BACK_PRO, Gluc_Fast_GWAS)
+intersect(DE_PRO, Gluc_Fast_GWAS)
+
+# Do enrchment tests for Arr_GWAS GWAS 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =Gluc_Fast_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO in Gluc_Fast_GWAS")
+
+enrichment_test(Test_set = DE_SAME, Background_exp = BACK_PRO, Test_set_2 =Gluc_Fast_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_SAME in Gluc_Fast_GWAS")
+
+enrichment_test(Test_set = DE_OPP, Background_exp = BACK_PRO, Test_set_2 =Gluc_Fast_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_OPP in Gluc_Fast_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA, Background_exp = BACK_PRO, Test_set_2 =Gluc_Fast_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO_DE_RNA in Gluc_Fast_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_SAME, Background_exp = BACK_PRO, Test_set_2 =Gluc_Fast_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO_DE_RNA_SAME in Gluc_Fast_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_OPP, Background_exp = BACK_PRO, Test_set_2 =Gluc_Fast_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_DE_RNA_OPP in Gluc_Fast_GWAS")
+
+enrichment_test(Test_set = DE_PRO_ONLY, Background_exp = BACK_PRO, Test_set_2 =Gluc_Fast_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_ONLY in Gluc_Fast_GWAS")
+
+enrichment_test(Test_set = DE_RNA_ONLY, Background_exp = BACK_PRO, Test_set_2 =Gluc_Fast_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_RNA_ONLY in Gluc_Fast_GWAS")
+```
+
+```{r Enrichment GWAS ins fast }
+# Enrichment test for Arr mapped genes that are detected protein in our set 
+Fast_ins_GWAS <- closest_genes_list$Fast_ins_GWAS_snp_locations_bed_df$Gene %>% unique()
+Fast_ins_GWAS
+
+intersect(BACK_PRO, Fast_ins_GWAS)
+intersect(DE_PRO, Fast_ins_GWAS)
+
+# Do enrchment tests for Arr_GWAS GWAS 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =Fast_ins_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO in Fast_ins_GWAS")
+
+enrichment_test(Test_set = DE_SAME, Background_exp = BACK_PRO, Test_set_2 =Fast_ins_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_SAME in Fast_ins_GWAS")
+
+enrichment_test(Test_set = DE_OPP, Background_exp = BACK_PRO, Test_set_2 =Fast_ins_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_OPP in Fast_ins_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA, Background_exp = BACK_PRO, Test_set_2 =Fast_ins_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO_DE_RNA in Fast_ins_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_SAME, Background_exp = BACK_PRO, Test_set_2 =Fast_ins_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO_DE_RNA_SAME in Fast_ins_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_OPP, Background_exp = BACK_PRO, Test_set_2 =Fast_ins_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_DE_RNA_OPP in Fast_ins_GWAS")
+
+enrichment_test(Test_set = DE_PRO_ONLY, Background_exp = BACK_PRO, Test_set_2 =Fast_ins_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_ONLY in Fast_ins_GWAS")
+
+enrichment_test(Test_set = DE_RNA_ONLY, Background_exp = BACK_PRO, Test_set_2 =Fast_ins_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_RNA_ONLY in Fast_ins_GWAS")
+```
+
+```{r Enrichment HF GWAS author reported}
+HF_GWAS <- readRDS(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/HF_geneset.RDS")
+HF_GWAS <- HF_GWAS$hgnc_symbol %>% unique()
+HF_GWAS
+
+intersect(BACK_PRO, HF_GWAS)
+intersect(DE_PRO, HF_GWAS)
+
+# Do enrchment tests for HF_GWAS GWAS 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO in HF_GWAS")
+
+enrichment_test(Test_set = DE_SAME, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_SAME in HF_GWAS")
+
+enrichment_test(Test_set = DE_OPP, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_OPP in HF_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO_DE_RNA in HF_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_SAME, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO_DE_RNA_SAME in HF_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_OPP, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_DE_RNA_OPP in HF_GWAS")
+
+enrichment_test(Test_set = DE_PRO_ONLY, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_ONLY in HF_GWAS")
+
+enrichment_test(Test_set = DE_RNA_ONLY, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_RNA_ONLY in HF_GWAS")
+
+```
+
+```{r Enrichment Arr GWAS author reported}
+Arr_GWAS <- readRDS(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Arr_geneset.RDS")
+Arr_GWAS <- Arr_GWAS$hgnc_symbol %>% unique()
+Arr_GWAS
+
+intersect(BACK_PRO, Arr_GWAS)
+intersect(DE_PRO, Arr_GWAS)
+
+# Do enrchment tests for Arr_GWAS GWAS 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO in Arr_GWAS")
+
+enrichment_test(Test_set = DE_SAME, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_SAME in Arr_GWAS")
+
+enrichment_test(Test_set = DE_OPP, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_OPP in Arr_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO_DE_RNA in Arr_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_SAME, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO_DE_RNA_SAME in Arr_GWAS")
+
+enrichment_test(Test_set = DE_PRO_DE_RNA_OPP, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_DE_RNA_OPP in Arr_GWAS")
+
+enrichment_test(Test_set = DE_PRO_ONLY, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_ONLY in Arr_GWAS")
+
+enrichment_test(Test_set = DE_RNA_ONLY, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_RNA_ONLY in Arr_GWAS")
+```
