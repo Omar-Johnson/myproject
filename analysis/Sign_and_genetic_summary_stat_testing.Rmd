@@ -55,7 +55,7 @@ RNA_Seq_Top_Table_24hr <- RNA_Seq_Top_Table %>% dplyr::filter(time == "24_hours"
 
 toptable_summary_DoxvNorm <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/DIA_proteins/RUVIII_Imputed/Toptable_summary_RUVIII.csv", header = TRUE, row.names = 1)
 toptable_summary_DoxvNorm %>% head()
-
+toptable_summary_DoxvNorm %>% dim()
 
 
 #### 24 hr Plots ####
@@ -167,6 +167,7 @@ print(proportion_sign_matches)
 
 
 Results_RNA_DF_Pro_DF_Merged_NAomit %>% head()
+write.csv(x = Results_RNA_DF_Pro_DF_Merged_NAomit, file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/DIA_proteins/RUVIII_Imputed/New_RNA_PRO_DF.csv")
 ```
 
 ```{r plots for SIGN tests}
@@ -559,7 +560,7 @@ ggplot(df_mat, aes(x=Group, y=value, fill=key)) +
   theme_minimal() +
   ylab("Frequency") +
   xlab("Category") +
-  ggtitle("Contingency Table Stacked Bar Chart") +
+  ggtitle("DE_PRO_Stress_grranule_proteome") +
   scale_fill_discrete(name="Key") +
   theme(legend.position="bottom")
 
@@ -1260,9 +1261,11 @@ DE_PRO_ONLY <- New_RNA_PRO_DF[(New_RNA_PRO_DF$Pro_Pval < 0.05) & !(New_RNA_PRO_D
 intersect(DE_PRO_DE_RNA, DE_PRO_ONLY )
 
 
-pQTL_data <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Olink.csv", header = TRUE)
+# All Unique pQTLs 
+pQTL_data <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/pQTL_Genetic_reg_plasmaproteome.csv", header = TRUE)
 
-pQTL_pro_unique <- pQTL_data$UniProt %>% unique()
+
+pQTL_pro_unique <- pQTL_data$Target.UniProt %>% unique()
 pQTL_pro_unique %>% length()
 intersect(pQTL_pro_unique, BACK_PRO) %>% length()
 
@@ -1279,6 +1282,7 @@ enrichment_test(Test_set = DE_PRO_DE_RNA_SAME, Background_exp = BACK_PRO, Test_s
 enrichment_test(Test_set = DE_PRO_DE_RNA_OPP, Background_exp = BACK_PRO, Test_set_2 =pQTL_pro_unique, test_type = "chisq", plot = TRUE, custom_title ="DE_PRO_DE_RNA_OPP in pQTL_pro_unique")
 
 enrichment_test(Test_set = DE_PRO_ONLY, Background_exp = BACK_PRO, Test_set_2 =pQTL_pro_unique, test_type = "chisq", plot = TRUE, custom_title ="DE_PRO_ONLY in pQTL_pro_unique")
+
 ```
 
 ```{r Enrichment GWAS AC HF TOX }
@@ -1453,7 +1457,7 @@ enrichment_test(Test_set = DE_PRO_DE_RNA_OPP, Background_exp = BACK_PRO, Test_se
 
 enrichment_test(Test_set = DE_PRO_ONLY, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_ONLY in HF_GWAS")
 
-enrichment_test(Test_set = DE_RNA_ONLY, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_RNA_ONLY in HF_GWAS")
+enrichment_test(Test_set = DE_RNA_ONLY, Background_exp = BACK_PRO, Test_set_2 =HF_GWAS, test_type = "chisq", plot = TRUE, custom_title ="DE_RNA_ONLY in HF_GWAS")
 
 ```
 
@@ -1481,4 +1485,134 @@ enrichment_test(Test_set = DE_PRO_DE_RNA_OPP, Background_exp = BACK_PRO, Test_se
 enrichment_test(Test_set = DE_PRO_ONLY, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_PRO_ONLY in Arr_GWAS")
 
 enrichment_test(Test_set = DE_RNA_ONLY, Background_exp = BACK_PRO, Test_set_2 =Arr_GWAS, test_type = "fisher", plot = TRUE, custom_title ="DE_RNA_ONLY in Arr_GWAS")
+```
+
+# DE protein enrichment across different protein attributes  
+```{r }
+#### Druggable Protein #### 
+
+Drugabble <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/DIA_Framework/Druggable_proteins.csv", header = TRUE)
+Drugabble <- Drugabble[,1:5]
+Drugabble %>% dim()
+
+
+
+
+DE_PRO <- toptable_summary_DoxvNorm[toptable_summary_DoxvNorm$P.Value < 0.05, ] %>% rownames()
+BACK_PRO <- toptable_summary_DoxvNorm %>% rownames()
+
+# Druggable protein
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 = Drugabble$Uniprot, test_type = "fisher", plot = TRUE, custom_title = "DE_PRO in Druggable prteins")
+
+
+
+
+#### Transcription Factors #### 
+TFs <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/DIA_Framework/Transcription_factors.csv", header = TRUE)
+TFs <- TFs[,1:5]
+TFs %>% head()
+TFs %>% dim()
+
+# Test for enrichment
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 = TFs$Uniprot, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO in transcription factors")
+
+
+#### Signaling & Transmembrane Peptides #### 
+SP_TM <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/DIA_Framework/Signaling_Transmembrane_peptides.csv", header = TRUE)
+
+SP_TM %>% colnames()
+SP_TM %>% dim()
+SP_TM %>% head()
+
+SP <- SP_TM[SP_TM$SP..number.of.positive.prediction.methods. > 0, ]$Uniprot
+TM <- SP_TM[SP_TM$TM..number.of.predicted.transmembrane.segments. > 0, ]$Uniprot
+
+
+# Test for enrichment of Signaling Peptides 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 = SP, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO in signaling peptides")
+
+
+# Test for enrichment of Transmembrane Peptides 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 = TM, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO in transmembrane peptides")
+
+Non_DE_TM <- intersect(toptable_summary_DoxvNorm[toptable_summary_DoxvNorm$P.Value > 0.05, ] %>% rownames(), 
+        TM  )
+
+
+DE_TM <- intersect(toptable_summary_DoxvNorm[toptable_summary_DoxvNorm$P.Value < 0.05, ] %>% rownames(), 
+        TM  )
+
+
+#### Tissue specificity #### 
+Tissue_spec <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/DIA_Framework/Tissue_specific.csv", header = TRUE)
+
+Tissue_spec %>% head()
+Tissue_spec %>% dim() # Specificity ranges 0-4, where 0 is most specific and 4 is most specific
+Tissue_spec$HPA_Class %>% unique()
+Tissue_spec$Specificity %>% unique()# Specificity ranges 0-4, where 0 is most specific and 4 is most specific, a way I notated the classes for easier subsetting. 
+
+
+Tissue_spec_0 <- Tissue_spec[Tissue_spec$Specificity == 0, ]$Uniprot
+Tissue_spec_1 <- Tissue_spec[Tissue_spec$Specificity <= 1 , ]$Uniprot
+Tissue_spec_11 <- Tissue_spec[Tissue_spec$Specificity == 1 , ]$Uniprot
+Tissue_spec_2 <- Tissue_spec[Tissue_spec$Specificity <= 2 , ]$Uniprot
+Tissue_spec_3 <- Tissue_spec[Tissue_spec$Specificity <= 3 , ]$Uniprot
+
+
+# Test for enrichment of Tissue_spec_0 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 = Tissue_spec_0, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO in Tissue_spec_0")
+
+
+# Test for enrichment of Tissue_spec_1 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 = Tissue_spec_1, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO in Tissue_spec_1")
+
+
+# Test for enrichment of Tissue_spec_11 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 = Tissue_spec_11, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO in Tissue_spec_11")
+
+# Test for enrichment of Tissue_spec_2 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 = Tissue_spec_2, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO in Tissue_spec_2")
+
+# Test for enrichment of Tissue_spec_3 
+enrichment_test(Test_set = DE_PRO, Background_exp = BACK_PRO, Test_set_2 = Tissue_spec_3, test_type = "chisq", plot = TRUE, custom_title = "DE_PRO in Tissue_spec_3")
+
+# DE proteins are not really specific to heart tissue, and are generally depleted. 
+intersect(DE_PRO,Tissue_spec_0 )
+
+Tox_set_1 <- New_RNA_PRO_DF[New_RNA_PRO_DF$uniprotswissprot %in% intersect(DE_PRO,Tissue_spec_0 ), ]$hgnc_symbol
+
+
+# Possible targets of AC induced toxicity: GATA4, NES, CSRP3, NDUFA8, TRDN, FHOD3, TMEM143, DHRS9, MYOZ2
+
+Tox_set_2 <- New_RNA_PRO_DF[New_RNA_PRO_DF$uniprotswissprot %in% intersect(DE_PRO,Tissue_spec_1 ), ]$hgnc_symbol
+
+setdiff(Tox_set_2, Tox_set_1)
+# MYL4, ANKRD1, LRRC10, TECRL
+intersect(pQTL_data$Gene.symbol, c("MYL4", "ANKRD1", "LRRC10", "TECRL") )
+
+#### PPI numbers #### 
+PPIs <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/DIA_Framework/PPI_number.csv", header = TRUE)
+PPIs %>% head()
+PPIs %>% dim()
+
+# Get PPI numbered vector for Diff and non-Diff abundant proteins. 
+PPI_DE <- PPIs[PPIs$Uniprot%in% DE_PRO, ]$Interactions
+PPI_Not_DE <- PPIs[PPIs$Uniprot%in% toptable_summary_DoxvNorm[toptable_summary_DoxvNorm$P.Value >0.05,]$Protein, ]$Interactions
+
+
+# Wilcoxon rank sum test
+PPI_test_res <- wilcox.test(PPI_DE, PPI_Not_DE)
+PPI_test_res
+
+
+combined_df_PPI <- rbind(
+  data.frame(PPIs = PPI_DE, Group = "DE"),
+  data.frame(PPIs = PPI_Not_DE , Group = "Non-DE")
+)
+
+
+
+# Create a boxplot comparing the UTR_Length between the two groups
+boxplot(PPIs ~ Group, data = combined_df_PPI, main = "Number of PPIs", ylab = "PPI #", xlab = "", ylim = c(0,25))
+
 ```

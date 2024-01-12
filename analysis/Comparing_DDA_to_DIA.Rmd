@@ -1,0 +1,398 @@
+---
+title: "Comparing_DDA_to_DIA"
+author: "Omar Johnson"
+date: "2024-01-11"
+output: html_document
+---
+# Library 
+```{r library}
+library(tidyverse)
+```
+
+
+# Get data for DDA & DIA LF_Changes 
+```{r 1}
+DDA_Toptable <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Important_DF_Final/toptable_Dupcor.csv")
+DDA_Toptable %>% head()
+DDA_Toptable %>% dim()
+
+DIA_Toptable <- read.csv(file ="/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/DIA_proteins/RUVIII_Imputed/Toptable_summary_RUVIII.csv" , header = TRUE)
+DIA_Toptable %>% head()
+DIA_Toptable %>% dim()
+
+
+DDA_and_DIA <-  merge(DDA_Toptable, 
+                          DIA_Toptable, by.x = "Protein", by.y = "Protein")
+
+# colnames.x correspond to DDA, and colnames.y correspond to DIA. 
+DDA_and_DIA %>% head()
+DDA_and_DIA %>% dim()
+```
+
+
+# All proteins LogFC corr.
+```{r 2}
+# Model all proteins across acquisition types 
+# Fit linear model
+model_LogFC <- lm(logFC.x ~ logFC.y, data = DDA_and_DIA)
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(DDA_and_DIA, aes(x = logFC.x, y = logFC.y, color = threshold_P)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+```
+
+
+# DA proteins in DIA LogFC corr.
+```{r 3}
+# Model differentially abundant (from DIA) proteins across acquisition types 
+# Fit linear model
+DDA_and_DIA %>% head()
+
+Diff_ab_DDA_and_DIA  <- DDA_and_DIA[DDA_and_DIA$adj.P.Val.y < 0.05,  ]
+Diff_ab_DDA_and_DIA %>% head()
+Diff_ab_DDA_and_DIA %>% dim()
+
+model_LogFC <- lm(logFC.x ~ logFC.y, data = Diff_ab_DDA_and_DIA)
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(DDA_and_DIA, aes(x = logFC.x, y = logFC.y, color = threshold_P)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+```
+
+
+# DA protein overlap for DDA & DIA corr. 
+```{r 4}
+# Model differentially abundant proteins that are differentially abundant for DIA AND DDA methods 
+# Fit linear model
+DDA_and_DIA %>% head()
+
+Diff_ab_DDA_and_DIA  <- DDA_and_DIA[(DDA_and_DIA$adj.P.Val.y < 0.05) & (DDA_and_DIA$P.Value.x < 0.05),  ]
+
+Diff_ab_DDA_and_DIA %>% head()
+Diff_ab_DDA_and_DIA %>% dim()
+
+model_LogFC <- lm(logFC.x ~ logFC.y, data = Diff_ab_DDA_and_DIA)
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(DDA_and_DIA, aes(x = logFC.x, y = logFC.y)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+```
+
+
+# LogFC corr. for non-DA 
+```{r 5}
+# Model differentially abundant proteins that are NOT differentially abundant for DIA AND DDA methods 
+# Fit linear model
+DDA_and_DIA %>% head()
+
+Diff_ab_DDA_and_DIA  <- DDA_and_DIA[(DDA_and_DIA$adj.P.Val.y > 0.05) & (DDA_and_DIA$P.Value.x > 0.05),  ]
+
+Diff_ab_DDA_and_DIA %>% head()
+Diff_ab_DDA_and_DIA %>% dim()
+
+model_LogFC <- lm(logFC.x ~ logFC.y, data = Diff_ab_DDA_and_DIA)
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(DDA_and_DIA, aes(x = logFC.x, y = logFC.y)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+dev.off()
+```
+
+
+# Compare protein list
+```{r 6}
+# How many peptides overlap between DDA and DIA methods? 
+DDA_and_DIA %>% nrow()
+
+
+# Load library
+library(VennDiagram)
+ 
+# Define protein sets
+ALL_DDA <- DDA_Toptable$Protein
+ALL_DIA <- DIA_Toptable$Protein
+  
+
+
+# Generate Venn diagram
+venn.plot <- venn.diagram(
+  x = list(ALL_DDA,ALL_DIA),
+  filename = NULL,
+  category.names = c("ALL_DDA", "ALL_DIA"),
+  output = TRUE
+)
+grid.draw(venn.plot)
+dev.off()
+```
+
+
+
+
+# Compare DA lists
+```{r 66}
+# How many differentially abundant peptides overlap between DDA and DIA methods? 
+
+# Load library
+library(VennDiagram)
+ 
+# Define protein sets
+DE_DDA <- DDA_Toptable[DDA_Toptable$P.Value < 0.05, ]$Protein
+DE_DIA <- DIA_Toptable[DIA_Toptable$P.Value < 0.05, ]$Protein
+  
+
+
+# Generate Venn diagram
+venn.plot <- venn.diagram(
+  x = list(DE_DDA,DE_DIA),
+  filename = NULL,
+  category.names = c("DEL_DDA", "DE_DIA"),
+  output = TRUE
+)
+grid.draw(venn.plot)
+
+
+Common_DE_DDA_DIA <- intersect(DE_DDA,DE_DIA)
+
+Common_DE_DDA_DIA_DF <- DDA_and_DIA[DDA_and_DIA$Protein %in% Common_DE_DDA_DIA, ]
+```
+
+
+
+
+# DA protein LogFC corr. in both
+```{r 666}
+model_LogFC <- lm(logFC.x ~ logFC.y, data = Common_DE_DDA_DIA_DF)
+
+# Get R-squared
+r2 <- summary(model_LogFC)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(Common_DE_DDA_DIA_DF, aes(x = logFC.x, y = logFC.y)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+
+```
+
+
+# Correlate abundance values 
+```{r 7}
+
+DDA_Ab <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Abundance.csv", header = TRUE)
+
+DIA_Ab <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/RNA_Protein_DF/Data_ind_prot_DOX_24hr.csv", header = TRUE)
+
+Meta <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/DIA_proteins/RUVIII_Imputed/Meta.csv", header = TRUE, row.names = 1)
+Meta
+
+DDA_Ab %>% head()
+DDA_Ab %>% dim()
+
+DIA_Ab %>% head()
+DIA_Ab %>% dim()
+
+
+DDA_Ab %>% colnames()
+
+# Subset the columns referring to abundance
+DDA_Ab <-DDA_Ab[,4:14]
+DDA_Ab %>% head()
+
+colnames(DDA_Ab) <- c("Accession", "S1" , "S3" , "S5" , "S7", "S9", "S2", "S4", "S6" , "S8", "S10")
+DDA_Ab %>% head()
+
+
+
+# Identify duplicated values
+DDA_Ab$duplicated_name <- duplicated(DDA_Ab$Accession)
+
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+duplicated_rows <- DDA_Ab[DDA_Ab$duplicated_name == TRUE, ]
+print(duplicated_rows)  
+duplicated_rows %>% rownames()
+
+# remove duplicated rows
+DDA_Ab <- DDA_Ab[-c(61 , 276, 997), ]
+
+# Make rownames of the data frame accession IDs
+rownames(DDA_Ab) <- DDA_Ab$Accession
+
+# Change colnames 
+colnames(DDA_Ab)
+DDA_Ab <- DDA_Ab[, -c(1, 12)]
+
+
+DDA_Ab %>% head()
+DDA_Ab %>% dim()
+
+DDA_Ab <- na.omit(DDA_Ab)
+
+
+
+
+
+
+
+
+
+
+
+DIA_Ab %>% head()
+DIA_Ab %>% colnames()
+
+# Subset the columns referring to abundance
+DIA_Ab <-DIA_Ab[,c(2, 6:15)]
+DIA_Ab %>% head()
+
+colnames(DIA_Ab) <- c("Accession", "S1" , "S3" , "S5" , "S7", "S9", "S2", "S4", "S6" , "S8", "S10")
+DIA_Ab %>% head()
+
+
+
+# Identify duplicated values
+DIA_Ab$duplicated_name <- duplicated(DIA_Ab$Accession)
+
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+duplicated_rows <- DIA_Ab[DIA_Ab$duplicated_name == TRUE, ]
+print(duplicated_rows)  
+duplicated_rows %>% rownames()
+
+# remove duplicated rows-None to remove for DIA 
+
+
+# Make rownames of the data frame accession IDs
+rownames(DIA_Ab) <- DIA_Ab$Accession
+
+# Change colnames 
+colnames(DIA_Ab)
+DIA_Ab <- DIA_Ab[, -c(1, 12)]
+
+
+DIA_Ab <- na.omit(DIA_Ab)
+
+
+
+Meta
+DDA_Ab_Veh <- DDA_Ab[, c(6:10)]
+DIA_Ab_Veh <- DIA_Ab[,c(6:10)]
+
+
+DDA_Ab_Veh %>% head()
+DIA_Ab_Veh %>% head()
+
+
+DDA_Ab_Veh_Avg <- rowMeans(DDA_Ab_Veh)
+DDA_Ab_Veh_Avg_DF <- as.data.frame(DDA_Ab_Veh_Avg)
+DDA_Ab_Veh_Avg_DF$Pro <- rownames(DDA_Ab_Veh_Avg_DF)
+DDA_Ab_Veh_Avg_DF %>% head()
+
+
+DIA_Ab_Veh_Avg <- rowMeans(DIA_Ab_Veh)
+DIA_Ab_Veh_Avg_DF <- as.data.frame(DIA_Ab_Veh_Avg)
+DIA_Ab_Veh_Avg_DF$Pro <- rownames(DIA_Ab_Veh_Avg_DF)
+DIA_Ab_Veh_Avg_DF %>% head()
+
+
+Merged_Veh_Avg <- merge(DDA_Ab_Veh_Avg_DF, DIA_Ab_Veh_Avg_DF, by = "Pro")
+Merged_Veh_Avg %>% head()
+Merged_Veh_Avg %>% dim()
+
+
+
+model_Abundances <- lm(DDA_Ab_Veh_Avg ~ DIA_Ab_Veh_Avg, data = Merged_Veh_Avg)
+
+# Get R-squared
+r2 <- summary(model_Abundances)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(Merged_Veh_Avg, aes(x = DDA_Ab_Veh_Avg, y = DIA_Ab_Veh_Avg)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+
+
+
+
+Merged_Veh_Avg$DDA_Ab_Veh_Avg_log2 <- log2(Merged_Veh_Avg$DDA_Ab_Veh_Avg)
+
+
+Merged_Veh_Avg$DIA_Ab_Veh_Avg_log2 <- log2(Merged_Veh_Avg$DIA_Ab_Veh_Avg)
+
+
+
+
+model_Abundances <- lm(DDA_Ab_Veh_Avg_log2 ~ DIA_Ab_Veh_Avg_log2, data = Merged_Veh_Avg)
+
+# Get R-squared
+r2 <- summary(model_Abundances)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(Merged_Veh_Avg, aes(x = DDA_Ab_Veh_Avg_log2, y = DIA_Ab_Veh_Avg_log2)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  annotate("text", x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste("R^2 = ", round(r2, digits = 2), sep = ""),
+           color = "black") +
+  scale_color_manual(values = c("red", "blue")) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()
+
+
+```

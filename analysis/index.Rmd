@@ -15,22 +15,23 @@ editor_options:
 
 [3. All NA removed RUVs and other workflows 231211](https://omar-johnson.github.io/myproject/Diffabtrial.html)
 
-[4. Data independent acquired abundance 231221](https://omar-johnson.github.io/myproject/Data_ind_Diffabtrial.html)
+[4. Data independent acquired abundance RUVIII + Imputing 240112](https://omar-johnson.github.io/myproject/Data_ind_Diffabtrial.html)
 
+[5. Comparing DDA to DIA response 240112](https://omar-johnson.github.io/myproject/Comparing_DDA_to_DIA.html)
 
 # WPCNA
 [1. Imputed values + Simple tree](https://omar-johnson.github.io/myproject/WPCNA_shallow_split.html)
 
 [2. All NA removed values + Simple tree](https://omar-johnson.github.io/myproject/WPCNA_shallow_split_2.html)
 
-[3. RUVIII Imputed DIA tree](https://omar-johnson.github.io/myproject/Data_ind_imp_RUVIII_WPCNA.html)
+[3. RUVIII Imputed DIA tree 240112](https://omar-johnson.github.io/myproject/Data_ind_imp_RUVIII_WPCNA.html)
 
 
 
 # Enrichment of things 
 [1. DE proteins (imputed) in GO + Reactome ](https://omar-johnson.github.io/myproject/GO_Reactome_enrich_Imputed_proteins.html)
 
-[2. Sign testing and GWAS sumstat enrichment tests with DIA imputed data ](https://omar-johnson.github.io/myproject/Sign_and_genetic_summary_stat_testing.html)
+[2. Sign testing and GWAS sumstat enrichment tests with DIA imputed data 240112 ](https://omar-johnson.github.io/myproject/Sign_and_genetic_summary_stat_testing.html)
 
 
 

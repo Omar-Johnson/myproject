@@ -4,6 +4,8 @@ author: "Omar Johnson"
 date: "2023-12-19"
 output: html_document
 ---
+
+
 # Load Libraries 
 ```{r Libraries, include=FALSE}
 
@@ -49,7 +51,8 @@ library(dynamicTreeCut)
 
 # Undo log tranformation
 RUVg_Log2_quantnormalized_all10samples <- RUVg_Log2_quantnormalized_all10samples^2
-
+RUVg_Log2_quantnormalized_all10samples %>% head()
+RUVg_Log2_quantnormalized_all10samples %>% dim()
  
 
 # 2. Toptable correspondding to the Diff.Abundance test from #1 
@@ -70,7 +73,7 @@ Meta
 WGCNA_DF <- SummarizedExperiment(assays = as.matrix(RUVg_Log2_quantnormalized_all10samples))
 WGCNA_DF
 dim(RUVg_Log2_quantnormalized_all10samples) 
-exp_filt <- filter_by_variance(WGCNA_DF, n = 4182)
+exp_filt <- filter_by_variance(WGCNA_DF, n = 4178)
 exp_filt %>% assay() %>% head()
 Meta
 ```
@@ -86,6 +89,7 @@ sft$plot
 
 # Modify workflow to have a simpler network  
 ```{r  Modify workflow to have a simpler network}
+
 exp2gcn2_EDIT <- function (exp, net_type = "signed", module_merging_threshold = 0.8, 
           SFTpower = NULL, cor_method = "spearman", verbose = FALSE) 
 {
@@ -117,7 +121,7 @@ exp2gcn2_EDIT <- function (exp, net_type = "signed", module_merging_threshold = 
     message("Detecting coexpression modules...")
   }
   old.module_labels <- dynamicTreeCut::cutreeDynamicTree(dendro = geneTree, maxTreeHeight = 3 , 
-                                                         minModuleSize = 35, deepSplit = FALSE)
+                                                         minModuleSize = 40, deepSplit = FALSE)
   nmod <- length(unique(old.module_labels))
   palette <- rev(WGCNA::standardColors(nmod))
   old.module_colors <- WGCNA::labels2colors(old.module_labels, 
@@ -172,7 +176,7 @@ exp2gcn2_EDIT <- function (exp, net_type = "signed", module_merging_threshold = 
 # Generate network with max merge threshold 
 ```{r Generate network with max merge threshold }
 net <- exp2gcn2_EDIT(
-  exp_filt, net_type = "signed", module_merging_threshold = 0.99, SFTpower = 20, 
+  exp_filt, net_type = "signed", module_merging_threshold = 0.9999, SFTpower = 20, 
   cor_method = "pearson")
 
 
@@ -197,8 +201,10 @@ plot_ngenes_per_module(net)
 ```{r Generate network with desired merge threshold}
 
 net <- exp2gcn2_EDIT(
-  exp_filt, net_type = "signed", module_merging_threshold = 0.8, SFTpower = 20, 
+  exp_filt, net_type = "signed", module_merging_threshold = 0.85, SFTpower = 20, 
   cor_method = "pearson")
+
+
 
 
 
@@ -258,6 +264,7 @@ trait_data
 
 
 
+
 # Plot correlation across modules
 ggplot(trait_data, aes(x = ME, y = neglogP, color = Value)) + 
   geom_segment(aes(xend = ME, yend = 0), linetype = "solid") +
@@ -272,7 +279,7 @@ ggplot(trait_data, aes(x = ME, y = neglogP, color = Value)) +
   labs(x = "Module", y = "-log(P-value)", title = "Module correlation with DOX treatment") + 
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  geom_hline(yintercept = 2.995732, color = "black", linetype = "dashed") +
+  geom_hline(yintercept = 5, color = "black", linetype = "dashed") +
   geom_text(aes(x = 0, y = 3.5, label = "P-Val Threshold"), hjust = -0.1, vjust = 1.5)
 ```
 
@@ -280,8 +287,8 @@ ggplot(trait_data, aes(x = ME, y = neglogP, color = Value)) +
 # General wrangling 
 ```{r General wrangling }
 # Get modules that significantly associate with DOX treatment 
-Signifigant_modules <-  trait_data[trait_data$PValue < 0.05, ]$ME
-
+Signifigant_modules <-  trait_data[trait_data$PValue < 0.01, ]$ME
+Signifigant_modules_Original_DOX <- Signifigant_modules
 
 # Get your genes/proteins and modules DF 
 Gene_mod_DF <- net$genes_and_modules 
@@ -402,8 +409,8 @@ ggplot(Toptable_Modules, aes(x = P.Value, y = Modules, fill = Modules)) +
 ```
 
 
-# DE across modules 
-```{r DE across modules}
+# DE across modules for DE < 0.05 
+```{r DE across modules 1}
 # Plotting LogFC between DE and non DE proteins 
 Toptable_Modules$DE_or_Not <- Toptable_Modules$P.Value < 0.05
 
@@ -416,6 +423,68 @@ DE_Mod_result <- Toptable_Modules %>%
     DE_genes = sum(P.Value < 0.05),
     percent_DE = (DE_genes / total_genes) * 100
   )
+
+
+print(DE_Mod_result)
+
+
+# Plot
+ggplot(DE_Mod_result, aes(x = Modules, y = percent_DE)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Module",
+    y = "Percentage of DE genes",
+    title = "Percentage of DE genes in each module",
+    fill = "Module"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+# Compute complementary percentage for non-DE genes
+DE_Mod_result$percent_nonDE <- 100 - DE_Mod_result$percent_DE
+
+# Reshape data to long format
+long_data <- DE_Mod_result %>% 
+  pivot_longer(cols = c(percent_DE, percent_nonDE), 
+               names_to = "type", 
+               values_to = "percentage")
+
+
+
+# Plot stacked bar chart
+ggplot(long_data, aes(x = Modules, y = percentage, fill = type)) +
+  geom_bar(stat = "identity") +
+  labs(
+    x = "Module",
+    y = "Percentage",
+    title = "Percentage of DE and non-DE genes in each module",
+    fill = "Type"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  scale_y_continuous(breaks = rev(seq(0, 100, by = 10)))
+
+
+Significant_modules_NoME
+```
+
+
+# DE across modules for DE < 0.01
+```{r DE across modules 2}
+# Plotting LogFC between DE and non DE proteins 
+Toptable_Modules$DE_or_Not <- Toptable_Modules$P.Value < 0.01
+
+
+# Calculate percentage of DE genes for each module
+DE_Mod_result <- Toptable_Modules %>%
+  group_by(Modules) %>%
+  summarize(
+    total_genes = n(),
+    DE_genes = sum(P.Value < 0.01),
+    percent_DE = (DE_genes / total_genes) * 100
+  )
+
 
 print(DE_Mod_result)
 
@@ -461,8 +530,8 @@ Significant_modules_NoME
 ```
 
 
-# GO enrichment acrross dox correlated modules 
-```{r GO enrichment, fig.width = 10, fig.height = 15}
+# GO for ALL DOX-correlated module proteins 
+```{r GO enrichment 1, fig.width = 10, fig.height = 15}
 hubs <- get_hubs_gcn(WGCNA_DF, net)
 ontology_categories <- c("ALL")
 
@@ -493,7 +562,7 @@ for (module in Significant_modules_NoME) {
     
     # Plotting the results
     # Plotting the results
-    p <- barplot(go_enrichment, showCategory = 20) +
+    p <- barplot(go_enrichment, showCategory = 10) +
       ggtitle(paste("Module:", module, "- Ontology:", ont))
     
     print(p)   
@@ -501,6 +570,110 @@ for (module in Significant_modules_NoME) {
   }
 }
 Significant_modules_NoME
+
+```
+
+
+# GO for ALL DOX-correlated module proteins that are DE 
+```{r GO enrichment 2, fig.width = 10, fig.height = 15}
+hubs <- get_hubs_gcn(WGCNA_DF, net)
+ontology_categories <- c("ALL")
+
+
+# Loop over each module and ontology category
+for (module in Significant_modules_NoME) {
+  # Extract hub genes for the current module
+  module_hubs <- hubs[hubs$Module == module, ]$Gene
+  
+  # All module proteins
+  module_proteins <- Toptable_Modules[(Toptable_Modules$Modules == module) & (Toptable_Modules$P.Value < 0.05), ]$Protein
+  
+  # Get gene names for the proteins in the module
+  module_genes <- ENZYME_DF_Toptable[ENZYME_DF_Toptable$Protein %in% module_proteins, ]$hgnc_symbol
+  
+  # Define background genes
+  background_genes_mod <- ENZYME_DF_Toptable$hgnc_symbol
+  
+  for (ont in ontology_categories) {
+    # GO Enrichment
+    go_enrichment <- enrichGO(gene = module_genes,
+                              OrgDb = org.Hs.eg.db,
+                              keyType = "SYMBOL",
+                              universe = background_genes_mod,
+                              ont = ont,
+                              pvalueCutoff = 1,
+                              qvalueCutoff = 1)
+    
+    # Plotting the results
+    # Plotting the results
+    p <- barplot(go_enrichment, showCategory = 10) +
+      ggtitle(paste("Module:", module, "- Ontology:", ont))
+    
+    print(p)   
+    
+  }
+}
+Significant_modules_NoME
+
+```
+
+
+# GO for the combined set of ALL DOX-correlated module HUB proteins 
+```{r GO enrichment 3, fig.width = 10, fig.height = 15}
+hubs <- get_hubs_gcn(WGCNA_DF, net)
+ontology_categories <- c("ALL")
+
+
+DOX_corr_HUB_proteins <- hubs[hubs$Module %in% Significant_modules_NoME, ]$Gene
+ENZYME_DF_Toptable %>% head()
+
+DOX_corr_HUB_genes <- ENZYME_DF_Toptable[ENZYME_DF_Toptable$Protein %in% DOX_corr_HUB_proteins, ]$hgnc_symbol
+
+    # GO Enrichment
+    go_enrichment <- enrichGO(gene = DOX_corr_HUB_genes,
+                              OrgDb = org.Hs.eg.db,
+                              keyType = "SYMBOL",
+                              universe = background_genes_mod,
+                              ont = "ALL",
+                              pvalueCutoff = 1,
+                              qvalueCutoff = 1)
+    
+barplot(go_enrichment, showCategory = 10) +
+      ggtitle("DOX-cor HUB proteins")
+
+Significant_modules_NoME
+
+
+# Network of DOX correlated HUB proteins for their most significant categories
+cnetplot(x = go_enrichment, showCategory = 4, circular = FALSE, categorySize = "pvalue" )
+
+# heatplot to see gene overlaps 
+heatplot(go_enrichment, showCategory = 10)
+
+
+  background_PRO_mod_DOXcorHUBS <- 
+    Toptable_Modules[Toptable_Modules$Modules %in% Significant_modules_NoME, ]$Protein
+  
+ background_gene_mod_DOXcorHUBS <- ENZYME_DF_Toptable[ENZYME_DF_Toptable$Protein %in% background_PRO_mod_DOXcorHUBS, ]$hgnc_symbol 
+
+# Option 2 GO enrich test using same test set but all module proteins as background
+# GO Enrichment
+    go_enrichment <- enrichGO(gene = DOX_corr_HUB_genes,
+                              OrgDb = org.Hs.eg.db,
+                              keyType = "SYMBOL",
+                              universe = background_gene_mod_DOXcorHUBS,
+                              ont = "ALL",
+                              pvalueCutoff = 1,
+                              qvalueCutoff = 1)
+ 
+    
+# Plot 
+barplot(go_enrichment, showCategory = 10) +
+      ggtitle("DOX-cor HUB proteins")  
+
+
+# Network of DOX correlated HUB proteins for their most significant categories
+cnetplot(x = go_enrichment, showCategory = 3, circular = FALSE )
 ```
 
 
@@ -509,111 +682,6 @@ Significant_modules_NoME
 # Total number of networks edges 
 get_edge_list(net) %>% dim()
 Significant_modules_NoME
-```
-
-
-# Network darkturquoise 
-```{r Network darkturquoise, fig.width = 10, fig.height = 15}
-edges_filtered <- get_edge_list(
-  net, module = c("darkturquoise" ), 
-  filter = TRUE, method = "min_cor", rcutoff = 0.97,
-  check_SFT = TRUE
-)
-
-dim(edges_filtered)
-
-plot_gcn(
-  edgelist_gcn = edges_filtered, 
-  net = net, 
-  color_by = "module", 
-  hubs = hubs,
-  top_n_hubs = 30,
-  show_labels = "tophubs"
-)
-```
-
-
-# Network midnightblue  
-```{r Network midnightblue, fig.width = 10, fig.height = 15}
-edges_filtered <- get_edge_list(
-  net, module = c( "midnightblue"), 
-  filter = TRUE, method = "min_cor", rcutoff = 0.95,
-  check_SFT = TRUE
-)
-
-dim(edges_filtered)
-
-plot_gcn(
-  edgelist_gcn = edges_filtered, 
-  net = net, 
-  color_by = "module", 
-  hubs = hubs,
-  top_n_hubs = 30,
-  show_labels = "tophubs"
-)
-```
-
-
-# Network cyan  
-```{r Network cyan, fig.width = 10, fig.height = 15}
-edges_filtered <- get_edge_list(
-  net, module = c("cyan" ), 
-  filter = TRUE, method = "min_cor", rcutoff = 0.98,
-  check_SFT = TRUE
-)
-
-dim(edges_filtered)
-
-plot_gcn(
-  edgelist_gcn = edges_filtered, 
-  net = net, 
-  color_by = "module", 
-  hubs = hubs,
-  top_n_hubs = 30,
-  show_labels = "tophubs"
-)
-```
-
-
-# Network tan  
-```{r Network tan, fig.width = 10, fig.height = 15}
-edges_filtered <- get_edge_list(
-  net, module = c("tan"), 
-  filter = TRUE, method = "min_cor", rcutoff = 0.99,
-  check_SFT = TRUE
-)
-
-dim(edges_filtered)
-
-plot_gcn(
-  edgelist_gcn = edges_filtered, 
-  net = net, 
-  color_by = "module", 
-  hubs = hubs,
-  top_n_hubs = 30,
-  show_labels = "tophubs"
-)
-```
-
-
-# Network yellow  
-```{r Network yellow, fig.width = 10, fig.height = 15}
-edges_filtered <- get_edge_list(
-  net, module = c("yellow"), 
-  filter = TRUE, method = "min_cor", rcutoff = 0.97,
-  check_SFT = TRUE
-)
-
-dim(edges_filtered)
-
-plot_gcn(
-  edgelist_gcn = edges_filtered, 
-  net = net, 
-  color_by = "module", 
-  hubs = hubs,
-  top_n_hubs = 30,
-  show_labels = "tophubs"
-)
 ```
 
 
@@ -638,6 +706,7 @@ pvalues <- sapply(1:ncol(eigenmatrix), function(column) cor.test(eigenmatrix[,co
 WGCNA_DF$trait <- as.matrix(WGCNA_DF$trait)
 
 Modeigen <- as.matrix(net$MEs)
+
 
 
 # Trait data frame
@@ -665,13 +734,13 @@ ggplot(trait_data, aes(x = ME, y = neglogP, color = Value)) +
   labs(x = "Module", y = "-log(P-value)", title = "Module correlation with DOX treatment") + 
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-  geom_hline(yintercept = 2.995732, color = "black", linetype = "dashed") +
+  geom_hline(yintercept = 5, color = "black", linetype = "dashed") +
   geom_text(aes(x = 0, y = 3.5, label = "P-Val Threshold"), hjust = -0.1, vjust = 1.5)
       
         
 
 # Get modules that significantly associate with DOX treatment 
-Signifigant_modules <-  trait_data[trait_data$PValue < 0.05, ]$ME
+Signifigant_modules <-  trait_data[trait_data$PValue < 0.01, ]$ME
 
 
 # Get your genes/proteins and modules DF 
@@ -793,7 +862,7 @@ Fulltrait_df
 
 
 
-Fulltrait_df$annotation <- ifelse(Fulltrait_df$pval < 0.05, "*", "")
+Fulltrait_df$annotation <- ifelse(Fulltrait_df$pval < 0.01, "*", "")
 
 
 
@@ -812,3 +881,1082 @@ ggplot(Fulltrait_df, aes(x = Trait, y = Module, fill = cor)) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
+
+# Potential PPI-DF construction
+```{r PPI-DF construction, fig.width=15, fig.height=15}
+# DOX correlated modules 
+Signifigant_modules_Original_DOX
+
+# Organize proteins by modules, so correlations within modules are what we see. 
+net$genes_and_modules$Modules %>% unique()
+
+Edges_darkred <- get_edge_list(net, module = "darkred", filter = FALSE) 
+Edges_darkred$Module_name <- "darkred"
+
+Edges_midnightblue <- get_edge_list(net, module = "royalblue", filter = FALSE)
+Edges_midnightblue$Module_name <- "royalblue"
+
+Edges_lightyellow <- get_edge_list(net, module = "green", filter = FALSE) 
+Edges_lightyellow$Module_name <- "green"
+
+Edges_darkgreen <- get_edge_list(net, module = "lightyellow", filter = FALSE) 
+Edges_darkgreen$Module_name <- "lightyellow"
+
+Edges_tan <- get_edge_list(net, module = "magenta", filter = FALSE) 
+Edges_tan$Module_name <- "magenta"
+
+Edges_lightcyan <- get_edge_list(net, module = "grey", filter = FALSE) 
+Edges_lightcyan$Module_name <- "grey"
+
+Edges_cyan <- get_edge_list(net, module = "salmon", filter = FALSE) 
+Edges_cyan$Module_name <- "salmon"
+
+Edges_grey <- get_edge_list(net, module = "darkgreen", filter = FALSE) 
+Edges_grey$Module_name <- "darkgreen"
+
+Edges_yellow <- get_edge_list(net, module = "midnightblue", filter = FALSE) 
+Edges_yellow$Module_name <- "midnightblue"
+
+Edges_blue <- get_edge_list(net, module = "blue", filter = FALSE) 
+Edges_blue$Module_name <- "blue"
+
+Edges_darkturquoise <- get_edge_list(net, module = "yellow", filter = FALSE)
+Edges_darkturquoise$Module_name <- "yellow"
+
+Edges_brown <- get_edge_list(net, module = "brown", filter = FALSE)
+Edges_brown$Module_name <- "brown"
+
+
+
+
+# Combine the data frames from above 
+Network_1 <- rbind(Edges_darkred,Edges_midnightblue,Edges_lightyellow,Edges_darkgreen,
+      Edges_tan,Edges_lightcyan,Edges_cyan,Edges_grey,Edges_yellow,Edges_blue,
+      Edges_darkturquoise,Edges_brown)
+get_edge_list(net) %>% dim()
+
+Network_1 %>% dim()
+
+# Get a list of DE proteins
+DE_vec <- toptable_summary[toptable_summary$P.Value < 0.05, ]$Protein
+
+# Columns are proteins even though named "Gene n". 
+# ID proteins in column 1 & 2 as DE or not. 
+Network_1$Gene1_DE <- Network_1$Gene1 %in% DE_vec
+Network_1$Gene2_DE <- Network_1$Gene2 %in% DE_vec
+
+# ID proteins in column 1 & 2 as a HUB protein or not. 
+Network_1$Gene1_HUB <- Network_1$Gene1 %in% hubs$Gene
+Network_1$Gene2_HUB <- Network_1$Gene2 %in% hubs$Gene
+
+
+
+
+
+# Use the ensembl dataset
+mart <- useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+# vector of Uniprot IDs
+uniprot_ids <- toptable_summary %>% rownames()
+
+uniprot_ids %>% length()
+
+
+
+# Get the corresponding IDs"
+results_Pro <- getBM(filters = "uniprotswissprot", 
+                     attributes = c("uniprotswissprot", "hgnc_symbol", "ensembl_gene_id"), 
+                     values = uniprot_ids, 
+                     mart = mart) 
+results_Pro %>% dim()
+
+
+
+# Merge with Human protein atlas data about protein compartments. 
+# Data from here will indicated if it's likely the proteins will 
+# physically be able to interact. 
+
+HPA_Compartment <- read_tsv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/DIA_proteins/Compartments/subcellular_location.tsv", col_names =TRUE )
+HPA_Compartment %>% head()
+HPA_Compartment %>% colnames()
+HPA_Compartment %>% dim()
+
+
+HPA_Compartment[intersect(HPA_Compartment$Gene, results_Pro$ensembl_gene_id), ] %>% dim()
+
+Pro_Key_Merged <- merge(HPA_Compartment, results_Pro, by.x = "Gene" , by.y = "ensembl_gene_id")
+Pro_Key_Merged %>% dim()
+
+
+Uniprot_compart <- readxl::read_excel(path ="/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/DIA_proteins/Compartments/idmapping_proteins_with_50_2024_01_05.xlsx" , col_names = TRUE)
+Uniprot_compart %>% dim() 
+Uniprot_compart %>% head()
+
+
+# Generate a function that can wrangle the Uniprot compartment info.  
+extract_locations <- function(input_column) {
+  # Step 1: Remove all the extra information such as ECO codes and notes
+  cleaned <- gsub("\\{[^\\}]*\\}", "", input_column)  # Remove ECO codes and their contents
+  cleaned <- gsub("Note=[^\\.]*\\.", "", cleaned)     # Remove notes
+  cleaned <- gsub("SUBCELLULAR LOCATION: ", "", cleaned) # Remove leading descriptor
+
+  # Step 2: Further clean up by removing trailing periods and excess spaces
+  cleaned <- gsub("\\.\\s*|\\.$", ";", cleaned)  # Replace periods followed by space or standalone periods with semicolons
+  cleaned <- gsub(";+", ";", cleaned)            # Replace multiple semicolons with a single one
+  
+  # Step 3: Split the string into individual locations and remove trailing spaces
+  locations <- strsplit(cleaned, ";\\s*")
+  combined_locations <- sapply(locations, function(x) {
+    x <- trimws(x)  # Trim leading/trailing white spaces
+    paste(x, collapse = ";")
+  })
+
+  return(combined_locations)
+}
+
+
+# Wrangle the Uniprot_compart DF 
+Compart <- extract_locations(Uniprot_compart$`Subcellular location [CC]`)
+Uniprot_compart$Compart <- Compart
+
+
+
+# Function to get compartment intersections 
+get_location_intersection <- function(DF1, DF2) {
+  # Helper function to get compartment locations for a prtein
+  get_locations <- function(gene, DF2) {
+    loc <- DF2$Compart[DF2$From == gene]
+    if (length(loc) > 0) {
+      unlist(strsplit(loc, ";"))
+    } else {
+      character(0)
+    }
+  }
+
+  # Iterate over rows in DF1 (Network DF)
+  intersections <- sapply(1:nrow(DF1), function(i) {
+    gene1_locs <- get_locations(DF1$Gene1[i], DF2)
+    gene2_locs <- get_locations(DF1$Gene2[i], DF2)
+    intersect(gene1_locs, gene2_locs)
+  })
+
+  # Combine intersected locations into strings ted by ";"
+  intersections <- sapply(intersections, function(x) paste(x, collapse = ";"))
+
+  # Add as a new column to DF1
+  DF1$Intersection <- intersections
+
+  return(DF1)
+}
+
+Network_1 %>% dim()
+Network_1 %>% head()
+
+
+# Usage
+Network_2 <- get_location_intersection(Network_1, Uniprot_compart)
+Network_2 %>% dim()
+Network_2 %>% head()
+
+
+# Replace empty strings with NA in the specified column
+# for easier subsetting later on. 
+Network_2$Intersection[Network_2$Intersection == ""] <- NA
+Network_2 %>% head()
+
+
+# Make an easily subsettable column to indicate if there's 
+# at least one shared column for two proteins. 
+Network_2$Compart_shared <- !is.na(Network_2$Intersection)
+Network_2 %>% head()
+Network_2 %>% dim()
+
+
+Drugabble <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/DIA_Framework/Druggable_proteins.csv", header = TRUE)
+Drugabble <- Drugabble[,1:5]
+Drugabble %>% dim()
+
+# Create a new column 'Gene1_is_druggable' for Gene1
+Network_2$Gene1_is_druggable <- Network_2$Gene1 %in% Drugabble$Uniprot
+Network_2$Gene2_is_druggable <- Network_2$Gene2 %in% Drugabble$Uniprot
+
+Network_2 %>% head()
+
+
+
+# Example for plotting: 
+Network_2_sub <- Network_2[1:100, ]
+
+library(igraph)
+library(ggraph)
+
+
+
+
+# Create an edge list for igraph by getting the two proteins and weight 
+PPI_edge_list <- Network_2_sub[, c("Gene1", "Gene2", "Weight")]
+
+# Create an igraph object
+PPI_graph_network <- graph_from_data_frame(PPI_edge_list, directed = FALSE)
+
+
+
+
+# Prepare node attributes based on Network_2_sub columns
+node_data <- unique(rbind(
+
+  # 1. 
+data.frame(node = Network_2_sub$Gene1, DE = Network_2_sub$Gene1_DE), 
+  # 2. 
+data.frame(node = Network_2_sub$Gene2, DE = Network_2_sub$Gene2_DE)))
+
+# Add attributes to the PPI_graph_network
+V(PPI_graph_network)$DE <- node_data$DE[match(V(PPI_graph_network)$name, node_data$node)]
+
+
+
+
+
+# Version 1: Coloring nodes based on Module name
+ggraph(PPI_graph_network, layout = "stress") +
+  geom_edge_link0(aes(edge_color = Weight, edge_linewidth = Weight), show.legend = TRUE) +
+  geom_node_point(size = 8, color = "darkred") +
+  geom_node_text(aes(label = name), fontface = "bold") +
+  scale_edge_color_continuous(low = "white", high = "black") +
+  scale_edge_width(range = c(0.1, .2)) +
+  theme_graph() +
+  coord_fixed()
+
+
+# Version 2: Coloring nodes based on DE value
+ggraph(PPI_graph_network, layout = "stress") +
+  geom_edge_link(aes(edge_color = Weight, edge_width = Weight), show.legend = TRUE) +
+  geom_node_point(aes(color = DE), size = 8) +  # Color based on DE
+  geom_node_text(aes(label = name), fontface = "bold") +
+  scale_edge_color_continuous(low = "white", high = "black") +
+  scale_edge_width(range = c(0.1, 0.5)) +
+  scale_color_manual(values = c("TRUE" = "firebrick3", "FALSE" = "#44a6c6")) +
+  theme_graph() +
+  coord_fixed()
+```
+
+
+# Module-wise pQTL 
+```{r Module-wise pQTL Enrichment, fig.width=15, fig.height=15}
+# All Unique pQTLs 
+pQTL_data <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/pQTL_Genetic_reg_plasmaproteome.csv", header = TRUE)
+
+
+pQTL_pro_unique <- pQTL_data$Target.UniProt %>% unique()
+pQTL_pro_unique %>% length()
+
+
+
+Toptable_Modules$Protein
+
+diseaseGenes <- list(
+  pQTL = pQTL_pro_unique
+)
+
+
+# Generae enrichment function limited to the EXPRESSED proteins.  
+perform_module_disease_analysis <- function(toptable, diseaseGenes) {
+  # Prepare an empty list to collect results
+  results <- list()
+  
+  # Ensure 'Modules' and 'Protein' columns exist in 'toptable'
+  if(!"Modules" %in% names(toptable)) {
+    stop("Column 'Modules' not found in the 'toptable'.")
+  }
+  if(!"Protein" %in% names(toptable)) {
+    stop("Column 'Protein' not found in the 'toptable'.")
+  }
+  
+  # Filter disease genes to include only those that are expressed in toptable
+  expressedDiseaseGenes <- lapply(diseaseGenes, function(genes) {
+    intersect(genes, toptable$Protein)
+  })
+  
+  # Loop through each module
+  modules <- unique(toptable$Modules)
+  for (module in modules) {
+    # Get the genes in the module
+    moduleGenes <- toptable$Protein[toptable$Modules == module]
+    
+    # Loop through each disease gene set
+    for (diseaseName in names(expressedDiseaseGenes)) {
+      # Find the intersecting genes between the module and the expressed disease genes
+      diseaseModuleIntersect <- intersect(moduleGenes, expressedDiseaseGenes[[diseaseName]])
+      
+      # Calculate elements for the contingency table
+      numIntersect = length(diseaseModuleIntersect)
+      numInModuleNotDisease = length(moduleGenes) - numIntersect
+      numInDiseaseNotModule = length(expressedDiseaseGenes[[diseaseName]]) - numIntersect
+      numInNeither = nrow(toptable) - (numIntersect + numInModuleNotDisease + numInDiseaseNotModule)
+      
+      # Build the contingency table
+      table <- matrix(c(
+        numIntersect, # Both in disease list and module
+        numInModuleNotDisease, # In module but not disease list
+        numInDiseaseNotModule, # In disease list but not module
+        numInNeither # In neither list
+      ), nrow = 2, byrow = TRUE)
+      
+      # Perform chi-squared test and Fisher's exact test with error handling
+      chiSqTestResult <- tryCatch({
+        chisq.test(table, correct = TRUE)
+      }, error = function(e) {
+        list(p.value = NA)
+      }, warning = function(w) {
+        list(p.value = NA)
+      })
+      
+      fisherTestResult <- tryCatch({
+        fisher.test(table)
+      }, error = function(e) {
+        list(p.value = NA)
+      }, warning = function(w) {
+        list(p.value = NA)
+      })
+      
+      # Calculate percent overlap, handle division by zero
+      percentOverlap <- if (length(moduleGenes) > 0) {
+        (numIntersect / length(expressedDiseaseGenes[[diseaseName]])) * 100
+      } else {
+        0
+      }
+      
+      # Convert intersecting genes to a single character string
+      intersectingGenesStr <- if (numIntersect > 0) {
+        paste(diseaseModuleIntersect, collapse = ";")
+      } else {
+        ""  # Use an empty string to indicate no intersection
+      }
+      
+      # Append to results list
+      results[[paste(module, diseaseName, sep = "_")]] <- data.frame(
+        Modules = module,
+        Disease = diseaseName,
+        ChiSqPValue = chiSqTestResult$p.value,
+        FisherPValue = fisherTestResult$p.value,
+        PercentOverlap = percentOverlap,
+        IntersectingGenes = intersectingGenesStr
+      )
+    }
+  }
+  
+  # Combine results into a single data frame
+  results_df <- do.call(rbind, results)
+  return(results_df)
+}
+
+# Plot results 
+results_df <- perform_module_disease_analysis(toptable = Toptable_Modules, diseaseGenes = diseaseGenes)
+
+results_df %>% as.tibble() %>% head()
+
+melted_results <- melt(results_df, id.vars = c("Modules", "Disease", "PercentOverlap", "FisherPValue"))
+melted_results
+
+
+# First, create a new column that indicates where to place stars
+melted_results$Star <- ifelse(melted_results$FisherPValue < 0.05 & melted_results$PercentOverlap > 0, "*", "")
+
+
+# Now, plot the heatmap and add geom_text to place stars where the conditions are met
+ggplot(melted_results, aes(x = Modules, y = Disease, fill = PercentOverlap)) +
+  geom_tile(color = "white") +  # Adds border color to the tiles
+  scale_fill_gradient(low = "lavender", high = "red", na.value = "grey50", 
+                      limits = c(min(melted_results$PercentOverlap), max(melted_results$PercentOverlap)), name = "Percent Overlap (%)") +  # Adjust as needed
+  geom_text(aes(label = Star), color = "black", size = 8, na.rm = TRUE)+  # Adds stars; adjust color and size as needed
+  labs(x = "Modules", y = "Disease") +  # Labels for the plot
+  theme_minimal() +  # Minimal theme for a clean look
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),  # Adjust text alignment for better readability
+    axis.text.y = element_text(hjust = 0.5),  # Center align y-axis text
+    axis.title = element_text(size = 12),  # Adjust title size as needed
+    legend.key.size = unit(1, 'cm'),  # Adjust legend key size
+    legend.title = element_text(size = 10),  # Adjust legend title size
+    legend.text = element_text(size = 8)  # Adjust legend text size
+  )
+
+
+
+
+
+# Now do the same kind of pQTL enrichment but for protein coding genes 
+# mapped to SNPs ini specific kinds of loci. 
+pQTL_data$Target.UniProt
+variant_consequences <- pQTL_data$Annotated.gene.consequence %>% unique()
+
+
+pQTL_1_intergenic_variants <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[1], ]$Target.UniProt %>% unique()
+
+pQTL_2_upstream_gene_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[2], ]$Target.UniProt %>% unique()
+
+pQTL_3_missense_variant_splice_region_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[3], ]$Target.UniProt %>% unique()
+
+pQTL_4_missense_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[4], ]$Target.UniProt %>% unique()
+
+pQTL_5_downstream_gene_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[5], ]$Target.UniProt %>% unique()
+
+pQTL_6_intron_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[6], ]$Target.UniProt %>% unique()
+
+pQTL_7_intron_variant_non_coding_transcript_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[7], ]$Target.UniProt %>% unique()
+
+variant_consequences[8]
+pQTL_8_frameshift_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[8], ]$Target.UniProt %>% unique()
+
+variant_consequences[9]
+pQTL_9_regulatory_region_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[9], ]$Target.UniProt %>% unique()
+
+variant_consequences[10]
+pQTL_10_3_prime_UTR_variant  <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[10], ]$Target.UniProt %>% unique()
+
+variant_consequences[11]
+pQTL_11_inframe_deletion <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[11], ]$Target.UniProt %>% unique()
+
+variant_consequences[12]
+pQTL_12_splice_polypyrimidine_tract_variant_intron_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[12], ]$Target.UniProt %>% unique()
+
+variant_consequences[13]
+pQTL_13_synonymous_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[13], ]$Target.UniProt %>% unique()
+
+variant_consequences[14]
+pQTL_14_non_coding_transcript_exon_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[14], ]$Target.UniProt %>% unique()
+
+variant_consequences[15]
+pQTL_15_stop_gained_splice_region_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[15], ]$Target.UniProt %>% unique()
+
+
+variant_consequences[16]
+pQTL_16_5_prime_UTR_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[16], ]$Target.UniProt %>% unique()
+
+variant_consequences[17]
+pQTL_17_splice_region_variant_synonymous_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[17], ]$Target.UniProt %>% unique()
+
+
+variant_consequences[18]
+pQTL_18_stop_gained <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[18], ]$Target.UniProt %>% unique()
+
+
+variant_consequences[19]
+pQTL_19_stop_gained <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[19], ]$Target.UniProt %>% unique()
+
+
+variant_consequences[20]
+pQTL_20_splice_donor_5th_base_variant_intron_variant_non_coding_transcript_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[20], ]$Target.UniProt %>% unique()
+
+variant_consequences[21]
+pQTL_21 <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[21], ]$Target.UniProt %>% unique()
+
+variant_consequences[22]
+pQTL_22_inframe_insertion <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[22], ]$Target.UniProt %>% unique()
+
+variant_consequences[23]
+pQTL_23_TF_binding_site_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[23], ]$Target.UniProt %>% unique()
+
+variant_consequences[24]
+pQTL_24_intron_variant_NMD_transcript_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[24], ]$Target.UniProt %>% unique()
+
+variant_consequences[25]
+pQTL_25_splice_donor_5th_base_variant_intron_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[25], ]$Target.UniProt %>% unique()
+
+variant_consequences[26]
+pQTL_26_splice_donor_5th_base_variant_frameshift_variant  <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[26], ]$Target.UniProt %>% unique()
+
+
+variant_consequences[27]
+pQTL_27_splice_region_variant_5_prime_UTR_variant  <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[27], ]$Target.UniProt %>% unique()
+
+variant_consequences[28]
+pQTL_28_splice_donor_variant_splice_donor_5th_base_variant_coding_sequence_variant_intron_variant  <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[28], ]$Target.UniProt %>% unique()
+
+
+variant_consequences[29]
+pQTL_29_protein_altering_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[29], ]$Target.UniProt %>% unique()
+
+variant_consequences[30]
+pQTL_30_frameshift_variant_splice_donor_region_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[30], ]$Target.UniProt %>% unique()
+
+
+variant_consequences[31]
+pQTL_31_splice_region_variant_splice_polypyrimidine_tract_variant_intron_variant_non_coding_transcript_variant  <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[31], ]$Target.UniProt %>% unique()
+
+
+variant_consequences[32]
+pQTL_32_splice_donor_region_variant_intron_variant  <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[32], ]$Target.UniProt %>% unique()
+
+
+variant_consequences[33]
+pQTL_33_splice_polypyrimidine_tract_variant_intron_variant_non_coding_transcript_variant  <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[33], ]$Target.UniProt %>% unique()
+
+variant_consequences[34]
+pQTL_34_splice_donor_region_variant_intron_variant_non_coding_transcript_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[34], ]$Target.UniProt %>% unique()
+
+variant_consequences[35]
+pQTL_35_mature_miRNA_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[35], ]$Target.UniProt %>% unique()
+
+variant_consequences[36]
+pQTL_36_3_prime_UTR_variant_NMD_transcript_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[36], ]$Target.UniProt %>% unique()
+
+variant_consequences[37]
+pQTL_37_splice_donor_variant  <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[37], ]$Target.UniProt %>% unique()
+
+variant_consequences[38]
+pQTL_38_splice_region_variant_intron_variant  <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[38], ]$Target.UniProt %>% unique()
+
+variant_consequences[39]
+pQTL_39_stop_lost  <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[39], ]$Target.UniProt %>% unique()
+
+variant_consequences[40]
+pQTL_40_splice_acceptor_variant_non_coding_transcript_variant   <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[40], ]$Target.UniProt %>% unique()
+
+
+variant_consequences[41]
+pQTL_41_start_lost   <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[41], ]$Target.UniProt %>% unique()
+
+
+variant_consequences[42]
+pQTL_41_start_lost   <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[42], ]$Target.UniProt %>% unique()
+
+
+
+
+
+# New annotation based on variant signifigance data frame simplified 
+diseaseGenes <- list(intergenic_variants = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[1], ]$Target.UniProt %>% unique(),
+
+
+missense_variant_splice_region_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[3], ]$Target.UniProt %>% unique(),
+
+missense_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[4], ]$Target.UniProt %>% unique(),
+
+
+intron_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[6], ]$Target.UniProt %>% unique(),
+
+intron_variant_non_coding_transcript_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[7], ]$Target.UniProt %>% unique(),
+
+frameshift_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[8], ]$Target.UniProt %>% unique(),
+
+prime_3UTR_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[10], ]$Target.UniProt %>% unique(),
+
+inframe_deletion = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[11], ]$Target.UniProt %>% unique(),
+
+stop_gained_splice_region_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[15], ]$Target.UniProt %>% unique(),
+
+prime_5UTR_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[16], ]$Target.UniProt %>% unique(),
+
+stop_gained = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[18], ]$Target.UniProt %>% unique(),
+
+pQTL_NA = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[21], ]$Target.UniProt %>% unique(),
+
+inframe_insertion = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[22], ]$Target.UniProt %>% unique(),
+
+TF_binding_site_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[23], ]$Target.UniProt %>% unique(),
+
+intron_variant_NMD_transcript_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[24], ]$Target.UniProt %>% unique(),
+
+protein_altering_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[29], ]$Target.UniProt %>% unique(),
+
+
+mature_miRNA_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[35], ]$Target.UniProt %>% unique(),
+
+prime_3UTR_variant_NMD_transcript_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[36], ]$Target.UniProt %>% unique(),
+
+splice_donor_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[37], ]$Target.UniProt %>% unique(),
+
+splice_region_variant_intron_variant =  pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[38], ]$Target.UniProt %>% unique(), 
+
+stop_lost = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[39], ]$Target.UniProt %>% unique(), 
+
+start_lost = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[41], ]$Target.UniProt %>% unique(),
+
+splice_acceptor_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[42], ]$Target.UniProt %>% unique(), 
+
+pQTL_ALL = pQTL_data$Target.UniProt %>% unique()
+)
+
+
+
+
+# Plot results 
+results_df <- perform_module_disease_analysis(toptable = Toptable_Modules, diseaseGenes = diseaseGenes)
+
+
+melted_results <- melt(results_df, id.vars = c("Modules", "Disease", "PercentOverlap", "FisherPValue"))
+
+
+# First, create a new column that indicates where to place stars
+melted_results$Star <- ifelse(melted_results$FisherPValue < 0.05 & melted_results$PercentOverlap > 0, "*", "")
+
+
+# Now, plot the heatmap and add geom_text to place stars where the conditions are met
+ggplot(melted_results, aes(x = Modules, y = Disease, fill = PercentOverlap)) +
+  geom_tile(color = "white") +  # Adds border color to the tiles
+  scale_fill_gradient(low = "lavender", high = "red", na.value = "grey50", 
+                      limits = c(min(melted_results$PercentOverlap), max(melted_results$PercentOverlap)), name = "pQTLs Overlap (%)") +  # Adjust as needed
+  geom_text(aes(label = Star), color = "black", size = 8, na.rm = TRUE)+  # Adds stars; adjust color and size as needed
+  labs(x = "Modules", y = "Disease") +  # Labels for the plot
+  theme_minimal() +  # Minimal theme for a clean look
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),  # Adjust text alignment for better readability
+    axis.text.y = element_text(hjust = 0.5),  # Center align y-axis text
+    axis.title = element_text(size = 12),  # Adjust title size as needed
+    legend.key.size = unit(1, 'cm'),  # Adjust legend key size
+    legend.title = element_text(size = 10),  # Adjust legend title size
+    legend.text = element_text(size = 8)  # Adjust legend text size
+  )
+```
+
+
+# GWAS module summary 
+```{r GWAS module summary, fig.width=15, fig.height=15 }
+
+#### Read in GWAS Sumstats #### 
+AC_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/eQTLs/NIHMS827139-ACGWAS.csv", header = TRUE)
+AC_GWAS <- AC_GWAS$RSID
+
+gluc2hr_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/2hr_gluc_GWAS.csv", header = TRUE)
+gluc2hr_GWAS <- gluc2hr_GWAS$SNP %>% unique()
+
+Fast_gluc_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Fast_gluc_GWAS.csv", header = TRUE)
+Fast_gluc_GWAS <- Fast_gluc_GWAS$X.Uploaded_variation %>% unique()
+
+Fast_ins_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Fasting_ins_GWAS.csv", header = TRUE)
+Fast_ins_GWAS <- Fast_ins_GWAS$SNP %>% unique()
+
+Long_gluc_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Long_term_gluc_GWAS.csv", header = TRUE)
+Long_gluc_GWAS <- Long_gluc_GWAS$SNP %>% unique()
+
+HF_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/HF_GWAS_GCST90162626.csv", header = TRUE)
+HF_GWAS<- HF_GWAS$riskAllele
+
+Arrythmia_GWAS <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Arrythmia_GWAS_pubmedId_36653681.csv", header = TRUE)
+Arrythmia_GWAS <- Arrythmia_GWAS$SNPS
+
+
+
+#### Find SNP chromosomal positions #### 
+# Getting close genes to SNPs using multiple DFs 
+snpmart = useEnsembl(biomart = "snp", dataset="hsapiens_snp", version=110)
+
+# Example list of SNP sets
+snp_sets <- list(
+  AC_GWAS = AC_GWAS,
+  gluc2hr_GWAS = gluc2hr_GWAS,
+  Fast_gluc_GWAS = Fast_gluc_GWAS, 
+  Fast_ins_GWAS=Fast_ins_GWAS,
+  Long_gluc_GWAS=Long_gluc_GWAS, 
+  HF_GWAS = HF_GWAS, 
+  Arrythmia_GWAS=Arrythmia_GWAS
+)
+
+
+# Initialize a list to store the results
+snp_locations_list <- list()
+
+# Loop over the SNP sets
+for (set_name in names(snp_sets)) {
+  snps <- snp_sets[[set_name]]
+  
+  # Retrieve SNP locations for the current set
+  snp_locations <- getBM(attributes = c('refsnp_id', 'chr_name', 'chrom_start', 'chrom_end'),
+                         filters = 'snp_filter',
+                         values = snps,
+                         mart = snpmart)
+  
+  # Store the results in the list with a dynamic name
+  snp_locations_list[[paste(set_name, "snp_locations", sep = "_")]] <- snp_locations
+}
+
+
+
+
+# List loop 
+# Initialize a list to store BED data frames
+bed_df_list <- list()
+
+
+# Loop over each item in snp_locations_list
+for (name in names(snp_locations_list)) {
+  # Extract the SNP location data
+  snp_locations <- snp_locations_list[[name]]
+  
+  # Create the BED format data frame
+  bed_df <- data.frame(
+    chr = snp_locations$chr_name,
+    start = snp_locations$chrom_start,
+    end = snp_locations$chrom_end + 1,
+    name = snp_locations$refsnp_id
+  )
+  
+  # Store the BED data frame in the list with a dynamic name
+  bed_df_list[[paste(name, "bed_df", sep = "_")]] <- bed_df
+}
+
+
+
+
+#### Get the mapped genes #### 
+# Connect to the Ensembl database
+ensembl <- useEnsembl(biomart = "ensembl", dataset = "hsapiens_gene_ensembl")
+
+
+# Assuming you have a reasonable range to search for nearby genes
+search_range <- 100000  # 100kb assumed to be cis-reg on the chromosome
+
+
+# Initialize an empty list to store closest genes for each BED data frame
+closest_genes_list <- list()
+
+
+# Loop over each BED data frame in the list
+for (bed_name in names(bed_df_list)) {
+  bed_df <- bed_df_list[[bed_name]]
+  closest_genes <- data.frame(SNP = character(), Gene = character(), stringsAsFactors = FALSE)
+  
+  # Loop through each SNP location in the current BED data frame
+  for (i in 1:nrow(bed_df)) {
+    snp <- bed_df[i, ]
+    genes <- getBM(
+      attributes = c('external_gene_name', 'chromosome_name', 'start_position', 'end_position'),
+      filters = c('chromosome_name', 'start', 'end'),
+      values = list(snp$chr, max(1, snp$start - search_range), snp$end + search_range),
+      mart = ensembl
+    )
+    
+    # If genes are found, select the closest one
+    if (nrow(genes) > 0) {
+      genes$distance <- abs(genes$start_position - snp$start)
+      closest_gene <- genes[which.min(genes$distance), 'external_gene_name']
+      closest_genes <- rbind(closest_genes, data.frame(SNP = snp$name, Gene = closest_gene))
+    } else {
+      closest_genes <- rbind(closest_genes, data.frame(SNP = snp$name, Gene = NA))
+    }
+  }
+  
+  # Store the closest genes data frame in the list with a dynamic name
+  closest_genes_list[[bed_name]] <- closest_genes
+}
+
+
+closest_genes_list_narm <- na.omit(closest_genes_list)
+
+
+New_RNA_PRO_DF_2 <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/DIA_proteins/RUVIII_Imputed/New_RNA_PRO_DF.csv", header = TRUE, row.names = 1)
+
+
+New_RNA_PRO_DF_3 <- merge(Toptable_Modules, New_RNA_PRO_DF_2, by.x = "Protein", by.y = "uniprotswissprot")
+
+
+
+Arr_GWAS_author <- readRDS(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/Arr_geneset.RDS")
+Arr_GWAS_author <- Arr_GWAS_author$hgnc_symbol %>% unique()
+
+
+HF_GWAS_author <- readRDS(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/GWAS/HF_geneset.RDS")
+HF_GWAS_author <- HF_GWAS_author$hgnc_symbol %>% unique()
+
+
+
+
+#### Do the enrichment test #### 
+diseaseGenes <- list(
+  
+  AIC = closest_genes_list_narm$AC_GWAS_snp_locations_bed_df$Gene[ !closest_genes_list_narm$AC_GWAS_snp_locations_bed_df$Gene == ""] %>% unique() %>% na.omit(), 
+  
+  gluc2hr = closest_genes_list_narm$gluc2hr_GWAS_snp_locations_bed_df$Gene[ !closest_genes_list_narm$gluc2hr_GWAS_snp_locations_bed_df$Gene == ""] %>% unique() %>% na.omit(), 
+  
+  Fast_gluc = closest_genes_list_narm$Fast_gluc_GWAS_snp_locations_bed_df$Gene[ !closest_genes_list_narm$Fast_gluc_GWAS_snp_locations_bed_df$Gene == ""] %>% unique() %>% na.omit(),
+  
+  Fast_ins = closest_genes_list_narm$Fast_ins_GWAS_snp_locations_bed_df$Gene[ !closest_genes_list_narm$Fast_ins_GWAS_snp_locations_bed_df$Gene == ""] %>% unique() %>% na.omit(),
+
+  Long_gluc = closest_genes_list_narm$Long_gluc_GWAS_snp_locations_bed_df$Gene[ !closest_genes_list_narm$Long_gluc_GWAS_snp_locations_bed_df$Gene == ""] %>% unique() %>% na.omit(),
+  
+  HF = closest_genes_list_narm$HF_GWAS_snp_locations_bed_df$Gene[ !closest_genes_list_narm$HF_GWAS_snp_locations_bed_df$Gene == ""] %>% unique() %>% na.omit(),
+  
+  Arr = closest_genes_list_narm$Arrythmia_GWAS_snp_locations_bed_df$Gene[ !closest_genes_list_narm$Arrythmia_GWAS_snp_locations_bed_df$Gene == ""] %>% unique() %>% na.omit(),
+  
+  HF_mapped_2= HF_GWAS_author, 
+  
+  Arr_mapped_2 = Arr_GWAS_author
+  
+)
+
+
+# Generae enrichment function limited to the EXPRESSED proteins.  
+perform_module_disease_analysis_2 <- function(toptable, diseaseGenes) {
+  # Prepare an empty list to collect results
+  results <- list()
+  
+  # Ensure 'Modules' and 'hgnc_symbol' columns exist in 'toptable'
+  if(!"Modules" %in% names(toptable)) {
+    stop("Column 'Modules' not found in the 'toptable'.")
+  }
+  if(!"hgnc_symbol" %in% names(toptable)) {
+    stop("Column 'hgnc_symbol' not found in the 'toptable'.")
+  }
+  
+  # Filter disease genes to include only those that are expressed in toptable
+  expressedDiseaseGenes <- lapply(diseaseGenes, function(genes) {
+    intersect(genes, toptable$hgnc_symbol)
+  })
+  
+  # Loop through each module
+  modules <- unique(toptable$Modules)
+  for (module in modules) {
+    # Get the genes in the module
+    moduleGenes <- toptable$hgnc_symbol[toptable$Modules == module]
+    
+    # Loop through each disease gene set
+    for (diseaseName in names(expressedDiseaseGenes)) {
+      # Find the intersecting genes between the module and the expressed disease genes
+      diseaseModuleIntersect <- intersect(moduleGenes, expressedDiseaseGenes[[diseaseName]])
+      
+      # Calculate elements for the contingency table
+      numIntersect = length(diseaseModuleIntersect)
+      numInModuleNotDisease = length(moduleGenes) - numIntersect
+      numInDiseaseNotModule = length(expressedDiseaseGenes[[diseaseName]]) - numIntersect
+      numInNeither = nrow(toptable) - (numIntersect + numInModuleNotDisease + numInDiseaseNotModule)
+      
+      # Build the contingency table
+      table <- matrix(c(
+        numIntersect, # Both in disease list and module
+        numInModuleNotDisease, # In module but not disease list
+        numInDiseaseNotModule, # In disease list but not module
+        numInNeither # In neither list
+      ), nrow = 2, byrow = TRUE)
+      
+      # Perform chi-squared test and Fisher's exact test with error handling
+      chiSqTestResult <- tryCatch({
+        chisq.test(table, correct = TRUE)
+      }, error = function(e) {
+        list(p.value = NA)
+      }, warning = function(w) {
+        list(p.value = NA)
+      })
+      
+      fisherTestResult <- tryCatch({
+        fisher.test(table)
+      }, error = function(e) {
+        list(p.value = NA)
+      }, warning = function(w) {
+        list(p.value = NA)
+      })
+      
+      # Calculate percent overlap, handle division by zero
+      percentOverlap <- if (length(moduleGenes) > 0) {
+        (numIntersect / length(expressedDiseaseGenes[[diseaseName]])) * 100
+      } else {
+        0
+      }
+      
+      # Convert intersecting genes to a single character string
+      intersectingGenesStr <- if (numIntersect > 0) {
+        paste(diseaseModuleIntersect, collapse = ";")
+      } else {
+        ""  # Use an empty string to indicate no intersection
+      }
+      
+      # Append to results list
+      results[[paste(module, diseaseName, sep = "_")]] <- data.frame(
+        Modules = module,
+        Disease = diseaseName,
+        ChiSqPValue = chiSqTestResult$p.value,
+        FisherPValue = fisherTestResult$p.value,
+        PercentOverlap = percentOverlap,
+        IntersectingGenes = intersectingGenesStr
+      )
+    }
+  }
+  
+  # Combine results into a single data frame
+  results_df <- do.call(rbind, results)
+  return(results_df)
+}
+
+
+
+# Plot results 
+results_df <- perform_module_disease_analysis_2(toptable = New_RNA_PRO_DF_3, diseaseGenes = diseaseGenes)
+results_df %>% head()
+
+melted_results <- melt(results_df, id.vars = c("Modules", "Disease", "PercentOverlap", "FisherPValue"))
+
+
+# First, create a new column that indicates where to place stars
+melted_results$Star <- ifelse(melted_results$FisherPValue < 0.05 & melted_results$PercentOverlap > 0, "*", "")
+
+
+# Now, plot the heatmap and add geom_text to place stars where the conditions are met
+ggplot(melted_results, aes(x = Modules, y = Disease, fill = PercentOverlap)) +
+  geom_tile(color = "white") +  # Adds border color to the tiles
+  scale_fill_gradient(low = "lavender", high = "red", na.value = "grey50", 
+                      limits = c(min(melted_results$PercentOverlap), max(melted_results$PercentOverlap)), name = "mapped-gene overlap (%)") +  # Adjust as needed
+  geom_text(aes(label = Star), color = "black", size = 8, na.rm = TRUE)+  # Adds stars; adjust color and size as needed
+  labs(x = "Modules", y = "Disease") +  # Labels for the plot
+  theme_minimal() +  # Minimal theme for a clean look
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),  # Adjust text alignment for better readability
+    axis.text.y = element_text(hjust = 0.5),  # Center align y-axis text
+    axis.title = element_text(size = 12),  # Adjust title size as needed
+    legend.key.size = unit(1, 'cm'),  # Adjust legend key size
+    legend.title = element_text(size = 10),  # Adjust legend title size
+    legend.text = element_text(size = 8)  # Adjust legend text size
+  )
+New_RNA_PRO_DF_3 %>% head()
+
+
+
+
+```
+
+
+# Enzyme peptide test 
+```{r Enzyme peptides, fig.width=15, fig.height=15 }
+# Set the path to the folder containing the .tsv files
+folder_path <- "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/HPA_Metabolism" 
+
+# Get the list of .tsv files
+file_names <- list.files(path = folder_path, pattern = "\\.tsv$", full.names = TRUE)
+
+
+# Read each file and extract the 'Uniprot' column
+HPA_Metabo <- lapply(file_names, function(file) {
+  data <- read.table(file, header = TRUE, sep = "\t") # for tab-separated values
+  return(data$Uniprot) # Replace 'Uniprot' with the actual column name if different
+})
+
+# Name the list elements with filenames (without the full path and extension)
+names(HPA_Metabo) <- sapply(strsplit(basename(file_names), "\\."), `[`, 1)
+
+
+
+# Generae enrichment function limited to the EXPRESSED proteins.  
+perform_module_disease_analysis_2 <- function(toptable, diseaseGenes) {
+  # Prepare an empty list to collect results
+  results <- list()
+  
+  # Ensure 'Modules' and 'Protein' columns exist in 'toptable'
+  if(!"Modules" %in% names(toptable)) {
+    stop("Column 'Modules' not found in the 'toptable'.")
+  }
+  if(!"Protein" %in% names(toptable)) {
+    stop("Column 'Protein' not found in the 'toptable'.")
+  }
+  
+  # Filter disease genes to include only those that are expressed in toptable
+  expressedDiseaseGenes <- lapply(diseaseGenes, function(genes) {
+    intersect(genes, toptable$Protein)
+  })
+  
+  # Loop through each module
+  modules <- unique(toptable$Modules)
+  for (module in modules) {
+    # Get the proteins in the module
+    moduleGenes <- toptable$Protein[toptable$Modules == module]
+    
+    # Loop through each disease gene set
+    for (diseaseName in names(expressedDiseaseGenes)) {
+      # Find the intersecting genes between the module and the expressed disease genes
+      diseaseModuleIntersect <- intersect(moduleGenes, expressedDiseaseGenes[[diseaseName]])
+      
+      # Calculate elements for the contingency table
+      numIntersect = length(diseaseModuleIntersect)
+      numInModuleNotDisease = length(moduleGenes) - numIntersect
+      numInDiseaseNotModule = length(expressedDiseaseGenes[[diseaseName]]) - numIntersect
+      numInNeither = nrow(toptable) - (numIntersect + numInModuleNotDisease + numInDiseaseNotModule)
+      
+      # Build the contingency table
+      table <- matrix(c(
+        numIntersect, # Both in disease list and module
+        numInModuleNotDisease, # In module but not disease list
+        numInDiseaseNotModule, # In disease list but not module
+        numInNeither # In neither list
+      ), nrow = 2, byrow = TRUE)
+      
+      # Perform chi-squared test and Fisher's exact test with error handling
+      chiSqTestResult <- tryCatch({
+        chisq.test(table, correct = TRUE)
+      }, error = function(e) {
+        list(p.value = NA)
+      }, warning = function(w) {
+        list(p.value = NA)
+      })
+      
+      fisherTestResult <- tryCatch({
+        fisher.test(table)
+      }, error = function(e) {
+        list(p.value = NA)
+      }, warning = function(w) {
+        list(p.value = NA)
+      })
+      
+      # Calculate percent overlap, handle division by zero
+      percentOverlap <- if (length(moduleGenes) > 0) {
+        (numIntersect / length(expressedDiseaseGenes[[diseaseName]])) * 100
+      } else {
+        0
+      }
+      
+      # Convert intersecting genes to a single character string
+      intersectingGenesStr <- if (numIntersect > 0) {
+        paste(diseaseModuleIntersect, collapse = ";")
+      } else {
+        ""  # Use an empty string to indicate no intersection
+      }
+      
+      # Append to results list
+      results[[paste(module, diseaseName, sep = "_")]] <- data.frame(
+        Modules = module,
+        Disease = diseaseName,
+        ChiSqPValue = chiSqTestResult$p.value,
+        FisherPValue = fisherTestResult$p.value,
+        PercentOverlap = percentOverlap,
+        IntersectingGenes = intersectingGenesStr
+      )
+    }
+  }
+  
+  # Combine results into a single data frame
+  results_df <- do.call(rbind, results)
+  return(results_df)
+}
+
+
+
+# Plot results 
+results_df <- perform_module_disease_analysis_2(toptable = Toptable_Modules, diseaseGenes = HPA_Metabo)
+
+
+melted_results <- melt(results_df, id.vars = c("Modules", "Disease", "PercentOverlap", "FisherPValue"))
+
+
+# First, create a new column that indicates where to place stars
+melted_results$Star <- ifelse(melted_results$FisherPValue < 0.05 & melted_results$PercentOverlap > 0, "*", "")
+
+
+# Now, plot the heatmap and add geom_text to place stars where the conditions are met
+ggplot(melted_results, aes(x = Modules, y = Disease, fill = PercentOverlap)) +
+  geom_tile(color = "white") +  # Adds border color to the tiles
+  scale_fill_gradient(low = "lavender", high = "red", na.value = "grey50", 
+                      limits = c(min(melted_results$PercentOverlap), max(melted_results$PercentOverlap)), name = "mapped-gene overlap (%)") +  # Adjust as needed
+  geom_text(aes(label = Star), color = "black", size = 8, na.rm = TRUE)+  # Adds stars; adjust color and size as needed
+  labs(x = "Modules", y = "Disease") +  # Labels for the plot
+  theme_minimal() +  # Minimal theme for a clean look
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),  # Adjust text alignment for better readability
+    axis.text.y = element_text(hjust = 0.5),  # Center align y-axis text
+    axis.title = element_text(size = 12),  # Adjust title size as needed
+    legend.key.size = unit(1, 'cm'),  # Adjust legend key size
+    legend.title = element_text(size = 10),  # Adjust legend title size
+    legend.text = element_text(size = 8)  # Adjust legend text size
+  )
+
+```
+
+
+
+
