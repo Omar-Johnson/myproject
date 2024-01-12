@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Omar Johnson" />
+
+<meta name="date" content="2024-01-11" />
+
+<title>Comparing_DDA_to_DIA</title>
+
+<script src="site_libs/header-attrs-2.24/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-6.4.2/css/all.min.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">myproject</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/Omar-Johnson/myproject">
+    <span class="fab fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Comparing_DDA_to_DIA</h1>
+<h4 class="author">Omar Johnson</h4>
+<h4 class="date">2024-01-11</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2024-01-12
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>myproject/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.1). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20230911code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20230911)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20230911code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20230911)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreed7917090991e40eceab98de8887fb7675a795cc2targetblankd791709a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/Omar-Johnson/myproject/tree/d7917090991e40eceab98de8887fb7675a795cc2" target="_blank">d791709</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomOmarJohnsonmyprojecttreed7917090991e40eceab98de8887fb7675a795cc2targetblankd791709a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/Omar-Johnson/myproject/tree/d7917090991e40eceab98de8887fb7675a795cc2" target="_blank">d791709</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    analysis/.DS_Store
+
+Untracked files:
+    Untracked:  #14_venn_diagramm.png
+    Untracked:  #14_venn_diagramm.png.2024-01-11_15-41-45.log
+    Untracked:  #14_venn_diagramm.png.2024-01-11_15-41-51.log
+    Untracked:  VennDiagram.2024-01-11_15-43-33.log
+    Untracked:  VennDiagram.2024-01-11_15-43-45.log
+    Untracked:  VennDiagram.2024-01-11_15-48-56.log
+    Untracked:  VennDiagram.2024-01-11_15-49-14.log
+    Untracked:  VennDiagram.2024-01-11_15-49-51.log
+    Untracked:  VennDiagram.2024-01-11_15-52-24.log
+    Untracked:  VennDiagram.2024-01-11_15-53-14.log
+    Untracked:  VennDiagram.2024-01-11_15-53-47.log
+    Untracked:  VennDiagram.2024-01-11_15-54-07.log
+    Untracked:  VennDiagram.2024-01-11_18-08-58.log
+    Untracked:  VennDiagram.2024-01-11_18-14-06.log
+    Untracked:  VennDiagram.2024-01-11_18-17-11.log
+    Untracked:  VennDiagram.2024-01-11_18-18-29.log
+    Untracked:  VennDiagram.2024-01-11_18-19-23.log
+    Untracked:  VennDiagram.2024-01-11_18-19-52.log
+    Untracked:  VennDiagram.2024-01-11_18-22-22.log
+    Untracked:  VennDiagram.2024-01-11_18-22-23.log
+    Untracked:  analysis/Data_ind_imp_RUVg_WPCNA.Rmd
+    Untracked:  analysis/Random_bed.R
+
+Unstaged changes:
+    Modified:   Data_ind_Diffabtrial.Rmd
+    Modified:   analysis/Diffabtrial.Rmd
+    Modified:   analysis/Differentially_abundant_proteins_impute.Rmd
+    Modified:   analysis/Differentially_abunddant_proteins.Rmd
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/Comparing_DDA_to_DIA.Rmd</code>)
+and HTML (<code>docs/Comparing_DDA_to_DIA.html</code>) files. If you’ve
+configured a remote Git repository (see <code>?wflow_git_remote</code>),
+click on the hyperlinks in the table below to view the files as they
+were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/Omar-Johnson/myproject/blob/d7917090991e40eceab98de8887fb7675a795cc2/analysis/Comparing_DDA_to_DIA.Rmd" target="_blank">d791709</a>
+</td>
+<td>
+Omar-Johnson
+</td>
+<td>
+2024-01-12
+</td>
+<td>
+Updated after removal of non-human peptides
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<div id="library" class="section level1">
+<h1>Library</h1>
+<pre class="r"><code>library(tidyverse)</code></pre>
+<pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.2     ✔ readr     2.1.4
+✔ forcats   1.0.0     ✔ stringr   1.5.0
+✔ ggplot2   3.4.3     ✔ tibble    3.2.1
+✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+</div>
+<div id="get-data-for-dda-dia-lf_changes" class="section level1">
+<h1>Get data for DDA &amp; DIA LF_Changes</h1>
+<pre class="r"><code>DDA_Toptable &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Important_DF_Final/toptable_Dupcor.csv&quot;)
+DDA_Toptable %&gt;% head()</code></pre>
+<pre><code>      logFC  AveExpr         t      P.Value    adj.P.Val        B Protein
+1 -3.553817 23.99047 -16.74339 2.054348e-08 6.951913e-05 9.416789  Q15327
+2 -2.141093 24.25375 -13.55227 1.444049e-07 2.443330e-04 7.859382  O76021
+3 -1.634296 19.97143 -12.65816 2.690260e-07 3.034614e-04 7.328583  Q96LW7
+4 -4.342380 20.84232 -11.92097 4.632261e-07 3.918893e-04 6.853153  Q969Q1
+5 -1.165897 20.44496 -11.62228 5.822611e-07 3.940743e-04 6.649959  P19388
+6 -1.762280 20.67219 -10.83369 1.092754e-06 6.163133e-04 6.081777  Q96GQ7</code></pre>
+<pre class="r"><code>DDA_Toptable %&gt;% dim()</code></pre>
+<pre><code>[1] 3384    7</code></pre>
+<pre class="r"><code>DIA_Toptable &lt;- read.csv(file =&quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/DIA_proteins/RUVIII_Imputed/Toptable_summary_RUVIII.csv&quot; , header = TRUE)
+DIA_Toptable %&gt;% head()</code></pre>
+<pre><code>       X     logFC  AveExpr         t      P.Value    adj.P.Val        B
+1 Q15061  2.436903 18.60721  26.00939 1.499311e-07 1.499311e-07 7.414993
+2 O76021 -2.224860 21.98800 -18.86036 1.191879e-06 1.191879e-06 6.029757
+3 P43694 -1.821642 18.81578 -15.98230 3.129665e-06 3.129665e-06 5.276514
+4 P01130 -1.819689 20.01194 -15.77595 3.483331e-06 3.483331e-06 5.186033
+5 Q96P11 -1.843458 17.28018 -14.33937 5.735316e-06 5.735316e-06 4.764600
+6 Q6EMK4  1.838032 19.30419  14.22737 6.455771e-06 6.455771e-06 4.660093
+  Protein threshold_P
+1  Q15061        TRUE
+2  O76021        TRUE
+3  P43694        TRUE
+4  P01130        TRUE
+5  Q96P11        TRUE
+6  Q6EMK4        TRUE</code></pre>
+<pre class="r"><code>DIA_Toptable %&gt;% dim()</code></pre>
+<pre><code>[1] 4178    9</code></pre>
+<pre class="r"><code>DDA_and_DIA &lt;-  merge(DDA_Toptable, 
+                          DIA_Toptable, by.x = &quot;Protein&quot;, by.y = &quot;Protein&quot;)
+
+# colnames.x correspond to DDA, and colnames.y correspond to DIA. 
+DDA_and_DIA %&gt;% head()</code></pre>
+<pre><code>     Protein     logFC.x AveExpr.x        t.x  P.Value.x adj.P.Val.x       B.x
+1 A0A0B4J2D5  0.20404967  28.45442  1.9017522 0.08766216   0.2869147 -5.030079
+2     A0FGR8  0.16807616  23.26372  0.7831563 0.45246181   0.6682978 -6.371292
+3     A1A4S6  1.25691548  19.09886  1.3350552 0.21271597   0.4479346 -5.806614
+4     A1L0T0 -0.25213697  24.34430 -2.3804932 0.03960844   0.1911431 -4.283075
+5     A2RRP1 -0.30334810  24.20335 -2.0043164 0.07410958   0.2637085 -4.875179
+6     A3KMH1 -0.02219401  25.50247 -0.1750399 0.86469240   0.9318851 -6.677851
+           X     logFC.y AveExpr.y         t.y P.Value.y adj.P.Val.y       B.y
+1 A0A0B4J2D5  0.13528476  23.88276  1.31734301 0.2349365   0.2349365 -6.046336
+2     A0FGR8  0.09891217  20.14964  1.18755311 0.2786322   0.2786322 -6.195353
+3     A1A4S6  0.14066972  16.85673  1.35338152 0.2233311   0.2233311 -6.003703
+4     A1L0T0 -0.11886476  21.50372 -1.89930794 0.1048450   0.1048450 -5.294689
+5     A2RRP1  0.01039713  21.36635  0.09930159 0.9240748   0.9240748 -6.919855
+6     A3KMH1  0.03750700  22.53324  0.22802321 0.8270631   0.8270631 -6.895697
+  threshold_P
+1       FALSE
+2       FALSE
+3       FALSE
+4       FALSE
+5       FALSE
+6       FALSE</code></pre>
+<pre class="r"><code>DDA_and_DIA %&gt;% dim()</code></pre>
+<pre><code>[1] 3058   15</code></pre>
+</div>
+<div id="all-proteins-logfc-corr." class="section level1">
+<h1>All proteins LogFC corr.</h1>
+<pre class="r"><code># Model all proteins across acquisition types 
+# Fit linear model
+model_LogFC &lt;- lm(logFC.x ~ logFC.y, data = DDA_and_DIA)
+
+# Get R-squared
+r2 &lt;- summary(model_LogFC)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(DDA_and_DIA, aes(x = logFC.x, y = logFC.y, color = threshold_P)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Comparing_DDA_to_DIA.Rmd/2-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="da-proteins-in-dia-logfc-corr." class="section level1">
+<h1>DA proteins in DIA LogFC corr.</h1>
+<pre class="r"><code># Model differentially abundant (from DIA) proteins across acquisition types 
+# Fit linear model
+DDA_and_DIA %&gt;% head()</code></pre>
+<pre><code>     Protein     logFC.x AveExpr.x        t.x  P.Value.x adj.P.Val.x       B.x
+1 A0A0B4J2D5  0.20404967  28.45442  1.9017522 0.08766216   0.2869147 -5.030079
+2     A0FGR8  0.16807616  23.26372  0.7831563 0.45246181   0.6682978 -6.371292
+3     A1A4S6  1.25691548  19.09886  1.3350552 0.21271597   0.4479346 -5.806614
+4     A1L0T0 -0.25213697  24.34430 -2.3804932 0.03960844   0.1911431 -4.283075
+5     A2RRP1 -0.30334810  24.20335 -2.0043164 0.07410958   0.2637085 -4.875179
+6     A3KMH1 -0.02219401  25.50247 -0.1750399 0.86469240   0.9318851 -6.677851
+           X     logFC.y AveExpr.y         t.y P.Value.y adj.P.Val.y       B.y
+1 A0A0B4J2D5  0.13528476  23.88276  1.31734301 0.2349365   0.2349365 -6.046336
+2     A0FGR8  0.09891217  20.14964  1.18755311 0.2786322   0.2786322 -6.195353
+3     A1A4S6  0.14066972  16.85673  1.35338152 0.2233311   0.2233311 -6.003703
+4     A1L0T0 -0.11886476  21.50372 -1.89930794 0.1048450   0.1048450 -5.294689
+5     A2RRP1  0.01039713  21.36635  0.09930159 0.9240748   0.9240748 -6.919855
+6     A3KMH1  0.03750700  22.53324  0.22802321 0.8270631   0.8270631 -6.895697
+  threshold_P
+1       FALSE
+2       FALSE
+3       FALSE
+4       FALSE
+5       FALSE
+6       FALSE</code></pre>
+<pre class="r"><code>Diff_ab_DDA_and_DIA  &lt;- DDA_and_DIA[DDA_and_DIA$adj.P.Val.y &lt; 0.05,  ]
+Diff_ab_DDA_and_DIA %&gt;% head()</code></pre>
+<pre><code>   Protein     logFC.x AveExpr.x        t.x    P.Value.x adj.P.Val.x        B.x
+15  E9PAV3 -0.41996261  25.78583 -2.6237182 0.0263003158  0.15505273 -3.8867830
+25  O00203  0.06090409  22.74772  0.4796207 0.6422585277  0.81177071 -6.5708717
+40  O00442  0.32365861  19.81594  2.3054213 0.0449252846  0.20297352 -4.4036650
+41  O00461 -0.47579646  22.78785 -5.2536544 0.0004278982  0.01540433  0.2552059
+48  O00541 -2.31904608  20.50036 -4.8248426 0.0007877502  0.02117750 -0.3639773
+50  O00567  0.24497484  28.51856  1.1617050 0.2734821244  0.51512631 -6.0084778
+        X    logFC.y AveExpr.y       t.y    P.Value.y  adj.P.Val.y       B.y
+15 E9PAV3 -0.3998172  18.17394 -3.300592 1.587372e-02 1.587372e-02 -3.343002
+25 O00203  0.2596199  19.86848  3.353728 1.467563e-02 1.467563e-02 -3.264772
+40 O00442  0.5893604  17.23225  4.133940 5.836938e-03 5.836938e-03 -2.269778
+41 O00461 -0.2739090  18.74024 -2.919348 2.575340e-02 2.575340e-02 -3.860469
+48 O00541 -1.0325875  20.20522 -9.474677 7.036491e-05 7.036491e-05  2.402861
+50 O00567  0.4649937  21.77611  4.679509 3.234119e-03 3.234119e-03 -1.630077
+   threshold_P
+15        TRUE
+25        TRUE
+40        TRUE
+41        TRUE
+48        TRUE
+50        TRUE</code></pre>
+<pre class="r"><code>Diff_ab_DDA_and_DIA %&gt;% dim()</code></pre>
+<pre><code>[1] 858  15</code></pre>
+<pre class="r"><code>model_LogFC &lt;- lm(logFC.x ~ logFC.y, data = Diff_ab_DDA_and_DIA)
+
+# Get R-squared
+r2 &lt;- summary(model_LogFC)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(DDA_and_DIA, aes(x = logFC.x, y = logFC.y, color = threshold_P)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Comparing_DDA_to_DIA.Rmd/3-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="da-protein-overlap-for-dda-dia-corr." class="section level1">
+<h1>DA protein overlap for DDA &amp; DIA corr.</h1>
+<pre class="r"><code># Model differentially abundant proteins that are differentially abundant for DIA AND DDA methods 
+# Fit linear model
+DDA_and_DIA %&gt;% head()</code></pre>
+<pre><code>     Protein     logFC.x AveExpr.x        t.x  P.Value.x adj.P.Val.x       B.x
+1 A0A0B4J2D5  0.20404967  28.45442  1.9017522 0.08766216   0.2869147 -5.030079
+2     A0FGR8  0.16807616  23.26372  0.7831563 0.45246181   0.6682978 -6.371292
+3     A1A4S6  1.25691548  19.09886  1.3350552 0.21271597   0.4479346 -5.806614
+4     A1L0T0 -0.25213697  24.34430 -2.3804932 0.03960844   0.1911431 -4.283075
+5     A2RRP1 -0.30334810  24.20335 -2.0043164 0.07410958   0.2637085 -4.875179
+6     A3KMH1 -0.02219401  25.50247 -0.1750399 0.86469240   0.9318851 -6.677851
+           X     logFC.y AveExpr.y         t.y P.Value.y adj.P.Val.y       B.y
+1 A0A0B4J2D5  0.13528476  23.88276  1.31734301 0.2349365   0.2349365 -6.046336
+2     A0FGR8  0.09891217  20.14964  1.18755311 0.2786322   0.2786322 -6.195353
+3     A1A4S6  0.14066972  16.85673  1.35338152 0.2233311   0.2233311 -6.003703
+4     A1L0T0 -0.11886476  21.50372 -1.89930794 0.1048450   0.1048450 -5.294689
+5     A2RRP1  0.01039713  21.36635  0.09930159 0.9240748   0.9240748 -6.919855
+6     A3KMH1  0.03750700  22.53324  0.22802321 0.8270631   0.8270631 -6.895697
+  threshold_P
+1       FALSE
+2       FALSE
+3       FALSE
+4       FALSE
+5       FALSE
+6       FALSE</code></pre>
+<pre class="r"><code>Diff_ab_DDA_and_DIA  &lt;- DDA_and_DIA[(DDA_and_DIA$adj.P.Val.y &lt; 0.05) &amp; (DDA_and_DIA$P.Value.x &lt; 0.05),  ]
+
+Diff_ab_DDA_and_DIA %&gt;% head()</code></pre>
+<pre><code>   Protein    logFC.x AveExpr.x       t.x    P.Value.x adj.P.Val.x        B.x
+15  E9PAV3 -0.4199626  25.78583 -2.623718 0.0263003158  0.15505273 -3.8867830
+40  O00442  0.3236586  19.81594  2.305421 0.0449252846  0.20297352 -4.4036650
+41  O00461 -0.4757965  22.78785 -5.253654 0.0004278982  0.01540433  0.2552059
+48  O00541 -2.3190461  20.50036 -4.824843 0.0007877502  0.02117750 -0.3639773
+51  O00571 -0.5290939  26.05640 -4.666530 0.0009934630  0.02334638 -0.5995461
+67  O14656  0.4511342  20.15187  3.168577 0.0105478677  0.09013632 -2.9849006
+        X    logFC.y AveExpr.y       t.y    P.Value.y  adj.P.Val.y       B.y
+15 E9PAV3 -0.3998172  18.17394 -3.300592 1.587372e-02 1.587372e-02 -3.343002
+40 O00442  0.5893604  17.23225  4.133940 5.836938e-03 5.836938e-03 -2.269778
+41 O00461 -0.2739090  18.74024 -2.919348 2.575340e-02 2.575340e-02 -3.860469
+48 O00541 -1.0325875  20.20522 -9.474677 7.036491e-05 7.036491e-05  2.402861
+51 O00571 -0.5036178  22.30600 -3.113365 2.025297e-02 2.025297e-02 -3.599754
+67 O14656  0.4239736  20.26135  2.960466 2.470779e-02 2.470779e-02 -3.810087
+   threshold_P
+15        TRUE
+40        TRUE
+41        TRUE
+48        TRUE
+51        TRUE
+67        TRUE</code></pre>
+<pre class="r"><code>Diff_ab_DDA_and_DIA %&gt;% dim()</code></pre>
+<pre><code>[1] 428  15</code></pre>
+<pre class="r"><code>model_LogFC &lt;- lm(logFC.x ~ logFC.y, data = Diff_ab_DDA_and_DIA)
+
+# Get R-squared
+r2 &lt;- summary(model_LogFC)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(DDA_and_DIA, aes(x = logFC.x, y = logFC.y)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Comparing_DDA_to_DIA.Rmd/4-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="logfc-corr.-for-non-da" class="section level1">
+<h1>LogFC corr. for non-DA</h1>
+<pre class="r"><code># Model differentially abundant proteins that are NOT differentially abundant for DIA AND DDA methods 
+# Fit linear model
+DDA_and_DIA %&gt;% head()</code></pre>
+<pre><code>     Protein     logFC.x AveExpr.x        t.x  P.Value.x adj.P.Val.x       B.x
+1 A0A0B4J2D5  0.20404967  28.45442  1.9017522 0.08766216   0.2869147 -5.030079
+2     A0FGR8  0.16807616  23.26372  0.7831563 0.45246181   0.6682978 -6.371292
+3     A1A4S6  1.25691548  19.09886  1.3350552 0.21271597   0.4479346 -5.806614
+4     A1L0T0 -0.25213697  24.34430 -2.3804932 0.03960844   0.1911431 -4.283075
+5     A2RRP1 -0.30334810  24.20335 -2.0043164 0.07410958   0.2637085 -4.875179
+6     A3KMH1 -0.02219401  25.50247 -0.1750399 0.86469240   0.9318851 -6.677851
+           X     logFC.y AveExpr.y         t.y P.Value.y adj.P.Val.y       B.y
+1 A0A0B4J2D5  0.13528476  23.88276  1.31734301 0.2349365   0.2349365 -6.046336
+2     A0FGR8  0.09891217  20.14964  1.18755311 0.2786322   0.2786322 -6.195353
+3     A1A4S6  0.14066972  16.85673  1.35338152 0.2233311   0.2233311 -6.003703
+4     A1L0T0 -0.11886476  21.50372 -1.89930794 0.1048450   0.1048450 -5.294689
+5     A2RRP1  0.01039713  21.36635  0.09930159 0.9240748   0.9240748 -6.919855
+6     A3KMH1  0.03750700  22.53324  0.22802321 0.8270631   0.8270631 -6.895697
+  threshold_P
+1       FALSE
+2       FALSE
+3       FALSE
+4       FALSE
+5       FALSE
+6       FALSE</code></pre>
+<pre class="r"><code>Diff_ab_DDA_and_DIA  &lt;- DDA_and_DIA[(DDA_and_DIA$adj.P.Val.y &gt; 0.05) &amp; (DDA_and_DIA$P.Value.x &gt; 0.05),  ]
+
+Diff_ab_DDA_and_DIA %&gt;% head()</code></pre>
+<pre><code>     Protein     logFC.x AveExpr.x        t.x  P.Value.x adj.P.Val.x       B.x
+1 A0A0B4J2D5  0.20404967  28.45442  1.9017522 0.08766216   0.2869147 -5.030079
+2     A0FGR8  0.16807616  23.26372  0.7831563 0.45246181   0.6682978 -6.371292
+3     A1A4S6  1.25691548  19.09886  1.3350552 0.21271597   0.4479346 -5.806614
+5     A2RRP1 -0.30334810  24.20335 -2.0043164 0.07410958   0.2637085 -4.875179
+6     A3KMH1 -0.02219401  25.50247 -0.1750399 0.86469240   0.9318851 -6.677851
+7     A4D1E9 -0.29082103  21.22996 -1.6046912 0.14098100   0.3630873 -5.456428
+           X    logFC.y AveExpr.y        t.y P.Value.y adj.P.Val.y       B.y
+1 A0A0B4J2D5 0.13528476  23.88276 1.31734301 0.2349365   0.2349365 -6.046336
+2     A0FGR8 0.09891217  20.14964 1.18755311 0.2786322   0.2786322 -6.195353
+3     A1A4S6 0.14066972  16.85673 1.35338152 0.2233311   0.2233311 -6.003703
+5     A2RRP1 0.01039713  21.36635 0.09930159 0.9240748   0.9240748 -6.919855
+6     A3KMH1 0.03750700  22.53324 0.22802321 0.8270631   0.8270631 -6.895697
+7     A4D1E9 0.08757962  22.56991 0.56521074 0.5920505   0.5920505 -6.746126
+  threshold_P
+1       FALSE
+2       FALSE
+3       FALSE
+5       FALSE
+6       FALSE
+7       FALSE</code></pre>
+<pre class="r"><code>Diff_ab_DDA_and_DIA %&gt;% dim()</code></pre>
+<pre><code>[1] 1909   15</code></pre>
+<pre class="r"><code>model_LogFC &lt;- lm(logFC.x ~ logFC.y, data = Diff_ab_DDA_and_DIA)
+
+# Get R-squared
+r2 &lt;- summary(model_LogFC)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(DDA_and_DIA, aes(x = logFC.x, y = logFC.y)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Comparing_DDA_to_DIA.Rmd/5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>dev.off()</code></pre>
+<pre><code>null device 
+          1 </code></pre>
+</div>
+<div id="compare-protein-list" class="section level1">
+<h1>Compare protein list</h1>
+<pre class="r"><code># How many peptides overlap between DDA and DIA methods? 
+DDA_and_DIA %&gt;% nrow()</code></pre>
+<pre><code>[1] 3058</code></pre>
+<pre class="r"><code># Load library
+library(VennDiagram)</code></pre>
+<pre><code>Loading required package: grid</code></pre>
+<pre><code>Loading required package: futile.logger</code></pre>
+<pre class="r"><code># Define protein sets
+ALL_DDA &lt;- DDA_Toptable$Protein
+ALL_DIA &lt;- DIA_Toptable$Protein
+  
+
+
+# Generate Venn diagram
+venn.plot &lt;- venn.diagram(
+  x = list(ALL_DDA,ALL_DIA),
+  filename = NULL,
+  category.names = c(&quot;ALL_DDA&quot;, &quot;ALL_DIA&quot;),
+  output = TRUE
+)
+grid.draw(venn.plot)</code></pre>
+<p><img src="figure/Comparing_DDA_to_DIA.Rmd/6-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>dev.off()</code></pre>
+<pre><code>null device 
+          1 </code></pre>
+</div>
+<div id="compare-da-lists" class="section level1">
+<h1>Compare DA lists</h1>
+<pre class="r"><code># How many differentially abundant peptides overlap between DDA and DIA methods? 
+
+# Load library
+library(VennDiagram)
+ 
+# Define protein sets
+DE_DDA &lt;- DDA_Toptable[DDA_Toptable$P.Value &lt; 0.05, ]$Protein
+DE_DIA &lt;- DIA_Toptable[DIA_Toptable$P.Value &lt; 0.05, ]$Protein
+  
+
+
+# Generate Venn diagram
+venn.plot &lt;- venn.diagram(
+  x = list(DE_DDA,DE_DIA),
+  filename = NULL,
+  category.names = c(&quot;DEL_DDA&quot;, &quot;DE_DIA&quot;),
+  output = TRUE
+)
+grid.draw(venn.plot)</code></pre>
+<p><img src="figure/Comparing_DDA_to_DIA.Rmd/66-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Common_DE_DDA_DIA &lt;- intersect(DE_DDA,DE_DIA)
+
+Common_DE_DDA_DIA_DF &lt;- DDA_and_DIA[DDA_and_DIA$Protein %in% Common_DE_DDA_DIA, ]</code></pre>
+</div>
+<div id="da-protein-logfc-corr.-in-both" class="section level1">
+<h1>DA protein LogFC corr. in both</h1>
+<pre class="r"><code>model_LogFC &lt;- lm(logFC.x ~ logFC.y, data = Common_DE_DDA_DIA_DF)
+
+# Get R-squared
+r2 &lt;- summary(model_LogFC)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(Common_DE_DDA_DIA_DF, aes(x = logFC.x, y = logFC.y)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Comparing_DDA_to_DIA.Rmd/666-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="correlate-abundance-values" class="section level1">
+<h1>Correlate abundance values</h1>
+<pre class="r"><code>DDA_Ab &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/Abundance.csv&quot;, header = TRUE)
+
+DIA_Ab &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/RNA_Protein_DF/Data_ind_prot_DOX_24hr.csv&quot;, header = TRUE)
+
+Meta &lt;- read.csv(file = &quot;/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Data_Frames/DIA_proteins/RUVIII_Imputed/Meta.csv&quot;, header = TRUE, row.names = 1)
+Meta</code></pre>
+<pre><code>    Samples  Ind  Rep    Cond     Cond_Ind
+S1       S1 B_77  Bio     Dox     B_77_Dox
+S3       S3 C_87  Bio     Dox     C_87_Dox
+S5       S5 A_48 Tech     Dox     A_48_Dox
+S7       S7 A_48 Tech     Dox     A_48_Dox
+S9       S9 A_48 Tech     Dox     A_48_Dox
+S2       S2 B_77  Bio Control B_77_Control
+S4       S4 C_87  Bio Control C_87_Control
+S6       S6 A_48 Tech Control A_48_Control
+S8       S8 A_48 Tech Control A_48_Control
+S10     S10 A_48 Tech Control A_48_Control</code></pre>
+<pre class="r"><code>DDA_Ab %&gt;% head()</code></pre>
+<pre><code>  Entrez.Gene.ID Ensembl.Gene.ID Gene.Symbol Accession
+1           4625 ENSG00000092054        MYH7    P12883
+2           4624 ENSG00000197616        MYH6    P13533
+3           7273 ENSG00000155657         TTN    Q8WZ42
+4             70 ENSG00000159251       ACTC1    P68032
+5             58 ENSG00000143632       ACTA1    P68133
+6             60 ENSG00000075624        ACTB    P60709
+  Abundance..F1..Sample..Dox..n.a Abundance..F3..Sample..Dox..n.a
+1                        5.25e+10                        7.41e+10
+2                        1.00e+09                        1.47e+09
+3                        1.39e+10                        2.08e+10
+4                        3.92e+10                        4.11e+10
+5                        1.72e+07                        5.81e+07
+6                        4.02e+09                        8.43e+08
+  Abundance..F5..Sample..Dox..Dox Abundance..F7..Sample..Dox..Dox
+1                        5.28e+10                        6.82e+10
+2                        5.11e+09                        4.25e+09
+3                        2.19e+10                        2.49e+10
+4                        3.76e+10                        3.54e+10
+5                        3.85e+07                        5.07e+07
+6                        2.04e+09                        1.62e+09
+  Abundance..F9..Sample..Dox..Dox Abundance..F2..Control..Veh..n.a
+1                        6.43e+10                         4.33e+10
+2                        2.62e+09                         1.50e+09
+3                        2.34e+10                         1.29e+10
+4                        3.69e+10                         3.54e+10
+5                        6.19e+07                         1.64e+07
+6                        1.61e+09                         4.16e+09
+  Abundance..F4..Control..Veh..n.a Abundance..F6..Control..Veh..Veh
+1                         7.41e+10                         7.00e+10
+2                         1.17e+09                         2.42e+09
+3                         2.25e+10                         2.52e+10
+4                         2.96e+10                         3.56e+10
+5                         3.44e+07                         5.42e+07
+6                         6.45e+08                         1.92e+09
+  Abundance..F8..Control..Veh..Veh Abundance..F10..Control..Veh..Veh
+1                         5.64e+10                          5.26e+10
+2                         3.67e+09                          3.27e+09
+3                         2.46e+10                          2.21e+10
+4                         2.98e+10                          2.91e+10
+5                         3.36e+07                          4.05e+07
+6                         1.81e+09                          1.56e+09</code></pre>
+<pre class="r"><code>DDA_Ab %&gt;% dim()</code></pre>
+<pre><code>[1] 4504   14</code></pre>
+<pre class="r"><code>DIA_Ab %&gt;% head()</code></pre>
+<pre><code>  Protein.Group Protein.Ids Protein.Names   Genes First.Protein.Description
+1    A0A0B4J2A2  A0A0B4J2A2            NA PPIAL4C                        NA
+2    A0A0B4J2D5  A0A0B4J2D5            NA  GATD3B                        NA
+3    A0A494C071  A0A494C071            NA   PWWP4                        NA
+4        A0AVT1      A0AVT1            NA    UBA6                        NA
+5        A0FGR8      A0FGR8            NA   ESYT2                        NA
+6        A0JLT2      A0JLT2            NA   MED19                        NA
+          S1       S3       S5       S7       S9         S2       S4       S6
+1   979954.0  1470000  1460000  1560000  1700000   940535.0  2020000  1460000
+2 16000000.0 17000000 15800000 14400000 15500000 15300000.0 13500000 13600000
+3   381352.0   429735   287237   412285   380499   433456.0   540008   376304
+4    62810.7   135522   159045   123045   123823    49388.1   144860   127488
+5  1240000.0  1120000   969130  1040000  1020000  1120000.0  1120000  1080000
+6   217977.0   181404   182657   145408   208660   224881.0   202427   160150
+        S8      S10
+1  1390000  1620000
+2 13200000 12600000
+3   460580   355701
+4    84684   102306
+5  1120000  1060000
+6   126127   209726</code></pre>
+<pre class="r"><code>DIA_Ab %&gt;% dim()</code></pre>
+<pre><code>[1] 4261   15</code></pre>
+<pre class="r"><code>DDA_Ab %&gt;% colnames()</code></pre>
+<pre><code> [1] &quot;Entrez.Gene.ID&quot;                    &quot;Ensembl.Gene.ID&quot;                  
+ [3] &quot;Gene.Symbol&quot;                       &quot;Accession&quot;                        
+ [5] &quot;Abundance..F1..Sample..Dox..n.a&quot;   &quot;Abundance..F3..Sample..Dox..n.a&quot;  
+ [7] &quot;Abundance..F5..Sample..Dox..Dox&quot;   &quot;Abundance..F7..Sample..Dox..Dox&quot;  
+ [9] &quot;Abundance..F9..Sample..Dox..Dox&quot;   &quot;Abundance..F2..Control..Veh..n.a&quot; 
+[11] &quot;Abundance..F4..Control..Veh..n.a&quot;  &quot;Abundance..F6..Control..Veh..Veh&quot; 
+[13] &quot;Abundance..F8..Control..Veh..Veh&quot;  &quot;Abundance..F10..Control..Veh..Veh&quot;</code></pre>
+<pre class="r"><code># Subset the columns referring to abundance
+DDA_Ab &lt;-DDA_Ab[,4:14]
+DDA_Ab %&gt;% head()</code></pre>
+<pre><code>  Accession Abundance..F1..Sample..Dox..n.a Abundance..F3..Sample..Dox..n.a
+1    P12883                        5.25e+10                        7.41e+10
+2    P13533                        1.00e+09                        1.47e+09
+3    Q8WZ42                        1.39e+10                        2.08e+10
+4    P68032                        3.92e+10                        4.11e+10
+5    P68133                        1.72e+07                        5.81e+07
+6    P60709                        4.02e+09                        8.43e+08
+  Abundance..F5..Sample..Dox..Dox Abundance..F7..Sample..Dox..Dox
+1                        5.28e+10                        6.82e+10
+2                        5.11e+09                        4.25e+09
+3                        2.19e+10                        2.49e+10
+4                        3.76e+10                        3.54e+10
+5                        3.85e+07                        5.07e+07
+6                        2.04e+09                        1.62e+09
+  Abundance..F9..Sample..Dox..Dox Abundance..F2..Control..Veh..n.a
+1                        6.43e+10                         4.33e+10
+2                        2.62e+09                         1.50e+09
+3                        2.34e+10                         1.29e+10
+4                        3.69e+10                         3.54e+10
+5                        6.19e+07                         1.64e+07
+6                        1.61e+09                         4.16e+09
+  Abundance..F4..Control..Veh..n.a Abundance..F6..Control..Veh..Veh
+1                         7.41e+10                         7.00e+10
+2                         1.17e+09                         2.42e+09
+3                         2.25e+10                         2.52e+10
+4                         2.96e+10                         3.56e+10
+5                         3.44e+07                         5.42e+07
+6                         6.45e+08                         1.92e+09
+  Abundance..F8..Control..Veh..Veh Abundance..F10..Control..Veh..Veh
+1                         5.64e+10                          5.26e+10
+2                         3.67e+09                          3.27e+09
+3                         2.46e+10                          2.21e+10
+4                         2.98e+10                          2.91e+10
+5                         3.36e+07                          4.05e+07
+6                         1.81e+09                          1.56e+09</code></pre>
+<pre class="r"><code>colnames(DDA_Ab) &lt;- c(&quot;Accession&quot;, &quot;S1&quot; , &quot;S3&quot; , &quot;S5&quot; , &quot;S7&quot;, &quot;S9&quot;, &quot;S2&quot;, &quot;S4&quot;, &quot;S6&quot; , &quot;S8&quot;, &quot;S10&quot;)
+DDA_Ab %&gt;% head()</code></pre>
+<pre><code>  Accession       S1       S3       S5       S7       S9       S2       S4
+1    P12883 5.25e+10 7.41e+10 5.28e+10 6.82e+10 6.43e+10 4.33e+10 7.41e+10
+2    P13533 1.00e+09 1.47e+09 5.11e+09 4.25e+09 2.62e+09 1.50e+09 1.17e+09
+3    Q8WZ42 1.39e+10 2.08e+10 2.19e+10 2.49e+10 2.34e+10 1.29e+10 2.25e+10
+4    P68032 3.92e+10 4.11e+10 3.76e+10 3.54e+10 3.69e+10 3.54e+10 2.96e+10
+5    P68133 1.72e+07 5.81e+07 3.85e+07 5.07e+07 6.19e+07 1.64e+07 3.44e+07
+6    P60709 4.02e+09 8.43e+08 2.04e+09 1.62e+09 1.61e+09 4.16e+09 6.45e+08
+        S6       S8      S10
+1 7.00e+10 5.64e+10 5.26e+10
+2 2.42e+09 3.67e+09 3.27e+09
+3 2.52e+10 2.46e+10 2.21e+10
+4 3.56e+10 2.98e+10 2.91e+10
+5 5.42e+07 3.36e+07 4.05e+07
+6 1.92e+09 1.81e+09 1.56e+09</code></pre>
+<pre class="r"><code># Identify duplicated values
+DDA_Ab$duplicated_name &lt;- duplicated(DDA_Ab$Accession)
+
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+duplicated_rows &lt;- DDA_Ab[DDA_Ab$duplicated_name == TRUE, ]
+print(duplicated_rows)  </code></pre>
+<pre><code>    Accession       S1       S3       S5       S7       S9       S2       S4
+61     P04264 3.87e+08 1.45e+08 2.58e+08 7.07e+08 3.17e+08 1.19e+10 1.11e+09
+276    P35908       NA       NA       NA       NA       NA 5.31e+06 1.14e+06
+997    P04040       NA       NA       NA       NA       NA       NA       NA
+          S6       S8      S10 duplicated_name
+61  8.03e+08 4.61e+08 5.45e+08            TRUE
+276       NA 5.00e+05 4.90e+05            TRUE
+997       NA       NA       NA            TRUE</code></pre>
+<pre class="r"><code>duplicated_rows %&gt;% rownames()</code></pre>
+<pre><code>[1] &quot;61&quot;  &quot;276&quot; &quot;997&quot;</code></pre>
+<pre class="r"><code># remove duplicated rows
+DDA_Ab &lt;- DDA_Ab[-c(61 , 276, 997), ]
+
+# Make rownames of the data frame accession IDs
+rownames(DDA_Ab) &lt;- DDA_Ab$Accession
+
+# Change colnames 
+colnames(DDA_Ab)</code></pre>
+<pre><code> [1] &quot;Accession&quot;       &quot;S1&quot;              &quot;S3&quot;              &quot;S5&quot;             
+ [5] &quot;S7&quot;              &quot;S9&quot;              &quot;S2&quot;              &quot;S4&quot;             
+ [9] &quot;S6&quot;              &quot;S8&quot;              &quot;S10&quot;             &quot;duplicated_name&quot;</code></pre>
+<pre class="r"><code>DDA_Ab &lt;- DDA_Ab[, -c(1, 12)]
+
+
+DDA_Ab %&gt;% head()</code></pre>
+<pre><code>             S1       S3       S5       S7       S9       S2       S4       S6
+P12883 5.25e+10 7.41e+10 5.28e+10 6.82e+10 6.43e+10 4.33e+10 7.41e+10 7.00e+10
+P13533 1.00e+09 1.47e+09 5.11e+09 4.25e+09 2.62e+09 1.50e+09 1.17e+09 2.42e+09
+Q8WZ42 1.39e+10 2.08e+10 2.19e+10 2.49e+10 2.34e+10 1.29e+10 2.25e+10 2.52e+10
+P68032 3.92e+10 4.11e+10 3.76e+10 3.54e+10 3.69e+10 3.54e+10 2.96e+10 3.56e+10
+P68133 1.72e+07 5.81e+07 3.85e+07 5.07e+07 6.19e+07 1.64e+07 3.44e+07 5.42e+07
+P60709 4.02e+09 8.43e+08 2.04e+09 1.62e+09 1.61e+09 4.16e+09 6.45e+08 1.92e+09
+             S8      S10
+P12883 5.64e+10 5.26e+10
+P13533 3.67e+09 3.27e+09
+Q8WZ42 2.46e+10 2.21e+10
+P68032 2.98e+10 2.91e+10
+P68133 3.36e+07 4.05e+07
+P60709 1.81e+09 1.56e+09</code></pre>
+<pre class="r"><code>DDA_Ab %&gt;% dim()</code></pre>
+<pre><code>[1] 4501   10</code></pre>
+<pre class="r"><code>DDA_Ab &lt;- na.omit(DDA_Ab)
+
+
+
+
+
+
+
+
+
+
+
+DIA_Ab %&gt;% head()</code></pre>
+<pre><code>  Protein.Group Protein.Ids Protein.Names   Genes First.Protein.Description
+1    A0A0B4J2A2  A0A0B4J2A2            NA PPIAL4C                        NA
+2    A0A0B4J2D5  A0A0B4J2D5            NA  GATD3B                        NA
+3    A0A494C071  A0A494C071            NA   PWWP4                        NA
+4        A0AVT1      A0AVT1            NA    UBA6                        NA
+5        A0FGR8      A0FGR8            NA   ESYT2                        NA
+6        A0JLT2      A0JLT2            NA   MED19                        NA
+          S1       S3       S5       S7       S9         S2       S4       S6
+1   979954.0  1470000  1460000  1560000  1700000   940535.0  2020000  1460000
+2 16000000.0 17000000 15800000 14400000 15500000 15300000.0 13500000 13600000
+3   381352.0   429735   287237   412285   380499   433456.0   540008   376304
+4    62810.7   135522   159045   123045   123823    49388.1   144860   127488
+5  1240000.0  1120000   969130  1040000  1020000  1120000.0  1120000  1080000
+6   217977.0   181404   182657   145408   208660   224881.0   202427   160150
+        S8      S10
+1  1390000  1620000
+2 13200000 12600000
+3   460580   355701
+4    84684   102306
+5  1120000  1060000
+6   126127   209726</code></pre>
+<pre class="r"><code>DIA_Ab %&gt;% colnames()</code></pre>
+<pre><code> [1] &quot;Protein.Group&quot;             &quot;Protein.Ids&quot;              
+ [3] &quot;Protein.Names&quot;             &quot;Genes&quot;                    
+ [5] &quot;First.Protein.Description&quot; &quot;S1&quot;                       
+ [7] &quot;S3&quot;                        &quot;S5&quot;                       
+ [9] &quot;S7&quot;                        &quot;S9&quot;                       
+[11] &quot;S2&quot;                        &quot;S4&quot;                       
+[13] &quot;S6&quot;                        &quot;S8&quot;                       
+[15] &quot;S10&quot;                      </code></pre>
+<pre class="r"><code># Subset the columns referring to abundance
+DIA_Ab &lt;-DIA_Ab[,c(2, 6:15)]
+DIA_Ab %&gt;% head()</code></pre>
+<pre><code>  Protein.Ids         S1       S3       S5       S7       S9         S2
+1  A0A0B4J2A2   979954.0  1470000  1460000  1560000  1700000   940535.0
+2  A0A0B4J2D5 16000000.0 17000000 15800000 14400000 15500000 15300000.0
+3  A0A494C071   381352.0   429735   287237   412285   380499   433456.0
+4      A0AVT1    62810.7   135522   159045   123045   123823    49388.1
+5      A0FGR8  1240000.0  1120000   969130  1040000  1020000  1120000.0
+6      A0JLT2   217977.0   181404   182657   145408   208660   224881.0
+        S4       S6       S8      S10
+1  2020000  1460000  1390000  1620000
+2 13500000 13600000 13200000 12600000
+3   540008   376304   460580   355701
+4   144860   127488    84684   102306
+5  1120000  1080000  1120000  1060000
+6   202427   160150   126127   209726</code></pre>
+<pre class="r"><code>colnames(DIA_Ab) &lt;- c(&quot;Accession&quot;, &quot;S1&quot; , &quot;S3&quot; , &quot;S5&quot; , &quot;S7&quot;, &quot;S9&quot;, &quot;S2&quot;, &quot;S4&quot;, &quot;S6&quot; , &quot;S8&quot;, &quot;S10&quot;)
+DIA_Ab %&gt;% head()</code></pre>
+<pre><code>   Accession         S1       S3       S5       S7       S9         S2       S4
+1 A0A0B4J2A2   979954.0  1470000  1460000  1560000  1700000   940535.0  2020000
+2 A0A0B4J2D5 16000000.0 17000000 15800000 14400000 15500000 15300000.0 13500000
+3 A0A494C071   381352.0   429735   287237   412285   380499   433456.0   540008
+4     A0AVT1    62810.7   135522   159045   123045   123823    49388.1   144860
+5     A0FGR8  1240000.0  1120000   969130  1040000  1020000  1120000.0  1120000
+6     A0JLT2   217977.0   181404   182657   145408   208660   224881.0   202427
+        S6       S8      S10
+1  1460000  1390000  1620000
+2 13600000 13200000 12600000
+3   376304   460580   355701
+4   127488    84684   102306
+5  1080000  1120000  1060000
+6   160150   126127   209726</code></pre>
+<pre class="r"><code># Identify duplicated values
+DIA_Ab$duplicated_name &lt;- duplicated(DIA_Ab$Accession)
+
+# This will return a logical vector where TRUE indicates the position of duplicates in the column.
+duplicated_rows &lt;- DIA_Ab[DIA_Ab$duplicated_name == TRUE, ]
+print(duplicated_rows)  </code></pre>
+<pre><code> [1] Accession       S1              S3              S5             
+ [5] S7              S9              S2              S4             
+ [9] S6              S8              S10             duplicated_name
+&lt;0 rows&gt; (or 0-length row.names)</code></pre>
+<pre class="r"><code>duplicated_rows %&gt;% rownames()</code></pre>
+<pre><code>character(0)</code></pre>
+<pre class="r"><code># remove duplicated rows-None to remove for DIA 
+
+
+# Make rownames of the data frame accession IDs
+rownames(DIA_Ab) &lt;- DIA_Ab$Accession
+
+# Change colnames 
+colnames(DIA_Ab)</code></pre>
+<pre><code> [1] &quot;Accession&quot;       &quot;S1&quot;              &quot;S3&quot;              &quot;S5&quot;             
+ [5] &quot;S7&quot;              &quot;S9&quot;              &quot;S2&quot;              &quot;S4&quot;             
+ [9] &quot;S6&quot;              &quot;S8&quot;              &quot;S10&quot;             &quot;duplicated_name&quot;</code></pre>
+<pre class="r"><code>DIA_Ab &lt;- DIA_Ab[, -c(1, 12)]
+
+
+DIA_Ab &lt;- na.omit(DIA_Ab)
+
+
+
+Meta</code></pre>
+<pre><code>    Samples  Ind  Rep    Cond     Cond_Ind
+S1       S1 B_77  Bio     Dox     B_77_Dox
+S3       S3 C_87  Bio     Dox     C_87_Dox
+S5       S5 A_48 Tech     Dox     A_48_Dox
+S7       S7 A_48 Tech     Dox     A_48_Dox
+S9       S9 A_48 Tech     Dox     A_48_Dox
+S2       S2 B_77  Bio Control B_77_Control
+S4       S4 C_87  Bio Control C_87_Control
+S6       S6 A_48 Tech Control A_48_Control
+S8       S8 A_48 Tech Control A_48_Control
+S10     S10 A_48 Tech Control A_48_Control</code></pre>
+<pre class="r"><code>DDA_Ab_Veh &lt;- DDA_Ab[, c(6:10)]
+DIA_Ab_Veh &lt;- DIA_Ab[,c(6:10)]
+
+
+DDA_Ab_Veh %&gt;% head()</code></pre>
+<pre><code>             S2       S4       S6       S8      S10
+P12883 4.33e+10 7.41e+10 7.00e+10 5.64e+10 5.26e+10
+P13533 1.50e+09 1.17e+09 2.42e+09 3.67e+09 3.27e+09
+Q8WZ42 1.29e+10 2.25e+10 2.52e+10 2.46e+10 2.21e+10
+P68032 3.54e+10 2.96e+10 3.56e+10 2.98e+10 2.91e+10
+P68133 1.64e+07 3.44e+07 5.42e+07 3.36e+07 4.05e+07
+P60709 4.16e+09 6.45e+08 1.92e+09 1.81e+09 1.56e+09</code></pre>
+<pre class="r"><code>DIA_Ab_Veh %&gt;% head()</code></pre>
+<pre><code>                   S2       S4       S6       S8      S10
+A0A0B4J2A2   940535.0  2020000  1460000  1390000  1620000
+A0A0B4J2D5 15300000.0 13500000 13600000 13200000 12600000
+A0A494C071   433456.0   540008   376304   460580   355701
+A0AVT1        49388.1   144860   127488    84684   102306
+A0FGR8      1120000.0  1120000  1080000  1120000  1060000
+A0JLT2       224881.0   202427   160150   126127   209726</code></pre>
+<pre class="r"><code>DDA_Ab_Veh_Avg &lt;- rowMeans(DDA_Ab_Veh)
+DDA_Ab_Veh_Avg_DF &lt;- as.data.frame(DDA_Ab_Veh_Avg)
+DDA_Ab_Veh_Avg_DF$Pro &lt;- rownames(DDA_Ab_Veh_Avg_DF)
+DDA_Ab_Veh_Avg_DF %&gt;% head()</code></pre>
+<pre><code>       DDA_Ab_Veh_Avg    Pro
+P12883      5.928e+10 P12883
+P13533      2.406e+09 P13533
+Q8WZ42      2.146e+10 Q8WZ42
+P68032      3.190e+10 P68032
+P68133      3.582e+07 P68133
+P60709      2.019e+09 P60709</code></pre>
+<pre class="r"><code>DIA_Ab_Veh_Avg &lt;- rowMeans(DIA_Ab_Veh)
+DIA_Ab_Veh_Avg_DF &lt;- as.data.frame(DIA_Ab_Veh_Avg)
+DIA_Ab_Veh_Avg_DF$Pro &lt;- rownames(DIA_Ab_Veh_Avg_DF)
+DIA_Ab_Veh_Avg_DF %&gt;% head()</code></pre>
+<pre><code>           DIA_Ab_Veh_Avg        Pro
+A0A0B4J2A2      1486107.0 A0A0B4J2A2
+A0A0B4J2D5     13640000.0 A0A0B4J2D5
+A0A494C071       433209.8 A0A494C071
+A0AVT1           101745.2     A0AVT1
+A0FGR8          1100000.0     A0FGR8
+A0JLT2           184662.2     A0JLT2</code></pre>
+<pre class="r"><code>Merged_Veh_Avg &lt;- merge(DDA_Ab_Veh_Avg_DF, DIA_Ab_Veh_Avg_DF, by = &quot;Pro&quot;)
+Merged_Veh_Avg %&gt;% head()</code></pre>
+<pre><code>         Pro DDA_Ab_Veh_Avg DIA_Ab_Veh_Avg
+1 A0A0B4J2D5      357600000       13640000
+2     A0FGR8       10452000        1100000
+3     A1A4S6         763630         254869
+4     A1L0T0       24220000        3786000
+5     A2RRP1       22620000        1642000
+6     A3KMH1       50500000        2358000</code></pre>
+<pre class="r"><code>Merged_Veh_Avg %&gt;% dim()</code></pre>
+<pre><code>[1] 3026    3</code></pre>
+<pre class="r"><code>model_Abundances &lt;- lm(DDA_Ab_Veh_Avg ~ DIA_Ab_Veh_Avg, data = Merged_Veh_Avg)
+
+# Get R-squared
+r2 &lt;- summary(model_Abundances)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(Merged_Veh_Avg, aes(x = DDA_Ab_Veh_Avg, y = DIA_Ab_Veh_Avg)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Comparing_DDA_to_DIA.Rmd/7-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>Merged_Veh_Avg$DDA_Ab_Veh_Avg_log2 &lt;- log2(Merged_Veh_Avg$DDA_Ab_Veh_Avg)
+
+
+Merged_Veh_Avg$DIA_Ab_Veh_Avg_log2 &lt;- log2(Merged_Veh_Avg$DIA_Ab_Veh_Avg)
+
+
+
+
+model_Abundances &lt;- lm(DDA_Ab_Veh_Avg_log2 ~ DIA_Ab_Veh_Avg_log2, data = Merged_Veh_Avg)
+
+# Get R-squared
+r2 &lt;- summary(model_Abundances)$r.squared
+
+
+#------ Plot for both same sign and not same sign
+ggplot2::ggplot(Merged_Veh_Avg, aes(x = DDA_Ab_Veh_Avg_log2, y = DIA_Ab_Veh_Avg_log2)) +
+  geom_point(size = 2, alpha = 0.5) +
+  geom_smooth(method = &quot;lm&quot;, se = FALSE, color = &quot;black&quot;, linetype = &quot;dashed&quot;) +
+  annotate(&quot;text&quot;, x = Inf, y = Inf, vjust = 2, hjust = 2,
+           label = paste(&quot;R^2 = &quot;, round(r2, digits = 2), sep = &quot;&quot;),
+           color = &quot;black&quot;) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme_bw()</code></pre>
+<pre><code>`geom_smooth()` using formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="figure/Comparing_DDA_to_DIA.Rmd/7-2.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.2.0 (2022-04-22)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Big Sur/Monterey 10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] grid      stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] VennDiagram_1.7.3   futile.logger_1.4.3 lubridate_1.9.2    
+ [4] forcats_1.0.0       stringr_1.5.0       dplyr_1.1.2        
+ [7] purrr_1.0.2         readr_2.1.4         tidyr_1.3.0        
+[10] tibble_3.2.1        ggplot2_3.4.3       tidyverse_2.0.0    
+[13] workflowr_1.7.1    
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.11          lattice_0.21-8       getPass_0.2-2       
+ [4] ps_1.7.5             rprojroot_2.0.3      digest_0.6.33       
+ [7] utf8_1.2.3           R6_2.5.1             futile.options_1.0.1
+[10] evaluate_0.21        httr_1.4.7           highr_0.10          
+[13] pillar_1.9.0         rlang_1.1.1          rstudioapi_0.15.0   
+[16] whisker_0.4.1        callr_3.7.3          jquerylib_0.1.4     
+[19] Matrix_1.5-4.1       rmarkdown_2.24       labeling_0.4.2      
+[22] splines_4.2.0        munsell_0.5.0        compiler_4.2.0      
+[25] httpuv_1.6.11        xfun_0.40            pkgconfig_2.0.3     
+[28] mgcv_1.9-0           htmltools_0.5.6      tidyselect_1.2.0    
+[31] fansi_1.0.4          tzdb_0.4.0           withr_2.5.0         
+[34] later_1.3.1          nlme_3.1-163         jsonlite_1.8.7      
+[37] gtable_0.3.4         lifecycle_1.0.3      formatR_1.14        
+[40] git2r_0.32.0         magrittr_2.0.3       scales_1.2.1        
+[43] cli_3.6.1            stringi_1.7.12       cachem_1.0.8        
+[46] farver_2.1.1         fs_1.6.3             promises_1.2.1      
+[49] bslib_0.5.1          generics_0.1.3       vctrs_0.6.3         
+[52] lambda.r_1.2.4       tools_4.2.0          glue_1.6.2          
+[55] hms_1.1.3            processx_3.8.2       fastmap_1.1.1       
+[58] yaml_2.3.7           timechange_0.2.0     colorspace_2.1-0    
+[61] knitr_1.43           sass_0.4.7          </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
