@@ -362,6 +362,7 @@ Toptable_Modules <- merge(toptable_summary,
 
 Toptable_Modules %>% head()
 Toptable_Modules %>% dim()
+
 ```
 
 
@@ -575,7 +576,7 @@ Significant_modules_NoME
 
 
 # GO for ALL DOX-correlated module proteins that are DE 
-```{r GO enrichment 2, fig.width = 10, fig.height = 15}
+```{r GO enrichment 2, fig.width = 10, eval=FALSE, include=FALSE,fig.height = 15}
 hubs <- get_hubs_gcn(WGCNA_DF, net)
 ontology_categories <- c("ALL")
 
@@ -619,7 +620,7 @@ Significant_modules_NoME
 
 
 # GO for the combined set of ALL DOX-correlated module HUB proteins 
-```{r GO enrichment 3, fig.width = 10, fig.height = 15}
+```{r GO enrichment 3, fig.width = 10,eval=FALSE, include=FALSE, fig.height = 15}
 hubs <- get_hubs_gcn(WGCNA_DF, net)
 ontology_categories <- c("ALL")
 
@@ -677,11 +678,100 @@ cnetplot(x = go_enrichment, showCategory = 3, circular = FALSE )
 ```
 
 
+# Modified GO representation 
+```{r Modified GO representation}
+
+# Initialize an empty data frame to store all results
+all_enrichment_results <- tibble()
+
+All_modules <-  Toptable_Modules$Modules %>% unique()
+All_modules
+
+# Loop over each module and ontology category
+for (module in All_modules) {
+  module_hubs <- hubs[hubs$Module == module, ]$Gene
+  module_proteins <- Toptable_Modules[(Toptable_Modules$Modules == module), ]$Protein
+  module_genes <- ENZYME_DF_Toptable[ENZYME_DF_Toptable$Protein %in% module_proteins, ]$hgnc_symbol
+  background_genes_mod <- ENZYME_DF_Toptable$hgnc_symbol
+
+  for (ont in ontology_categories) {
+    go_enrichment <- enrichGO(gene = module_genes,
+                              OrgDb = org.Hs.eg.db,
+                              keyType = "SYMBOL",
+                              universe = background_genes_mod,
+                              ont = ont,
+                              pvalueCutoff = 1,
+                              qvalueCutoff = 1)
+
+    # Convert to tibble and add module information
+    go_enrichment_df <- go_enrichment %>% as_tibble() %>% 
+      mutate(Module = module)
+
+    # Row-bind to the cumulative results data frame
+    all_enrichment_results <- bind_rows(all_enrichment_results, go_enrichment_df)
+
+  }
+}
+
+# all_enrichment_results now contains all the GO enrichment results with module and ontology information
+all_enrichment_results %>% head()
+
+# Calculate median LogFC for each module
+median_LogFC_per_module <- Toptable_Modules %>%
+  group_by(Modules) %>%
+  summarize(Median_LogFC = median(logFC, na.rm = TRUE))
+
+# Merge with all_enrichment_results
+all_enrichment_results_2 <- all_enrichment_results %>%
+  left_join(median_LogFC_per_module, by = c("Module" = "Modules"))
+
+top_results_per_module <- all_enrichment_results_2 %>%
+  group_by(Module) %>%
+  slice_min(order_by = p.adjust, n = 10) %>%
+  ungroup()
+
+ggplot(top_results_per_module, aes(x = Module , y = Description, size = -log10(pvalue), color = Median_LogFC)) +
+  geom_point(alpha = 0.6) +
+  scale_size_continuous(name = "-log10(PValue)") +
+  scale_color_gradient(name = "Median LogFC", low = "blue", high = "red") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Dot Plot of Top Results Per Module",
+       x = "Description",
+       y = "Module")
+
+
+top_results_per_module_sig <- top_results_per_module[top_results_per_module$Module %in% Significant_modules_NoME, ]
+
+
+ggplot(top_results_per_module_sig, aes(x = Module , y = Description, size = -log10(pvalue), color = Median_LogFC)) +
+  geom_point(alpha = 0.6) +
+  scale_size_continuous(name = "-log10(PValue)") +
+  scale_color_gradient(name = "Median LogFC", low = "blue", high = "red") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "",
+       x = "Module",
+       y = "Description")
+
+
+ggplot(top_results_per_module_sig, aes(x = Description , y = Module, size = -log10(pvalue), color = Median_LogFC)) +
+  geom_point(alpha = 0.6) +
+  scale_size_continuous(name = "-log10(PValue)") +
+  scale_color_gradient(name = "Median LogFC", low = "blue", high = "red") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Dot Plot of Top Results Per Module",
+       x = "Description",
+       y = "Module")
+```
+
 # Protein corrrelation plots within modules 
 ```{r Protein corrrelation plots, fig.width=15, fig.height=15}
 # Total number of networks edges 
 get_edge_list(net) %>% dim()
 Significant_modules_NoME
+
 ```
 
 
@@ -1141,6 +1231,330 @@ ggraph(PPI_graph_network, layout = "stress") +
   coord_fixed()
 ```
 
+# Adding experimental data to PPI network 
+```{r PPI experimantal addition}
+Network_2 %>% dim()
+Network_2 %>% head()
+
+
+# Get the list of .csv files
+paths <- list.files(path = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/STRING_PPI", pattern = "\\.csv$", full.names = TRUE)
+
+
+# Function to process each file
+process_file <- function(file_path) {
+  # Read the file into a data frame, adding fill = TRUE to handle incomplete final lines
+  df <- read.csv(file_path, header = TRUE, stringsAsFactors = FALSE, fill = TRUE, check.names = FALSE)
+
+  # Extract the module name from the file path (file name without the extension)
+  module_name <- tools::file_path_sans_ext(basename(file_path))
+
+  # Add the Module column
+  df$Module <- module_name
+
+  return(df)
+}
+
+
+# Apply the function to each file path and store the results in a list
+list_of_data_frames <- lapply(paths, process_file)
+
+
+# Optional: Combine all data frames into one (if needed)
+PPI_STRING_combined_data_frame <- do.call(rbind, list_of_data_frames)
+PPI_STRING_combined_data_frame %>% head()
+PPI_STRING_combined_data_frame %>% dim()
+PPI_STRING_combined_data_frame$Module %>% unique()
+
+
+# Summarize experimental evidence based PPIs
+PPI_row_counts_per_module <- PPI_STRING_combined_data_frame %>%
+  group_by(Module) %>%
+  summarize(Count = n())
+
+print(PPI_row_counts_per_module)
+
+
+# Summarize the number of possible PPIs 
+row_counts_per_module <- Toptable_Modules %>%
+  group_by(Modules) %>%
+  summarize(Count = n())
+
+print(row_counts_per_module)
+
+
+# Getting combinations of ID'd/possible
+PPI_row_counts_per_module$combinations <- (row_counts_per_module$Count * (row_counts_per_module$Count - 1)) / 2
+
+# View the updated data frame
+print(PPI_row_counts_per_module)
+
+# Get the degree of search space reduction 
+PPI_row_counts_per_module$Search_reduction <- PPI_row_counts_per_module$combinations/PPI_row_counts_per_module$Count
+
+
+# View the updated data frame
+print(PPI_row_counts_per_module)
+
+
+ggplot(PPI_row_counts_per_module, aes(x = Module, y = Count, fill = Module)) + 
+  geom_col() +
+  theme_minimal() +
+  ylim(c(0, 5000))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = " STRING DB Experiment PPI Counts ",
+       x = "",
+       y = "number of PPI results")+
+  scale_fill_identity(guide = "legend")
+
+
+
+ggplot(PPI_row_counts_per_module, aes(x = Module, y = combinations, fill = Module)) + 
+  geom_col() +
+  theme_minimal() +
+  ylim(c(0, 350000))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = " WPCNA possible PPIs/module ",
+       x = "",
+       y = "# of possible combinations ")+
+  scale_fill_identity(guide = "legend")
+
+
+Network_2 %>% head()
+PPI_STRING_combined_data_frame %>% head()
+
+
+
+ggplot(PPI_row_counts_per_module, aes(x = Module, y = Search_reduction, fill = Module)) + 
+  geom_col() +
+  theme_minimal() +
+  ylim(c(0, 1000))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = " %Search reduction with STRING DB ",
+       x = "",
+       y = "%Search_reduction")+
+  scale_fill_identity(guide = "legend")
+
+
+
+# Filtering the data frames tto keep those with experimental data: 
+Network_2 %>% head()
+PPI_STRING_combined_data_frame %>% head()
+
+find_matching_pairs <- function(df1, df2) {
+  # Convert to tibble and normalize the order of protein pairs in both data frames
+  df1 <- df1 %>% 
+    as_tibble() %>% 
+    mutate(
+      Protein1 = pmin(Gene1, Gene2),
+      Protein2 = pmax(Gene1, Gene2)
+    ) %>%
+    dplyr::select(Protein1, Protein2, Module_name = Module_name)
+
+  df2 <- df2 %>% 
+    as_tibble() %>% 
+    mutate(
+      Protein1 = pmin(`#node1`, node2),
+      Protein2 = pmax(`#node1`, node2)
+    ) %>%
+    dplyr::select(Protein1, Protein2, Module_name = Module)
+
+  # Find matches between the two data frames
+  matched_pairs <- merge(df1, df2, by = c("Protein1", "Protein2", "Module_name"))
+
+  return(matched_pairs)
+}
+
+Network_2_STRINGDB_sub <- find_matching_pairs(df1 = Network_2, df2 = PPI_STRING_combined_data_frame)
+
+Network_2_STRINGDB_sub %>% dim()
+Network_2_STRINGDB_sub %>% head()
+
+
+find_matching_pairs_2 <- function(df1, df2) {
+  # Convert to tibble and normalize the order of protein pairs in both data frames
+  df1 <- df1 %>% 
+    as_tibble() %>% 
+    mutate(
+      Protein1 = pmin(Gene1, Gene2),
+      Protein2 = pmax(Gene1, Gene2)
+    )
+
+  df2 <- df2 %>% 
+    as_tibble() %>% 
+    mutate(
+      Protein1 = pmin(`#node1`, node2),
+      Protein2 = pmax(`#node1`, node2)
+    ) %>%
+    dplyr::select(Protein1, Protein2, Module_name = Module)
+
+  # Subset df1 rows based on matched pairs in df2 and keep all columns from df1
+  matched_pairs <- merge(df1, df2, by = c("Protein1", "Protein2", "Module_name"))
+
+  return(matched_pairs)
+}
+Network_2_STRINGDB_sub_allcol <- find_matching_pairs_2(df1 = Network_2, df2 = PPI_STRING_combined_data_frame)
+
+Network_2_STRINGDB_sub_allcol %>% dim()
+Network_2_STRINGDB_sub_allcol
+
+
+# Number of PPI pairs where at least one protein is DE 
+Network_2_STRINGDB_sub_allcol[(Network_2_STRINGDB_sub_allcol$Gene1_DE == TRUE) | (Network_2_STRINGDB_sub_allcol$Gene2_DE == TRUE), ] %>% nrow()
+
+
+# Number of PPI pairs where at least one protein is HUB  
+Network_2_STRINGDB_sub_allcol[(Network_2_STRINGDB_sub_allcol$Gene1_HUB == TRUE) | (Network_2_STRINGDB_sub_allcol$Gene2_HUB == TRUE), ] %>% nrow()
+
+
+# Number of PPI pairs where at least one protein is Drugabble   
+Network_2_STRINGDB_sub_allcol[(Network_2_STRINGDB_sub_allcol$Gene1_is_druggable == TRUE) | (Network_2_STRINGDB_sub_allcol$Gene2_is_druggable == TRUE), ] %>% nrow()
+
+
+# Number of PPI pairs where at least one protein is Drugabble and at least one is DE  
+Network_2_STRINGDB_sub_allcol[((Network_2_STRINGDB_sub_allcol$Gene1_is_druggable == TRUE) | (Network_2_STRINGDB_sub_allcol$Gene2_is_druggable == TRUE)) & ((Network_2_STRINGDB_sub_allcol$Gene1_DE == TRUE) | (Network_2_STRINGDB_sub_allcol$Gene2_DE == TRUE)), ] %>% nrow()
+
+
+# Number of PPI pairs where at least one protein is Drugabble and at least one is HUB  
+Network_2_STRINGDB_sub_allcol[((Network_2_STRINGDB_sub_allcol$Gene1_is_druggable == TRUE) | (Network_2_STRINGDB_sub_allcol$Gene2_is_druggable == TRUE)) & ((Network_2_STRINGDB_sub_allcol$Gene1_HUB == TRUE) | (Network_2_STRINGDB_sub_allcol$Gene2_HUB == TRUE)), ] %>% nrow()
+
+
+
+
+# Repeat framework but by subsetting on the DOX correlated modules only
+Network_2_STRINGDB_sub_allcol_DOXcor <- Network_2_STRINGDB_sub_allcol[Network_2_STRINGDB_sub_allcol$Module_name %in%c("green" ,"lightyellow" ,"salmon" ,"darkgreen", "midnightblue"),  ]
+
+
+
+ 
+# Proceed with repeated framework for DOX correlated modules 
+# Number of PPI pairs where at least one protein is DE 
+PPI_DE <- Network_2_STRINGDB_sub_allcol_DOXcor[(Network_2_STRINGDB_sub_allcol_DOXcor$Gene1_DE == TRUE) | (Network_2_STRINGDB_sub_allcol_DOXcor$Gene2_DE == TRUE), ] 
+PPI_DE %>% nrow()
+
+
+# Number of PPI pairs where at least one protein is HUB  
+PPI_HUB <- Network_2_STRINGDB_sub_allcol_DOXcor[(Network_2_STRINGDB_sub_allcol_DOXcor$Gene1_HUB == TRUE) | (Network_2_STRINGDB_sub_allcol_DOXcor$Gene2_HUB == TRUE), ] 
+
+PPI_HUB %>% nrow()
+
+
+# Number of PPI pairs where at least one protein is Drugabble   
+PPI_Drug <- Network_2_STRINGDB_sub_allcol_DOXcor[(Network_2_STRINGDB_sub_allcol_DOXcor$Gene1_is_druggable == TRUE) | (Network_2_STRINGDB_sub_allcol_DOXcor$Gene2_is_druggable == TRUE), ] 
+
+PPI_Drug%>% nrow()
+
+
+# Number of PPI pairs where at least one protein is Drugabble and at least one is DE  
+PPI_Drug_DE <- Network_2_STRINGDB_sub_allcol_DOXcor[((Network_2_STRINGDB_sub_allcol_DOXcor$Gene1_is_druggable == TRUE) | (Network_2_STRINGDB_sub_allcol_DOXcor$Gene2_is_druggable == TRUE)) & ((Network_2_STRINGDB_sub_allcol_DOXcor$Gene1_DE == TRUE) | (Network_2_STRINGDB_sub_allcol_DOXcor$Gene2_DE == TRUE)), ]
+
+PPI_Drug_DE %>% nrow()
+
+
+# Number of PPI pairs where at least one protein is Drugabble and at least one is HUB  
+PPI_Drug_HUB <- Network_2_STRINGDB_sub_allcol_DOXcor[((Network_2_STRINGDB_sub_allcol_DOXcor$Gene1_is_druggable == TRUE) | (Network_2_STRINGDB_sub_allcol_DOXcor$Gene2_is_druggable == TRUE)) & ((Network_2_STRINGDB_sub_allcol_DOXcor$Gene1_HUB == TRUE) | (Network_2_STRINGDB_sub_allcol_DOXcor$Gene2_HUB == TRUE)), ] 
+PPI_Drug_HUB %>% nrow()
+
+
+# Number of PPI pairs where at least one protein is Drugabble and at least one is HUB and # at least one is DE 
+PPI_Drug_HUB_DE <- Network_2_STRINGDB_sub_allcol_DOXcor[((Network_2_STRINGDB_sub_allcol_DOXcor$Gene1_is_druggable == TRUE) | (Network_2_STRINGDB_sub_allcol_DOXcor$Gene2_is_druggable == TRUE)) & ((Network_2_STRINGDB_sub_allcol_DOXcor$Gene1_HUB == TRUE) | (Network_2_STRINGDB_sub_allcol_DOXcor$Gene2_HUB == TRUE)) & ((Network_2_STRINGDB_sub_allcol_DOXcor$Gene1_DE == TRUE) | (Network_2_STRINGDB_sub_allcol_DOXcor$Gene2_DE == TRUE)), ] 
+
+PPI_Drug_HUB_DE %>% nrow()
+```
+
+
+# Network graphing 
+```{r Network graphing}
+#### FULL Experiment based network####
+# Create an edge list for igraph by getting the two proteins and weight 
+PPI_edge_list <- Network_2_STRINGDB_sub_allcol_DOXcor[, c("Gene1", "Gene2", "Weight")]
+
+# Create an igraph object
+PPI_graph_network <- graph_from_data_frame(PPI_edge_list, directed = FALSE)
+
+
+
+
+# Prepare node attributes based on Network_2_STRINGDB_sub_allcol_DOXcor columns
+# Generate node_data with dplyr
+node_data <- Network_2_STRINGDB_sub_allcol_DOXcor %>%
+  dplyr::select(Gene1, Gene1_DE, Gene1_HUB, Gene1_is_druggable) %>%
+  dplyr::rename(node = Gene1, DE = Gene1_DE, Hub = Gene1_HUB, Drug = Gene1_is_druggable) %>%
+  dplyr::bind_rows(
+    Network_2_STRINGDB_sub_allcol_DOXcor %>%
+      dplyr::select(Gene2, Gene2_DE, Gene2_HUB, Gene2_is_druggable) %>%
+      dplyr::rename(node = Gene2, DE = Gene2_DE, Hub = Gene2_HUB, Drug = Gene2_is_druggable)
+  ) %>%
+  unique()
+
+
+
+# Add attributes to the igraph network
+V(PPI_graph_network)$DE <- node_data$DE[match(V(PPI_graph_network)$name, node_data$node)]
+V(PPI_graph_network)$Hub <- node_data$Hub[match(V(PPI_graph_network)$name, node_data$node)]
+V(PPI_graph_network)$Drug <- node_data$Drug[match(V(PPI_graph_network)$name, node_data$node)]
+
+
+
+ggraph(PPI_graph_network, layout = "stress") +
+  geom_edge_link(aes(edge_color = Weight), show.legend = TRUE) +
+  geom_node_point(aes(color = DE, size = Hub, shape = Drug), stroke = 2) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3) +
+  scale_edge_color_continuous(low = "lightblue", high = "darkblue") +
+  scale_color_manual(values = c("red", "gray")) +
+  scale_size_manual(values = c(3, 6)) +
+  scale_shape_manual(values = c(16, 17)) +
+  theme_graph() +
+  labs(color = "DE", size = "Hub", shape = "Drug-Target")
+
+
+
+
+#### Filtered Experiment based network #### 
+# Create an edge list for igraph by getting the two proteins and weight 
+PPI_edge_list <- PPI_Drug_HUB_DE[, c("Gene1", "Gene2", "Weight")]
+
+# Create an igraph object
+PPI_graph_network <- graph_from_data_frame(PPI_edge_list, directed = FALSE)
+
+
+
+
+# Prepare node attributes based on PPI_Drug_HUB_DE columns
+# Generate node_data with dplyr
+node_data <- PPI_Drug_HUB_DE %>%
+  dplyr::select(Gene1, Gene1_DE, Gene1_HUB, Gene1_is_druggable) %>%
+  dplyr::rename(node = Gene1, DE = Gene1_DE, Hub = Gene1_HUB, Drug = Gene1_is_druggable) %>%
+  dplyr::bind_rows(
+    PPI_Drug_HUB_DE %>%
+      dplyr::select(Gene2, Gene2_DE, Gene2_HUB, Gene2_is_druggable) %>%
+      dplyr::rename(node = Gene2, DE = Gene2_DE, Hub = Gene2_HUB, Drug = Gene2_is_druggable)
+  ) %>%
+  unique()
+
+
+
+# Add attributes to the igraph network
+V(PPI_graph_network)$DE <- node_data$DE[match(V(PPI_graph_network)$name, node_data$node)]
+V(PPI_graph_network)$Hub <- node_data$Hub[match(V(PPI_graph_network)$name, node_data$node)]
+V(PPI_graph_network)$Drug <- node_data$Drug[match(V(PPI_graph_network)$name, node_data$node)]
+
+
+
+ggraph(PPI_graph_network, layout = "stress") +
+  geom_edge_link(aes(edge_color = Weight), show.legend = TRUE) +
+  geom_node_point(aes(color = Drug, size = Hub, shape = DE), stroke = 2) +
+  geom_node_text(aes(label = name), repel = TRUE, size = 3) +
+  scale_edge_color_continuous(low = "white", high = "black") +
+  scale_color_manual(values = c( "dodgerblue4","red3")) +
+  scale_size_manual(values = c(4, 10)) +
+  scale_shape_manual(values = c(1, 16)) +
+  theme_graph() +
+  labs(color = "Drug-Target", size = "Hub", shape = "DE")
+
+
+```
+
 
 # Module-wise pQTL 
 ```{r Module-wise pQTL Enrichment, fig.width=15, fig.height=15}
@@ -1153,7 +1567,6 @@ pQTL_pro_unique %>% length()
 
 
 
-Toptable_Modules$Protein
 
 diseaseGenes <- list(
   pQTL = pQTL_pro_unique
@@ -1283,11 +1696,10 @@ ggplot(melted_results, aes(x = Modules, y = Disease, fill = PercentOverlap)) +
 
 
 
-
+pQTL_data$Annotated.gene.consequence %>% unique()
 
 # Now do the same kind of pQTL enrichment but for protein coding genes 
-# mapped to SNPs ini specific kinds of loci. 
-pQTL_data$Target.UniProt
+# mapped to SNPs in specific kinds of loci. 
 variant_consequences <- pQTL_data$Annotated.gene.consequence %>% unique()
 
 
@@ -1448,6 +1860,9 @@ stop_gained_splice_region_variant = pQTL_data[pQTL_data$Annotated.gene.consequen
 
 prime_5UTR_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[16], ]$Target.UniProt %>% unique(),
 
+
+splice_region_variant_synonymous_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[17], ]$Target.UniProt %>% unique(),
+
 stop_gained = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[18], ]$Target.UniProt %>% unique(),
 
 pQTL_NA = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[21], ]$Target.UniProt %>% unique(),
@@ -1458,8 +1873,12 @@ TF_binding_site_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == vari
 
 intron_variant_NMD_transcript_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[24], ]$Target.UniProt %>% unique(),
 
+splice_donor_5th_base_variant_frameshift_variant  <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[26], ]$Target.UniProt %>% unique(), 
+
+
 protein_altering_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[29], ]$Target.UniProt %>% unique(),
 
+frameshift_variant_splice_donor_region_variant <- pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[30], ]$Target.UniProt %>% unique(), 
 
 mature_miRNA_variant = pQTL_data[pQTL_data$Annotated.gene.consequence == variant_consequences[35], ]$Target.UniProt %>% unique(),
 
@@ -1483,7 +1902,7 @@ pQTL_ALL = pQTL_data$Target.UniProt %>% unique()
 
 # Plot results 
 results_df <- perform_module_disease_analysis(toptable = Toptable_Modules, diseaseGenes = diseaseGenes)
-
+results_df[results_df$FisherPValue < 0.05, ]
 
 melted_results <- melt(results_df, id.vars = c("Modules", "Disease", "PercentOverlap", "FisherPValue"))
 
@@ -1958,5 +2377,356 @@ ggplot(melted_results, aes(x = Modules, y = Disease, fill = PercentOverlap)) +
 ```
 
 
+# General attributes 
+```{r gen att}
+# Set the path to the folder containing your .csv files
+folder_path <- "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/Protein_types" 
+
+# Get the list of .csv files
+file_names <- list.files(path = folder_path, pattern = "\\.csv$", full.names = TRUE)
+
+# Read each file and extract the 'Uniprot' column
+HPA_General <- lapply(file_names, function(file) {
+  data <- read.csv(file, header = TRUE) # Reading CSV file
+  return(data$Uniprot) # Replace 'Uniprot' with the actual column name if different
+})
+
+# Name the list elements with filenames (without the full path and extension)
+names(HPA_General) <- sapply(strsplit(basename(file_names), "\\."), `[`, 1)
 
 
+
+
+# Generae enrichment function limited to the EXPRESSED proteins.  
+perform_module_disease_analysis_2 <- function(toptable, diseaseGenes) {
+  # Prepare an empty list to collect results
+  results <- list()
+  
+  # Ensure 'Modules' and 'Protein' columns exist in 'toptable'
+  if(!"Modules" %in% names(toptable)) {
+    stop("Column 'Modules' not found in the 'toptable'.")
+  }
+  if(!"Protein" %in% names(toptable)) {
+    stop("Column 'Protein' not found in the 'toptable'.")
+  }
+  
+  # Filter disease genes to include only those that are expressed in toptable
+  expressedDiseaseGenes <- lapply(diseaseGenes, function(genes) {
+    intersect(genes, toptable$Protein)
+  })
+  
+  # Loop through each module
+  modules <- unique(toptable$Modules)
+  for (module in modules) {
+    # Get the proteins in the module
+    moduleGenes <- toptable$Protein[toptable$Modules == module]
+    
+    # Loop through each disease gene set
+    for (diseaseName in names(expressedDiseaseGenes)) {
+      # Find the intersecting genes between the module and the expressed disease genes
+      diseaseModuleIntersect <- intersect(moduleGenes, expressedDiseaseGenes[[diseaseName]])
+      
+      # Calculate elements for the contingency table
+      numIntersect = length(diseaseModuleIntersect)
+      numInModuleNotDisease = length(moduleGenes) - numIntersect
+      numInDiseaseNotModule = length(expressedDiseaseGenes[[diseaseName]]) - numIntersect
+      numInNeither = nrow(toptable) - (numIntersect + numInModuleNotDisease + numInDiseaseNotModule)
+      
+      # Build the contingency table
+      table <- matrix(c(
+        numIntersect, # Both in disease list and module
+        numInModuleNotDisease, # In module but not disease list
+        numInDiseaseNotModule, # In disease list but not module
+        numInNeither # In neither list
+      ), nrow = 2, byrow = TRUE)
+      
+      # Perform chi-squared test and Fisher's exact test with error handling
+      chiSqTestResult <- tryCatch({
+        chisq.test(table, correct = TRUE)
+      }, error = function(e) {
+        list(p.value = NA)
+      }, warning = function(w) {
+        list(p.value = NA)
+      })
+      
+      fisherTestResult <- tryCatch({
+        fisher.test(table)
+      }, error = function(e) {
+        list(p.value = NA)
+      }, warning = function(w) {
+        list(p.value = NA)
+      })
+      
+      # Calculate percent overlap, handle division by zero
+      percentOverlap <- if (length(moduleGenes) > 0) {
+        (numIntersect / length(expressedDiseaseGenes[[diseaseName]])) * 100
+      } else {
+        0
+      }
+      
+      # Convert intersecting genes to a single character string
+      intersectingGenesStr <- if (numIntersect > 0) {
+        paste(diseaseModuleIntersect, collapse = ";")
+      } else {
+        ""  # Use an empty string to indicate no intersection
+      }
+      
+      # Append to results list
+      results[[paste(module, diseaseName, sep = "_")]] <- data.frame(
+        Modules = module,
+        Disease = diseaseName,
+        ChiSqPValue = chiSqTestResult$p.value,
+        FisherPValue = fisherTestResult$p.value,
+        PercentOverlap = percentOverlap,
+        IntersectingGenes = intersectingGenesStr
+      )
+    }
+  }
+  
+  # Combine results into a single data frame
+  results_df <- do.call(rbind, results)
+  return(results_df)
+}
+
+
+
+# Plot results 
+results_df <- perform_module_disease_analysis_2(toptable = Toptable_Modules, diseaseGenes = HPA_General)
+
+
+melted_results <- melt(results_df, id.vars = c("Modules", "Disease", "PercentOverlap", "FisherPValue"))
+
+
+# First, create a new column that indicates where to place stars
+melted_results$Star <- ifelse(melted_results$FisherPValue < 0.05 & melted_results$PercentOverlap > 0, "*", "")
+
+
+# Now, plot the heatmap and add geom_text to place stars where the conditions are met
+ggplot(melted_results, aes(x = Modules, y = Disease, fill = PercentOverlap)) +
+  geom_tile(color = "white") +  # Adds border color to the tiles
+  scale_fill_gradient(low = "lavender", high = "red", na.value = "grey50", 
+                      limits = c(min(melted_results$PercentOverlap), max(melted_results$PercentOverlap)), name = "mapped-gene overlap (%)") +  # Adjust as needed
+  geom_text(aes(label = Star), color = "black", size = 8, na.rm = TRUE)+  # Adds stars; adjust color and size as needed
+  labs(x = "Modules", y = "Disease") +  # Labels for the plot
+  theme_minimal() +  # Minimal theme for a clean look
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),  # Adjust text alignment for better readability
+    axis.text.y = element_text(hjust = 0.5),  # Center align y-axis text
+    axis.title = element_text(size = 12),  # Adjust title size as needed
+    legend.key.size = unit(1, 'cm'),  # Adjust legend key size
+    legend.title = element_text(size = 10),  # Adjust legend title size
+    legend.text = element_text(size = 8)  # Adjust legend text size
+  )
+
+```
+
+
+# pLI module comparisons  
+```{r pli}
+pLI_Data <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/pLI/Genes_pLI_Scores.csv", header = TRUE)
+pLI_Data %>% dim()
+
+
+pLI_Data_sub <- merge(pLI_Data, New_RNA_PRO_DF_3, by.x = "gene", by.y = "hgnc_symbol")
+  pLI_Data_sub
+  
+  
+# For all genes 
+ggplot(pLI_Data, aes(x = pLI, y=..density..)) + 
+  geom_histogram(position = "dodge", binwidth = 0.1) + 
+  theme_minimal() +
+  labs(title = "pLI scores aacross all genes",
+       x = "pLI Score",
+       y = "Count") 
+  
+
+# For all detected proteins 
+ggplot(pLI_Data_sub, aes(x = pLI, y=..density..)) + 
+  geom_histogram(position = "dodge", binwidth = 0.1) + 
+  theme_minimal() +
+  labs(title = "pLI scores",
+       x = "pLI Score",
+       y = "Count") 
+  
+  
+# For all detected proteins across modules  
+ggplot(pLI_Data_sub, aes(x = pLI, fill = Modules, y=..density..)) + 
+  geom_histogram(position = "dodge", binwidth = 0.2) + 
+  theme_minimal() +
+  labs(title = "pLI scores aacross modules",
+       x = "pLI Score",
+       y = "Count") +
+  scale_fill_identity(guide = "legend")
+
+
+# Violin not trimmed 
+ggplot(pLI_Data_sub, aes(x = Modules, y = pLI, fill = Modules)) + 
+  geom_violin(trim = FALSE) +
+  scale_fill_identity() +  
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "pLI scores across modules",
+       x = "Module",
+       y = "pLI Score")+
+  scale_fill_identity(guide = "legend")
+
+
+# Violin trimmed 
+ggplot(pLI_Data_sub, aes(x = Modules, y = pLI, fill = Modules)) + 
+  geom_violin(trim = TRUE) +
+  scale_fill_identity() +  
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "pLI scores across modules",
+       x = "Module",
+       y = "pLI Score")+
+  scale_fill_identity(guide = "legend")
+
+
+# Boxplot not trimmed 
+ggplot(pLI_Data_sub, aes(x = Modules, y = pLI, fill = Modules)) + 
+  geom_boxplot() +
+  scale_fill_identity() +  
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "pLI scores across modules",
+       x = "Module",
+       y = "pLI Score")+
+  scale_fill_identity(guide = "legend")
+
+
+# Systematic pairwise test for wilcoxon. Needs
+# one column called "Modules" and another "pLI"
+perform_pairwise_wilcoxon <- function(df) {
+  # Ensure the necessary package is installed and loaded
+  library(dplyr)
+  
+  # Get all unique pairs of modules
+  module_pairs <- combn(unique(df$Modules), 2, simplify = FALSE)
+
+  # Perform pairwise Wilcoxon tests
+  results <- lapply(module_pairs, function(pair) {
+    data1 <- df$pLI[df$Modules == pair[1]]
+    data2 <- df$pLI[df$Modules == pair[2]]
+    test_result <- wilcox.test(data1, data2, exact = FALSE)
+    
+    # Return a data frame with the module pair and p-value
+    data.frame(Module1 = pair[1], Module2 = pair[2], P_Value = test_result$p.value)
+  })
+
+  # Combine all results into a single data frame
+  results_df <- do.call(rbind, results)
+  
+  return(results_df)
+}
+
+pLI_wilcoxon_results <- perform_pairwise_wilcoxon(df = pLI_Data_sub)
+pLI_wilcoxon_results %>% head()
+
+
+pLI_wilcoxon_results_sig_05 <- pLI_wilcoxon_results[pLI_wilcoxon_results$P_Value < 0.05, ]
+pLI_wilcoxon_results_sig_05
+
+pLI_wilcoxon_results_sig_01 <- pLI_wilcoxon_results[pLI_wilcoxon_results$P_Value < 0.01, ]
+pLI_wilcoxon_results_sig_01
+
+pLI_wilcoxon_results_sig_001 <- pLI_wilcoxon_results[pLI_wilcoxon_results$P_Value < 0.001, ]
+pLI_wilcoxon_results_sig_001
+```
+
+
+# 3'UTR module comparisons 
+```{r uttr3}
+UTR_3_Length <- read.csv(file = "/Users/omarjohnson/Documents/Projects/Dox_Proteomics/Data/Proteomics/Data_sets/UTR_3/UTR_3_length.csv", header = TRUE)
+UTR_3_Length %>% head()
+
+UTR_3_Length_sub <- merge(UTR_3_Length, Toptable_Modules, by.x = "Uniprot", by.y = "Protein")
+  
+UTR_3_Length_sub %>% head()
+UTR_3_Length_sub %>% dim()
+
+
+# 3'UTR for all detected proteins  
+ggplot(UTR_3_Length_sub, aes(x = X3..UTR.length, y=..density..)) + 
+  geom_histogram(position = "dodge", binwidth = 500) + 
+  theme_minimal() +
+  labs(title = "",
+       x = "3'UTR Length",
+       y = "Count") 
+
+# Boxplot
+ggplot(UTR_3_Length_sub, aes(x = Modules, y = X3..UTR.length, fill = Modules)) + 
+  geom_boxplot() +
+  scale_fill_identity() +  
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "3'UTR length across modules",
+       x = "Module",
+       y = "pLI Score")+
+  scale_fill_identity(guide = "legend")
+
+
+# Boxplot trimmed 
+ggplot(UTR_3_Length_sub, aes(x = Modules, y = X3..UTR.length, fill = Modules)) + 
+  geom_boxplot() +
+  scale_fill_identity() +  
+  theme_minimal() +
+  ylim(c(0, 10000))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "3'UTR length across modules",
+       x = "Module",
+       y = "3'UTR length")+
+  scale_fill_identity(guide = "legend")
+
+# Violin
+ggplot(UTR_3_Length_sub, aes(x = Modules, y = X3..UTR.length, fill = Modules)) + 
+  geom_violin() +
+  scale_fill_identity() +  
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "3'UTR length across modules",
+       x = "Module",
+       y = "3'UTR length")+
+  scale_fill_identity(guide = "legend")
+
+
+# New function as before 
+perform_pairwise_wilcoxon_2 <- function(df) {
+  # Ensure the necessary package is installed and loaded
+  library(dplyr)
+  
+  # Get all unique pairs of modules
+  module_pairs <- combn(unique(df$Modules), 2, simplify = FALSE)
+
+  # Perform pairwise Wilcoxon tests
+  results <- lapply(module_pairs, function(pair) {
+    data1 <- df$X3..UTR.length[df$Modules == pair[1]]
+    data2 <- df$X3..UTR.length[df$Modules == pair[2]]
+    test_result <- wilcox.test(data1, data2, exact = FALSE)
+    
+    # Return a data frame with the module pair and p-value
+    data.frame(Module1 = pair[1], Module2 = pair[2], P_Value = test_result$p.value)
+  })
+
+  # Combine all results into a single data frame
+  results_df <- do.call(rbind, results)
+  
+  return(results_df)
+}
+
+
+
+# P-value cutoffs for signifigance
+UTR_3_comparisons <- perform_pairwise_wilcoxon_2(df =UTR_3_Length_sub )
+UTR_3_comparisons_sig <- UTR_3_comparisons[UTR_3_comparisons$P_Value < 0.05, ]
+UTR_3_comparisons_sig
+
+
+UTR_3_comparisons_sig_01 <-UTR_3_comparisons[UTR_3_comparisons$P_Value < 0.01, ]
+UTR_3_comparisons_sig_01
+
+UTR_3_comparisons_sig_001 <-UTR_3_comparisons[UTR_3_comparisons$P_Value < 0.001, ]
+UTR_3_comparisons_sig_001
+
+
+```
